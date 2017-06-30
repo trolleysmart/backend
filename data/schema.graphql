@@ -72,6 +72,8 @@ type PageInfo {
 
 type Query {
   user(username: String!): User
+  tags(after: String, first: Int, before: String, last: Int, description: String): TagTypeConnection
+  stores(after: String, first: Int, before: String, last: Int, name: String): StoreTypeConnection
 
   # Fetches an object given its ID
   node(
@@ -222,10 +224,52 @@ type StapleShoppingListEdge {
   cursor: String!
 }
 
-type Tag {
+type Store implements Node {
+  id: ID!
+  name: String
+  imageUrl: String
+}
+
+# A connection to a list of items.
+type StoreTypeConnection {
+  # Information to aid in pagination.
+  pageInfo: PageInfo!
+
+  # A list of edges.
+  edges: [StoreTypeEdge]
+}
+
+# An edge in a connection.
+type StoreTypeEdge {
+  # The item at the end of the edge
+  node: Store
+
+  # A cursor for use in pagination
+  cursor: String!
+}
+
+type Tag implements Node {
   id: ID!
   key: String
   description: String
+}
+
+# A connection to a list of items.
+type TagTypeConnection {
+  # Information to aid in pagination.
+  pageInfo: PageInfo!
+
+  # A list of edges.
+  edges: [TagTypeEdge]
+}
+
+# An edge in a connection.
+type TagTypeEdge {
+  # The item at the end of the edge
+  node: Tag
+
+  # A cursor for use in pagination
+  cursor: String!
 }
 
 type User implements Node {

@@ -3,7 +3,7 @@
 import { GraphQLID, GraphQLList, GraphQLObjectType, GraphQLString, GraphQLNonNull } from 'graphql';
 import { connectionDefinitions } from 'graphql-relay';
 import { NodeInterface } from '../interface';
-import tagType from './Tag';
+import Tag from './Tag';
 
 const stapleShoppingListType = new GraphQLObjectType({
   name: 'StapleShoppingList',
@@ -17,7 +17,7 @@ const stapleShoppingListType = new GraphQLObjectType({
       resolve: _ => _.get('description'),
     },
     tags: {
-      type: new GraphQLList(tagType),
+      type: new GraphQLList(Tag.TagType),
       resolve: _ => _.get('tags'),
     },
   },

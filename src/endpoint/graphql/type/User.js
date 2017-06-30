@@ -1,6 +1,6 @@
 // @flow
 
-import Immutable, { List, Map, Range, Set } from 'immutable';
+import { List, Map, Range } from 'immutable';
 import { GraphQLID, GraphQLObjectType, GraphQLString, GraphQLNonNull } from 'graphql';
 import { connectionArgs, connectionFromArray } from 'graphql-relay';
 import { Exception } from 'micro-business-parse-server-common';
@@ -9,78 +9,7 @@ import { NodeInterface } from '../interface';
 import SpecialConnectionDefinition from './Specials';
 import ShoppingListConnectionDefinition from './ShoppingList';
 import StapleShoppingListConnectionDefinition from './StapleShoppingList';
-
-const getLimitAndSkipValue = (args, count, defaultPageSize, maximumPageSize) => {
-  const { after, before } = args;
-  let { first, last } = args;
-
-  if ((first || after) && (last || before)) {
-    throw new Exception('Mixing first and after with last and before is not supported.');
-  }
-
-  let limit;
-  let skip;
-
-  if (first || after) {
-    if (!first) {
-      first = defaultPageSize;
-    }
-  } else if (last || before) {
-    if (!last) {
-      last = defaultPageSize;
-    }
-  } else {
-    first = defaultPageSize;
-  }
-
-  if (first > maximumPageSize) {
-    first = maximumPageSize;
-  }
-
-  if (last > maximumPageSize) {
-    last = maximumPageSize;
-  }
-
-  if (first && after) {
-    const afterValue = parseInt(after, 10);
-
-    limit = first;
-    skip = afterValue;
-  } else if (first) {
-    limit = first;
-    skip = 0;
-  } else if (last && before) {
-    const beforeValue = parseInt(before, 10);
-
-    limit = last;
-    skip = beforeValue.idx - last;
-
-    if (skip < 0) {
-      skip = 0;
-    }
-  } else if (last) {
-    limit = last;
-    skip = 0;
-  }
-
-  const hasNextPage = skip + limit < count;
-  const hasPreviousPage = skip !== 0;
-
-  return {
-    limit,
-    skip,
-    hasNextPage,
-    hasPreviousPage,
-  };
-};
-
-const convertDescriptionArgumentToSet = (description) => {
-  if (description) {
-    return Immutable.fromJS(description.replace(/\W/g, ' ').trim().toLowerCase().split(' ')).map(_ => _.trim()).filter(_ => _.length > 0).toSet();
-  }
-
-  return Set();
-};
+import { getLimitAndSkipValue, convertStringArgumentToSet } from './Common';
 
 const addSortOptionToCriteria = (criteria, sortOption) => {
   if (sortOption && sortOption.localeCompare('DescriptionDescending') === 0) {
@@ -117,7 +46,7 @@ const getMasterProductMatchCriteria = async (limit, skip, descriptions, sortOpti
 };
 
 const getMasterProductPriceItems = async (args) => {
-  const descriptions = convertDescriptionArgumentToSet(args.description);
+  const descriptions = convertStringArgumentToSet(args.description);
   const count = await getMasterProductCountMatchCriteria(descriptions, args.sortOption);
   const { limit, skip, hasNextPage, hasPreviousPage } = getLimitAndSkipValue(args, count, 10, 1000);
   const masterProductPriceItems = await getMasterProductMatchCriteria(limit, skip, descriptions, args.sortOption);
@@ -221,7 +150,7 @@ const getMasterProductPriceInfo = async (ids) => {
 };
 
 const getShoppingListItems = async (userId, args) => {
-  const descriptions = convertDescriptionArgumentToSet(args.description);
+  const descriptions = convertStringArgumentToSet(args.description);
   const shoppingListItems = await getShoppingListMatchCriteria(userId, descriptions);
 
   const stapleShoppingListInInShoppingList = shoppingListItems.filter(item => item.get('stapleShoppingList'));
@@ -300,7 +229,6 @@ const getStapleShoppingListCountMatchCriteria = async (userId, descriptions) => 
     conditions: Map({
       userId,
       contains_descriptions: descriptions,
-      not_specialType: 'none',
     }),
   });
 
@@ -314,7 +242,6 @@ const getStapleShoppingListMatchCriteria = async (limit, skip, userId, descripti
     conditions: Map({
       userId,
       contains_descriptions: descriptions,
-      not_specialType: 'none',
     }),
   });
 
@@ -322,7 +249,7 @@ const getStapleShoppingListMatchCriteria = async (limit, skip, userId, descripti
 };
 
 const getStapleShoppingListItems = async (userId, args) => {
-  const descriptions = convertDescriptionArgumentToSet(args.description);
+  const descriptions = convertStringArgumentToSet(args.description);
   const count = await getStapleShoppingListCountMatchCriteria(userId, descriptions);
   const { limit, skip, hasNextPage, hasPreviousPage } = getLimitAndSkipValue(args, count, 10, 1000);
   const stapleShoppingListItems = await getStapleShoppingListMatchCriteria(limit, skip, userId, descriptions);
