@@ -72,8 +72,7 @@ type PageInfo {
 
 type Query {
   user(username: String!): User
-  tags(after: String, first: Int, before: String, last: Int, description: String): TagTypeConnection
-  stores(after: String, first: Int, before: String, last: Int, name: String): StoreTypeConnection
+  viewer: Viewer
 
   # Fetches an object given its ID
   node(
@@ -278,4 +277,10 @@ type User implements Node {
   specials(after: String, first: Int, before: String, last: Int, description: String, sortOption: String): SpecialConnection
   shoppingList(after: String, first: Int, before: String, last: Int, description: String): ShoppingListConnection
   stapleShoppingList(after: String, first: Int, before: String, last: Int, description: String): StapleShoppingListConnection
+}
+
+type Viewer implements Node {
+  id: ID!
+  tags(after: String, first: Int, before: String, last: Int, description: String): TagTypeConnection
+  stores(after: String, first: Int, before: String, last: Int, name: String): StoreTypeConnection
 }

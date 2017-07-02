@@ -1,11 +1,10 @@
 // @flow
 
+import { Map } from 'immutable';
 import { GraphQLObjectType, GraphQLString, GraphQLNonNull } from 'graphql';
-import { connectionArgs } from 'graphql-relay';
 import { UserService } from 'micro-business-parse-server-common';
+import ViewerType from './Viewer';
 import UserType from './User';
-import Tag, { getTags } from './Tag';
-import Store, { getStores } from './Store';
 import { NodeField } from '../interface';
 
 const rootQueryType = new GraphQLObjectType({
@@ -20,25 +19,9 @@ const rootQueryType = new GraphQLObjectType({
       },
       resolve: (_, args) => UserService.getUserInfo(args.username),
     },
-    tags: {
-      type: Tag.TagConnectionDefinition.connectionType,
-      args: {
-        ...connectionArgs,
-        description: {
-          type: GraphQLString,
-        },
-      },
-      resolve: async (_, args) => getTags(args),
-    },
-    stores: {
-      type: Store.StoreConnectionDefinition.connectionType,
-      args: {
-        ...connectionArgs,
-        name: {
-          type: GraphQLString,
-        },
-      },
-      resolve: async (_, args) => getStores(args),
+    viewer: {
+      type: ViewerType,
+      resolve: () => Map({ id: 'ViewerId' }),
     },
     node: NodeField,
   },
