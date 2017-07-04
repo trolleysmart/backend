@@ -31,10 +31,10 @@
     "graphql-fields": "^1.0.2",
     "graphql-relay": "^0.5.2",
     "immutable": "^3.8.1",
-    "micro-business-parse-server-backend": "^0.1.38",
+    "micro-business-parse-server-backend": "^0.1.39",
     "micro-business-parse-server-common": "^0.1.80",
     "newrelic": "^1.40.0",
-    "smart-grocery-parse-server-common": "^0.1.164"
+    "smart-grocery-parse-server-common": "^0.1.165"
   },
   "devDependencies": {
     "babel-eslint": "^7.2.3",
