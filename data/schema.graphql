@@ -250,7 +250,10 @@ type StoreTypeEdge {
 type Tag implements Node {
   id: ID!
   key: String
-  description: String
+  name: String
+  weight: Int
+  forDisplay: Boolean
+  parentTagIds: [ID]
 }
 
 # A connection to a list of items.
@@ -281,6 +284,6 @@ type User implements Node {
 
 type Viewer implements Node {
   id: ID!
-  tags(after: String, first: Int, before: String, last: Int, description: String): TagTypeConnection
+  tags(after: String, first: Int, before: String, last: Int, name: String): TagTypeConnection
   stores(after: String, first: Int, before: String, last: Int, name: String): StoreTypeConnection
 }
