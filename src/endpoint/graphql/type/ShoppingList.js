@@ -183,7 +183,6 @@ const getMasterProductPriceInfo = async (ids) => {
 export const getShoppingList = async (userId, args) => {
   const names = convertStringArgumentToSet(args.name);
   const shoppingListItems = await getShoppingListMatchCriteria(userId, names);
-
   const stapleShoppingListInInShoppingList = shoppingListItems.filter(item => item.get('stapleShoppingList'));
   const masterProductPriceInShoppingList = shoppingListItems.filter(item => item.get('masterProductPrice'));
   const stapleShoppingListIds = stapleShoppingListInInShoppingList.map(item => item.get('stapleShoppingListId'));
