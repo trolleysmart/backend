@@ -35,8 +35,8 @@ type AddStapleShoppingListItemToUserShoppingListPayload {
 }
 
 type MultiBuy {
-  count: Int
-  price: Float
+  awardQuantity: Int
+  awardValue: Float
 }
 
 type Mutation {
@@ -167,18 +167,20 @@ type ShoppingListEdge {
 
 type Special implements Node {
   id: ID!
+  name: String
   description: String
   imageUrl: String
   barcode: String
   specialType: String
-  price: Float
+  priceToDisplay: Float
+  currentPrice: Float
   wasPrice: Float
   multiBuy: MultiBuy
   storeName: String
   storeImageUrl: String
-  comments: String
-  unitSize: String
+  unitPrice: UnitPrice
   expiryDate: String
+  comments: String
 }
 
 # A connection to a list of items.
@@ -274,10 +276,15 @@ type TagTypeEdge {
   cursor: String!
 }
 
+type UnitPrice {
+  price: Float
+  size: String
+}
+
 type User implements Node {
   id: ID!
   username: String
-  specials(after: String, first: Int, before: String, last: Int, description: String, sortOption: String, tags: [String]): SpecialConnection
+  specials(after: String, first: Int, before: String, last: Int, name: String, description: String, sortOption: String, tags: [String]): SpecialConnection
   shoppingList(after: String, first: Int, before: String, last: Int, description: String): ShoppingListConnection
   stapleShoppingList(after: String, first: Int, before: String, last: Int, description: String): StapleShoppingListConnection
 }

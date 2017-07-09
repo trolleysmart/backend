@@ -1,16 +1,24 @@
 // @flow
 
+import Immutable, { Map, Range } from 'immutable';
 import { GraphQLID, GraphQLFloat, GraphQLObjectType, GraphQLString, GraphQLNonNull } from 'graphql';
 import { connectionDefinitions } from 'graphql-relay';
+import { MasterProductPriceService } from 'smart-grocery-parse-server-common';
 import { NodeInterface } from '../interface';
 import multiBuyType from './MultiBuy';
+import unitPriceType from './UnitPrice';
+import { getLimitAndSkipValue, convertStringArgumentToSet } from './Common';
 
-const specialType = new GraphQLObjectType({
+const SpecialType = new GraphQLObjectType({
   name: 'Special',
   fields: {
     id: {
       type: new GraphQLNonNull(GraphQLID),
       resolve: _ => _.get('id'),
+    },
+    name: {
+      type: GraphQLString,
+      resolve: _ => _.getIn(['masterProduct', 'name']),
     },
     description: {
       type: GraphQLString,
@@ -28,9 +36,13 @@ const specialType = new GraphQLObjectType({
       type: GraphQLString,
       resolve: _ => _.getIn(['priceDetails', 'specialType']),
     },
-    price: {
+    priceToDisplay: {
       type: GraphQLFloat,
-      resolve: _ => _.getIn(['priceDetails', 'price']),
+      resolve: _ => _.get('priceToDisplay'),
+    },
+    currentPrice: {
+      type: GraphQLFloat,
+      resolve: _ => _.getIn(['priceDetails', 'currentPrice']),
     },
     wasPrice: {
       type: GraphQLFloat,
@@ -48,17 +60,17 @@ const specialType = new GraphQLObjectType({
       type: GraphQLString,
       resolve: _ => _.getIn(['store', 'imageUrl']),
     },
-    comments: {
-      type: GraphQLString,
-      resolve: () => '',
-    },
-    unitSize: {
-      type: GraphQLString,
-      resolve: () => '',
+    unitPrice: {
+      type: unitPriceType,
+      resolve: _ => _.getIn(['priceDetails', 'unitPrice']),
     },
     expiryDate: {
       type: GraphQLString,
       resolve: () => new Date().toISOString(),
+    },
+    comments: {
+      type: GraphQLString,
+      resolve: () => '',
     },
   },
   interfaces: [NodeInterface],
@@ -66,7 +78,63 @@ const specialType = new GraphQLObjectType({
 
 const SpecialConnectionDefinition = connectionDefinitions({
   name: 'Special',
-  nodeType: specialType,
+  nodeType: SpecialType,
 });
 
-export default SpecialConnectionDefinition;
+const getCriteria = (names, descriptions, sortOption, tags) =>
+  Map({
+    includeStore: true,
+    includeMasterProduct: true,
+    conditions: Map({
+      contains_names: names,
+      contains_descriptions: descriptions,
+      not_specialType: 'none',
+      tagIds: tags ? Immutable.fromJS(tags) : undefined,
+    }),
+  });
+
+const addSortOptionToCriteria = (criteria, sortOption) => {
+  if (sortOption && sortOption.localeCompare('NameDescending') === 0) {
+    return criteria.set('orderByFieldDescending', 'name');
+  }
+
+  return criteria.set('orderByFieldAscending', 'name');
+};
+
+const getMasterProductCountMatchCriteria = async (names, descriptions, sortOption, tags) =>
+  MasterProductPriceService.count(addSortOptionToCriteria(getCriteria(names, descriptions, sortOption, tags), sortOption));
+
+const getMasterProductMatchCriteria = async (limit, skip, names, descriptions, sortOption, tags) =>
+  MasterProductPriceService.search(
+    addSortOptionToCriteria(getCriteria(names, descriptions, sortOption, tags), sortOption).set('limit', limit).set('skip', skip),
+  );
+
+export const getSpecials = async (args) => {
+  const names = convertStringArgumentToSet(args.name);
+  const descriptions = convertStringArgumentToSet(args.description);
+  const count = await getMasterProductCountMatchCriteria(names, descriptions, args.sortOption, args.tags);
+  const { limit, skip, hasNextPage, hasPreviousPage } = getLimitAndSkipValue(args, count, 10, 1000);
+  const masterProductPriceItems = await getMasterProductMatchCriteria(limit, skip, names, descriptions, args.sortOption, args.tags);
+  const indexedMasterProductPriceItems = masterProductPriceItems.zip(Range(skip, skip + limit));
+
+  const edges = indexedMasterProductPriceItems.map(indexedItem => ({
+    node: indexedItem[0],
+    cursor: indexedItem[1] + 1,
+  }));
+
+  const firstEdge = edges.first();
+  const lastEdge = edges.last();
+
+  return {
+    edges: edges.toArray(),
+    count,
+    pageInfo: {
+      startCursor: firstEdge ? firstEdge.cursor : null,
+      endCursor: lastEdge ? lastEdge.cursor : null,
+      hasPreviousPage,
+      hasNextPage,
+    },
+  };
+};
+
+export default { SpecialType, SpecialConnectionDefinition };

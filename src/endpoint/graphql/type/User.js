@@ -1,78 +1,15 @@
 // @flow
 
-import Immutable, { List, Map, Range } from 'immutable';
+import { List, Map, Range } from 'immutable';
 import { GraphQLID, GraphQLObjectType, GraphQLString, GraphQLNonNull, GraphQLList } from 'graphql';
 import { connectionArgs, connectionFromArray } from 'graphql-relay';
 import { Exception } from 'micro-business-parse-server-common';
 import { MasterProductPriceService, ShoppingListService, StapleShoppingListService } from 'smart-grocery-parse-server-common';
 import { NodeInterface } from '../interface';
-import SpecialConnectionDefinition from './Specials';
+import Specials, { getSpecials } from './Specials';
 import ShoppingListConnectionDefinition from './ShoppingList';
 import StapleShoppingListConnectionDefinition from './StapleShoppingList';
 import { getLimitAndSkipValue, convertStringArgumentToSet } from './Common';
-
-const addSortOptionToCriteria = (criteria, sortOption) => {
-  if (sortOption && sortOption.localeCompare('DescriptionDescending') === 0) {
-    return criteria.set('orderByFieldDescending', 'description');
-  }
-
-  return criteria.set('orderByFieldAscending', 'description');
-};
-
-const getMasterProductCountMatchCriteria = async (descriptions, sortOption, tags) => {
-  const criteria = Map({
-    includeStore: true,
-    includeMasterProduct: true,
-    conditions: Map({
-      contains_descriptions: descriptions,
-      not_specialType: 'none',
-      tagIds: tags ? Immutable.fromJS(tags) : undefined,
-    }),
-  });
-
-  return MasterProductPriceService.count(addSortOptionToCriteria(criteria, sortOption));
-};
-
-const getMasterProductMatchCriteria = async (limit, skip, descriptions, sortOption, tags) => {
-  const criteria = Map({
-    includeStore: true,
-    includeMasterProduct: true,
-    conditions: Map({
-      contains_descriptions: descriptions,
-      not_specialType: 'none',
-      tagIds: tags ? Immutable.fromJS(tags) : undefined,
-    }),
-  });
-
-  return MasterProductPriceService.search(addSortOptionToCriteria(criteria, sortOption).set('limit', limit).set('skip', skip));
-};
-
-const getMasterProductPriceItems = async (args) => {
-  const descriptions = convertStringArgumentToSet(args.description);
-  const count = await getMasterProductCountMatchCriteria(descriptions, args.sortOption, args.tags);
-  const { limit, skip, hasNextPage, hasPreviousPage } = getLimitAndSkipValue(args, count, 10, 1000);
-  const masterProductPriceItems = await getMasterProductMatchCriteria(limit, skip, descriptions, args.sortOption, args.tags);
-  const indexedMasterProductPriceItems = masterProductPriceItems.zip(Range(skip, skip + limit));
-
-  const edges = indexedMasterProductPriceItems.map(indexedItem => ({
-    node: indexedItem[0],
-    cursor: indexedItem[1] + 1,
-  }));
-
-  const firstEdge = edges.first();
-  const lastEdge = edges.last();
-
-  return {
-    edges: edges.toArray(),
-    count,
-    pageInfo: {
-      startCursor: firstEdge ? firstEdge.cursor : null,
-      endCursor: lastEdge ? lastEdge.cursor : null,
-      hasPreviousPage,
-      hasNextPage,
-    },
-  };
-};
 
 const getShoppingListMatchCriteria = async (userId, descriptions) => {
   let shoppingListItems = List();
@@ -289,9 +226,12 @@ export default new GraphQLObjectType({
       resolve: _ => _.get('username'),
     },
     specials: {
-      type: SpecialConnectionDefinition.connectionType,
+      type: Specials.SpecialConnectionDefinition.connectionType,
       args: {
         ...connectionArgs,
+        name: {
+          type: GraphQLString,
+        },
         description: {
           type: GraphQLString,
         },
@@ -302,7 +242,7 @@ export default new GraphQLObjectType({
           type: new GraphQLList(GraphQLString),
         },
       },
-      resolve: async (_, args) => getMasterProductPriceItems(args),
+      resolve: async (_, args) => getSpecials(args),
     },
     shoppingList: {
       type: ShoppingListConnectionDefinition.connectionType,
