@@ -133,6 +133,7 @@ type ShoppingList implements Node {
   stapleShoppingListId: ID
   specialId: ID
   name: String
+  description: String
   imageUrl: String
   barcode: String
   specialType: String
