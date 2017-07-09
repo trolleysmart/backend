@@ -9,7 +9,7 @@ export default mutationWithClientMutationId({
   name: 'AddNewStapleShoppingListToShoppingList',
   inputFields: {
     userId: { type: new GraphQLNonNull(GraphQLID) },
-    description: { type: new GraphQLNonNull(GraphQLID) },
+    name: { type: new GraphQLNonNull(GraphQLString) },
   },
   outputFields: {
     errorMessage: {
@@ -23,5 +23,5 @@ export default mutationWithClientMutationId({
       }),
     },
   },
-  mutateAndGetPayload: async ({ userId, description }) => addNewStapleShoppingListToShoppingList(userId, description),
+  mutateAndGetPayload: async ({ userId, name }) => addNewStapleShoppingListToShoppingList(userId, name),
 });

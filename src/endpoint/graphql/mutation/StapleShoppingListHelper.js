@@ -7,9 +7,9 @@ import { StapleShoppingListService, StapleTemplateShoppingListService, ShoppingL
 
 const splitIntoChunks = (list, chunkSize) => Range(0, list.count(), chunkSize).map(chunkStart => list.slice(chunkStart, chunkStart + chunkSize));
 
-const removeDescriptionInvalidCharacters = (description) => {
-  if (description) {
-    return Immutable.fromJS(description.replace(/\W/g, ' ').trim().split(' '))
+const removeNameInvalidCharacters = (name) => {
+  if (name) {
+    return Immutable.fromJS(name.replace(/\W/g, ' ').trim().split(' '))
       .map(_ => _.trim())
       .filter(_ => _.length > 0)
       .reduce((reduction, value) => `${reduction} ${value}`);
@@ -18,21 +18,21 @@ const removeDescriptionInvalidCharacters = (description) => {
   return '';
 };
 
-const getStapleShoppingListItems = async (userId, description) => {
+const getStapleShoppingListItems = async (userId, name) => {
   const criteria = Map({
     conditions: Map({
       userId,
-      description: description.toLowerCase(),
+      name: name.toLowerCase(),
     }),
   });
 
   return StapleShoppingListService.search(criteria);
 };
 
-const getStapleTemplateShoppingListItems = async (description) => {
+const getStapleTemplateShoppingListItems = async (name) => {
   const criteria = Map({
     conditions: Map({
-      description: description.toLowerCase(),
+      name: name.toLowerCase(),
     }),
   });
 
@@ -82,16 +82,14 @@ const getAllShoppingListContainsStapleShoppingListItemId = async (userId, staple
 export const addStapleShoppingListItemToUserShoppingList = async (userId, stapleShoppingListItemId) => {
   try {
     const stapleShoppingList = await getStapleShoppingListById(userId, stapleShoppingListItemId);
-    await ShoppingListService.create(
-      Map({ userId, stapleShoppingListId: stapleShoppingListItemId, description: stapleShoppingList.get('description') }),
-    );
+    await ShoppingListService.create(Map({ userId, stapleShoppingListId: stapleShoppingListItemId, name: stapleShoppingList.get('name') }));
     const shoppingListItems = await getAllShoppingListContainsStapleShoppingListItemId(userId, stapleShoppingListItemId);
 
     return {
       item: Map({
         shoppingListIds: shoppingListItems.map(item => item.get('id')),
         stapleShoppingListId: stapleShoppingList.get('id'),
-        description: stapleShoppingList.get('description'),
+        name: stapleShoppingList.get('name'),
         quantity: shoppingListItems.count(),
       }),
     };
@@ -100,22 +98,22 @@ export const addStapleShoppingListItemToUserShoppingList = async (userId, staple
   }
 };
 
-export const addNewStapleShoppingListToShoppingList = async (userId, description) => {
+export const addNewStapleShoppingListToShoppingList = async (userId, name) => {
   try {
-    const trimmedDescription = removeDescriptionInvalidCharacters(description);
+    const trimmedName = removeNameInvalidCharacters(name);
 
-    if (trimmedDescription.length === 0) {
-      throw new Exception('Description is invalid.');
+    if (trimmedName.length === 0) {
+      throw new Exception('Name is invalid.');
     }
 
-    const stapleShoppingListItems = await getStapleShoppingListItems(userId, trimmedDescription);
+    const stapleShoppingListItems = await getStapleShoppingListItems(userId, trimmedName);
     let stapleShoppingListItemId;
 
     if (stapleShoppingListItems.isEmpty()) {
-      const stapleTemplateShoppingListItems = await getStapleTemplateShoppingListItems(trimmedDescription);
+      const stapleTemplateShoppingListItems = await getStapleTemplateShoppingListItems(trimmedName);
 
       if (stapleTemplateShoppingListItems.isEmpty()) {
-        stapleShoppingListItemId = await StapleShoppingListService.create(Map({ userId, description }));
+        stapleShoppingListItemId = await StapleShoppingListService.create(Map({ userId, name }));
       } else {
         stapleShoppingListItemId = await StapleShoppingListService.create(stapleTemplateShoppingListItems.first().set('userId', userId));
       }
@@ -149,7 +147,7 @@ export const removeStapleShoppingListItemFromUserShoppingList = async (userId, s
       item: Map({
         shoppingListIds: shoppingListItems.skip(1).map(item => item.get('id')),
         stapleShoppingListId: stapleShoppingList.get('id'),
-        description: stapleShoppingList.get('description'),
+        name: stapleShoppingList.get('name'),
         quantity: shoppingListItems.count() - 1,
       }),
     };
