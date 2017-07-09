@@ -221,15 +221,16 @@ export const getShoppingList = async (userId, args) => {
           imageUrl: foundItem.getIn(['masterProduct', 'imageUrl']),
           barcode: foundItem.getIn(['masterProduct', 'barcode']),
           specialType: foundItem.getIn(['priceDetails', 'specialType']),
-          price: foundItem.getIn(['priceDetails', 'price']),
+          priceToDisplay: foundItem.get('priceToDisplay'),
+          currentPrice: foundItem.getIn(['priceDetails', 'currentPrice']),
           wasPrice: foundItem.getIn(['priceDetails', 'wasPrice']),
           multiBuyInfo: foundItem.getIn(['priceDetails', 'multiBuyInfo']),
           storeName: foundItem.getIn(['store', 'name']),
           storeImageUrl: foundItem.getIn(['store', 'imageUrl']),
-          comments: '',
-          unitSize: '',
+          unitPrice: foundItem.getIn(['priceDetails', 'unitPrice']),
           expiryDate: new Date().toISOString(),
           quantity: groupedMasterProductPriceIds.get(foundItem.get('id')).size,
+          comments: '',
         });
       }
 
