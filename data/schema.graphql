@@ -1,6 +1,6 @@
 input AddNewStapleShoppingListToShoppingListInput {
   userId: ID!
-  description: ID!
+  name: String!
   clientMutationId: String
 }
 
