@@ -86,9 +86,9 @@ const ShoppingListType = new GraphQLObjectType({
       type: unitPriceType,
       resolve: _ => _.get('unitPrice'),
     },
-    expiryDate: {
+    offerEndDate: {
       type: GraphQLString,
-      resolve: _ => _.get('expiryDate'),
+      resolve: _ => _.get('offerEndDate'),
     },
     quantity: {
       type: GraphQLInt,
@@ -232,7 +232,7 @@ export const getShoppingList = async (userId, args) => {
           storeName: foundItem.getIn(['store', 'name']),
           storeImageUrl: foundItem.getIn(['store', 'imageUrl']),
           unitPrice: foundItem.getIn(['priceDetails', 'unitPrice']),
-          expiryDate: new Date().toISOString(),
+          offerEndDate: foundItem.getIn(['priceDetails', 'offerEndDate']),
           quantity: groupedMasterProductPriceIds.get(foundItem.get('id')).size,
           comments: '',
         });

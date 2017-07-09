@@ -772,7 +772,7 @@
               "deprecationReason": null
             },
             {
-              "name": "expiryDate",
+              "name": "offerEndDate",
               "description": null,
               "args": [],
               "type": {
@@ -1179,7 +1179,7 @@
               "deprecationReason": null
             },
             {
-              "name": "expiryDate",
+              "name": "offerEndDate",
               "description": null,
               "args": [],
               "type": {

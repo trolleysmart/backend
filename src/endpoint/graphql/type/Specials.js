@@ -64,9 +64,9 @@ const SpecialType = new GraphQLObjectType({
       type: unitPriceType,
       resolve: _ => _.getIn(['priceDetails', 'unitPrice']),
     },
-    expiryDate: {
+    offerEndDate: {
       type: GraphQLString,
-      resolve: () => new Date().toISOString(),
+      resolve: _ => _.getIn(['priceDetails', 'offerEndDate']),
     },
     comments: {
       type: GraphQLString,

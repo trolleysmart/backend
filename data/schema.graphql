@@ -144,7 +144,7 @@ type ShoppingList implements Node {
   storeName: String
   storeImageUrl: String
   unitPrice: UnitPrice
-  expiryDate: String
+  offerEndDate: String
   quantity: Int
   comments: String
 }
@@ -181,7 +181,7 @@ type Special implements Node {
   storeName: String
   storeImageUrl: String
   unitPrice: UnitPrice
-  expiryDate: String
+  offerEndDate: String
   comments: String
 }
 
