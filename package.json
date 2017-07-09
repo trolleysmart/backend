@@ -31,21 +31,21 @@
     "graphql-fields": "^1.0.2",
     "graphql-relay": "^0.5.2",
     "immutable": "^3.8.1",
-    "micro-business-parse-server-backend": "^0.1.39",
-    "micro-business-parse-server-common": "^0.1.80",
+    "micro-business-parse-server-backend": "^0.1.40",
+    "micro-business-parse-server-common": "^0.1.82",
     "newrelic": "^1.40.0",
-    "smart-grocery-parse-server-common": "^0.1.165"
+    "smart-grocery-parse-server-common": "^0.1.174"
   },
   "devDependencies": {
     "babel-eslint": "^7.2.3",
     "eslint": "^3.19.0",
-    "eslint-config-airbnb": "^15.0.1",
+    "eslint-config-airbnb": "^15.0.2",
     "eslint-plugin-import": "^2.3.0",
     "eslint-plugin-jsx-a11y": "5.0.3",
     "eslint-plugin-react": "^7.1.0",
     "flow-bin": "^0.49.1",
     "jest": "^20.0.4",
-    "lint-staged": "^4.0.0",
+    "lint-staged": "^4.0.1",
     "nodemon": "^1.11.0",
     "prettier": "^1.5.2",
     "uuid": "^3.1.0"

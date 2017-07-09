@@ -17,7 +17,7 @@ export default new GraphQLObjectType({
       type: Tag.TagConnectionDefinition.connectionType,
       args: {
         ...connectionArgs,
-        description: {
+        name: {
           type: GraphQLString,
         },
       },

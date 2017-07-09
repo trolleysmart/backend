@@ -1,7 +1,7 @@
 // @flow
 
 import { Map, Range } from 'immutable';
-import { GraphQLID, GraphQLObjectType, GraphQLString, GraphQLNonNull } from 'graphql';
+import { GraphQLBoolean, GraphQLID, GraphQLInt, GraphQLList, GraphQLObjectType, GraphQLString, GraphQLNonNull } from 'graphql';
 import { connectionDefinitions } from 'graphql-relay';
 import { TagService } from 'smart-grocery-parse-server-common';
 import { getLimitAndSkipValue, convertStringArgumentToSet } from './Common';
@@ -18,9 +18,21 @@ const TagType = new GraphQLObjectType({
       type: GraphQLString,
       resolve: _ => _.get('key'),
     },
-    description: {
+    name: {
       type: GraphQLString,
-      resolve: _ => _.get('description'),
+      resolve: _ => _.get('name'),
+    },
+    weight: {
+      type: GraphQLInt,
+      resolve: _ => _.get('weight'),
+    },
+    forDisplay: {
+      type: GraphQLBoolean,
+      resolve: _ => _.get('forDisplay'),
+    },
+    parentTagIds: {
+      type: new GraphQLList(GraphQLID),
+      resolve: _ => _.get('tagIds') || [],
     },
   },
   interfaces: [NodeInterface],
@@ -31,33 +43,24 @@ const TagConnectionDefinition = connectionDefinitions({
   nodeType: TagType,
 });
 
-const getTagsCountMatchCriteria = async (descriptions) => {
-  const criteria = Map({
-    orderByFieldAscending: 'description',
+const getCriteria = names =>
+  Map({
+    orderByFieldAscending: 'name',
     conditions: Map({
-      contains_descriptions: descriptions,
+      contains_names: names,
+      forDisplay: true,
     }),
   });
 
-  return TagService.count(criteria);
-};
+const getTagsCountMatchCriteria = async names => TagService.count(getCriteria(names));
 
-const getTagsMatchCriteria = async (limit, skip, descriptions) => {
-  const criteria = Map({
-    orderByFieldAscending: 'description',
-    conditions: Map({
-      contains_descriptions: descriptions,
-    }),
-  });
-
-  return TagService.search(criteria.set('limit', limit).set('skip', skip));
-};
+const getTagsMatchCriteria = async (limit, skip, names) => TagService.search(getCriteria(names).set('limit', limit).set('skip', skip));
 
 export const getTags = async (args) => {
-  const descriptions = convertStringArgumentToSet(args.description);
-  const count = await getTagsCountMatchCriteria(descriptions);
+  const names = convertStringArgumentToSet(args.name);
+  const count = await getTagsCountMatchCriteria(names);
   const { limit, skip, hasNextPage, hasPreviousPage } = getLimitAndSkipValue(args, count, 10, 1000);
-  const tags = await getTagsMatchCriteria(limit, skip, descriptions);
+  const tags = await getTagsMatchCriteria(limit, skip, names);
   const indexedTags = tags.zip(Range(skip, skip + limit));
 
   const edges = indexedTags.map(indexedItem => ({
