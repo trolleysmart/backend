@@ -22,7 +22,7 @@ const getStapleShoppingListItems = async (userId, name) => {
   const criteria = Map({
     conditions: Map({
       userId,
-      name: name.toLowerCase(),
+      name,
     }),
   });
 
@@ -32,7 +32,7 @@ const getStapleShoppingListItems = async (userId, name) => {
 const getStapleTemplateShoppingListItems = async (name) => {
   const criteria = Map({
     conditions: Map({
-      name: name.toLowerCase(),
+      name,
     }),
   });
 
