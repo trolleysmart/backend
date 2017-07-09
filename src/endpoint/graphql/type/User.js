@@ -1,6 +1,6 @@
 // @flow
 
-import { List, Map, Range } from 'immutable';
+import { List, Map } from 'immutable';
 import { GraphQLID, GraphQLObjectType, GraphQLString, GraphQLNonNull, GraphQLList } from 'graphql';
 import { connectionArgs, connectionFromArray } from 'graphql-relay';
 import { Exception } from 'micro-business-parse-server-common';
@@ -8,8 +8,8 @@ import { MasterProductPriceService, ShoppingListService, StapleShoppingListServi
 import { NodeInterface } from '../interface';
 import Specials, { getSpecials } from './Specials';
 import ShoppingListConnectionDefinition from './ShoppingList';
-import StapleShoppingListConnectionDefinition from './StapleShoppingList';
-import { getLimitAndSkipValue, convertStringArgumentToSet } from './Common';
+import StapleShoppingList, { getStapleShoppingList } from './StapleShoppingList';
+import { convertStringArgumentToSet } from './Common';
 
 const getShoppingListMatchCriteria = async (userId, descriptions) => {
   let shoppingListItems = List();
@@ -161,59 +161,6 @@ const getShoppingListItems = async (userId, args) => {
   return connectionFromArray(completeList.toArray(), args);
 };
 
-const getStapleShoppingListCountMatchCriteria = async (userId, descriptions) => {
-  const criteria = Map({
-    includeTags: true,
-    orderByFieldAscending: 'description',
-    conditions: Map({
-      userId,
-      contains_descriptions: descriptions,
-    }),
-  });
-
-  return StapleShoppingListService.count(criteria);
-};
-
-const getStapleShoppingListMatchCriteria = async (limit, skip, userId, descriptions) => {
-  const criteria = Map({
-    includeTags: true,
-    orderByFieldAscending: 'description',
-    conditions: Map({
-      userId,
-      contains_descriptions: descriptions,
-    }),
-  });
-
-  return StapleShoppingListService.search(criteria.set('limit', limit).set('skip', skip));
-};
-
-const getStapleShoppingListItems = async (userId, args) => {
-  const descriptions = convertStringArgumentToSet(args.description);
-  const count = await getStapleShoppingListCountMatchCriteria(userId, descriptions);
-  const { limit, skip, hasNextPage, hasPreviousPage } = getLimitAndSkipValue(args, count, 10, 1000);
-  const stapleShoppingListItems = await getStapleShoppingListMatchCriteria(limit, skip, userId, descriptions);
-  const indexedStapleShoppingListItems = stapleShoppingListItems.zip(Range(skip, skip + limit));
-
-  const edges = indexedStapleShoppingListItems.map(indexedItem => ({
-    node: indexedItem[0],
-    cursor: indexedItem[1] + 1,
-  }));
-
-  const firstEdge = edges.first();
-  const lastEdge = edges.last();
-
-  return {
-    edges: edges.toArray(),
-    count,
-    pageInfo: {
-      startCursor: firstEdge ? firstEdge.cursor : null,
-      endCursor: lastEdge ? lastEdge.cursor : null,
-      hasPreviousPage,
-      hasNextPage,
-    },
-  };
-};
-
 export default new GraphQLObjectType({
   name: 'User',
   fields: {
@@ -255,14 +202,14 @@ export default new GraphQLObjectType({
       resolve: async (_, args) => getShoppingListItems(_.get('id'), args),
     },
     stapleShoppingList: {
-      type: StapleShoppingListConnectionDefinition.connectionType,
+      type: StapleShoppingList.StapleShoppingListConnectionDefinition.connectionType,
       args: {
         ...connectionArgs,
-        description: {
+        name: {
           type: GraphQLString,
         },
       },
-      resolve: async (_, args) => getStapleShoppingListItems(_.get('id'), args),
+      resolve: async (_, args) => getStapleShoppingList(_.get('id'), args),
     },
   },
   interfaces: [NodeInterface],
