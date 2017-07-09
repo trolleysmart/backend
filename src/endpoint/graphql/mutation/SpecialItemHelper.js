@@ -49,14 +49,14 @@ const getAllShoppingListContainsSpecialItemId = async (userId, specialItemId) =>
 export const addSpecialItemToUserShoppingList = async (userId, specialItemId) => {
   try {
     const masterProductPrice = await getMasterProductPriceById(specialItemId);
-    await ShoppingListService.create(Map({ userId, masterProductPriceId: specialItemId, description: masterProductPrice.get('description') }));
+    await ShoppingListService.create(Map({ userId, masterProductPriceId: specialItemId, name: masterProductPrice.get('name') }));
     const shoppingListItems = await getAllShoppingListContainsSpecialItemId(userId, specialItemId);
 
     return {
       item: Map({
         shoppingListIds: shoppingListItems.map(item => item.get('id')),
         specialId: masterProductPrice.get('id'),
-        description: masterProductPrice.getIn(['masterProduct', 'description']),
+        name: masterProductPrice.getIn(['masterProduct', 'name']),
         imageUrl: masterProductPrice.getIn(['masterProduct', 'imageUrl']),
         barcode: masterProductPrice.getIn(['masterProduct', 'barcode']),
         specialType: masterProductPrice.getIn(['priceDetails', 'specialType']),
@@ -94,7 +94,7 @@ export const removeSpecialItemFromUserShoppingList = async (userId, specialItemI
       item: Map({
         shoppingListIds: shoppingListItems.skip(1).map(item => item.get('id')),
         specialId: masterProductPrice.get('id'),
-        description: masterProductPrice.getIn(['masterProduct', 'description']),
+        name: masterProductPrice.getIn(['masterProduct', 'name']),
         imageUrl: masterProductPrice.getIn(['masterProduct', 'imageUrl']),
         barcode: masterProductPrice.getIn(['masterProduct', 'barcode']),
         specialType: masterProductPrice.getIn(['priceDetails', 'specialType']),

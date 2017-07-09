@@ -132,19 +132,20 @@ type ShoppingList implements Node {
   shoppingListIds: [ID!]
   stapleShoppingListId: ID
   specialId: ID
-  description: String
+  name: String
   imageUrl: String
   barcode: String
   specialType: String
-  price: Float
+  priceToDisplay: Float
+  currentPrice: Float
   wasPrice: Float
   multiBuy: MultiBuy
   storeName: String
   storeImageUrl: String
-  comments: String
-  unitSize: String
+  unitPrice: UnitPrice
   expiryDate: String
   quantity: Int
+  comments: String
 }
 
 # A connection to a list of items.
@@ -203,8 +204,8 @@ type SpecialEdge {
 
 type StapleShoppingList implements Node {
   id: ID!
-  description: String
-  tags: [Tag]
+  name: String
+  tags: [ID]
 }
 
 # A connection to a list of items.
@@ -285,8 +286,8 @@ type User implements Node {
   id: ID!
   username: String
   specials(after: String, first: Int, before: String, last: Int, name: String, description: String, sortOption: String, tags: [String]): SpecialConnection
-  shoppingList(after: String, first: Int, before: String, last: Int, description: String): ShoppingListConnection
-  stapleShoppingList(after: String, first: Int, before: String, last: Int, description: String): StapleShoppingListConnection
+  shoppingList(after: String, first: Int, before: String, last: Int, name: String): ShoppingListConnection
+  stapleShoppingList(after: String, first: Int, before: String, last: Int, name: String): StapleShoppingListConnection
 }
 
 type Viewer implements Node {

@@ -2,7 +2,7 @@
 
 import { GraphQLID, GraphQLString, GraphQLNonNull } from 'graphql';
 import { mutationWithClientMutationId } from 'graphql-relay';
-import { ShoppingListConnectionDefinition } from '../type';
+import { ShoppingList } from '../type';
 import { addNewStapleShoppingListToShoppingList } from './StapleShoppingListHelper';
 
 export default mutationWithClientMutationId({
@@ -16,7 +16,7 @@ export default mutationWithClientMutationId({
       type: GraphQLString,
     },
     item: {
-      type: ShoppingListConnectionDefinition.edgeType,
+      type: ShoppingList.ShoppingListConnectionDefinition.edgeType,
       resolve: _ => ({
         cursor: 'DummyCursor',
         node: _.item,

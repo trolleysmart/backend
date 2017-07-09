@@ -1,6 +1,6 @@
 // @flow
 
-export SpecialConnectionDefinition from './Specials';
-export ShoppingListConnectionDefinition from './ShoppingList';
-export StapleShoppingListConnectionDefinition from './StapleShoppingList';
+export Specials from './Specials';
+export ShoppingList from './ShoppingList';
+export StapleShoppingList from './StapleShoppingList';
 export rootQueryType from './RootQuery';
