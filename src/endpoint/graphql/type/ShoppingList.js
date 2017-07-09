@@ -215,6 +215,7 @@ export const getShoppingList = async (userId, args) => {
     } else {
       const info = results[1];
       const foundItem = info.find(item => item.get('id').localeCompare(shoppingListItem.get('masterProductPriceId')) === 0);
+      const offerEndDate = foundItem.getIn(['priceDetails', 'offerEndDate']);
 
       if (foundItem) {
         return Map({
@@ -232,7 +233,7 @@ export const getShoppingList = async (userId, args) => {
           storeName: foundItem.getIn(['store', 'name']),
           storeImageUrl: foundItem.getIn(['store', 'imageUrl']),
           unitPrice: foundItem.getIn(['priceDetails', 'unitPrice']),
-          offerEndDate: foundItem.getIn(['priceDetails', 'offerEndDate']),
+          offerEndDate: offerEndDate ? offerEndDate.toISOString() : undefined,
           quantity: groupedMasterProductPriceIds.get(foundItem.get('id')).size,
           comments: '',
         });

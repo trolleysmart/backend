@@ -49,8 +49,11 @@ const getAllShoppingListContainsSpecialItemId = async (userId, specialItemId) =>
 export const addSpecialItemToUserShoppingList = async (userId, specialItemId) => {
   try {
     const masterProductPrice = await getMasterProductPriceById(specialItemId);
+
     await ShoppingListService.create(Map({ userId, masterProductPriceId: specialItemId, name: masterProductPrice.get('name') }));
+
     const shoppingListItems = await getAllShoppingListContainsSpecialItemId(userId, specialItemId);
+    const offerEndDate = masterProductPrice.getIn(['priceDetails', 'offerEndDate']);
 
     return {
       item: Map({
@@ -67,7 +70,7 @@ export const addSpecialItemToUserShoppingList = async (userId, specialItemId) =>
         multiBuyInfo: masterProductPrice.getIn(['priceDetails', 'multiBuyInfo']),
         storeName: masterProductPrice.getIn(['store', 'name']),
         storeImageUrl: masterProductPrice.getIn(['store', 'imageUrl']),
-        offerEndDate: masterProductPrice.getIn(['priceDetails', 'offerEndDate']),
+        offerEndDate: offerEndDate ? offerEndDate.toISOString() : undefined,
         unitPrice: masterProductPrice.getIn(['priceDetails', 'unitPrice']),
         quantity: shoppingListItems.count(),
       }),
@@ -92,6 +95,7 @@ export const removeSpecialItemFromUserShoppingList = async (userId, specialItemI
     }
 
     const masterProductPrice = await getMasterProductPriceById(specialItemId);
+    const offerEndDate = masterProductPrice.getIn(['priceDetails', 'offerEndDate']);
 
     return {
       item: Map({
@@ -108,7 +112,7 @@ export const removeSpecialItemFromUserShoppingList = async (userId, specialItemI
         multiBuyInfo: masterProductPrice.getIn(['priceDetails', 'multiBuyInfo']),
         storeName: masterProductPrice.getIn(['store', 'name']),
         storeImageUrl: masterProductPrice.getIn(['store', 'imageUrl']),
-        offerEndDate: masterProductPrice.getIn(['priceDetails', 'offerEndDate']),
+        offerEndDate: offerEndDate ? offerEndDate.toISOString() : undefined,
         unitPrice: masterProductPrice.getIn(['priceDetails', 'unitPrice']),
         quantity: shoppingListItems.count() - 1,
       }),

@@ -66,7 +66,11 @@ const SpecialType = new GraphQLObjectType({
     },
     offerEndDate: {
       type: GraphQLString,
-      resolve: _ => _.getIn(['priceDetails', 'offerEndDate']),
+      resolve: (_) => {
+        const offerEndDate = _.getIn(['priceDetails', 'offerEndDate']);
+
+        return offerEndDate ? offerEndDate.toISOString() : undefined;
+      },
     },
     comments: {
       type: GraphQLString,
