@@ -31,27 +31,17 @@ const StoreConnectionDefinition = connectionDefinitions({
   nodeType: StoreType,
 });
 
-const getStoresCountMatchCriteria = async (names) => {
-  const criteria = Map({
+const getCriteria = names =>
+  Map({
     orderByFieldAscending: 'name',
     conditions: Map({
       contains_names: names,
     }),
   });
 
-  return StoreService.count(criteria);
-};
+const getStoresCountMatchCriteria = async names => StoreService.count(getCriteria(names));
 
-const getStoresMatchCriteria = async (limit, skip, names) => {
-  const criteria = Map({
-    orderByFieldAscending: 'name',
-    conditions: Map({
-      contains_names: names,
-    }),
-  });
-
-  return StoreService.search(criteria.set('limit', limit).set('skip', skip));
-};
+const getStoresMatchCriteria = async (limit, skip, names) => StoreService.search(getCriteria(names).set('limit', limit).set('skip', skip));
 
 export const getStores = async (args) => {
   const names = convertStringArgumentToSet(args.name);
