@@ -32,9 +32,9 @@
     "graphql-relay": "^0.5.2",
     "immutable": "^3.8.1",
     "micro-business-parse-server-backend": "^0.1.40",
-    "micro-business-parse-server-common": "^0.1.82",
+    "micro-business-parse-server-common": "^0.1.83",
     "newrelic": "^1.40.0",
-    "smart-grocery-parse-server-common": "^0.1.178"
+    "smart-grocery-parse-server-common": "^0.1.179"
   },
   "devDependencies": {
     "babel-eslint": "^7.2.3",
