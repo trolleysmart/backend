@@ -32,7 +32,10 @@ export default new GraphQLObjectType({
           type: GraphQLString,
         },
         tags: {
-          type: new GraphQLList(GraphQLString),
+          type: new GraphQLList(GraphQLID),
+        },
+        stores: {
+          type: new GraphQLList(GraphQLID),
         },
       },
       resolve: async (_, args) => getSpecials(args),

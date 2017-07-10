@@ -286,7 +286,7 @@ type UnitPrice {
 type User implements Node {
   id: ID!
   username: String
-  specials(after: String, first: Int, before: String, last: Int, name: String, description: String, sortOption: String, tags: [String]): SpecialConnection
+  specials(after: String, first: Int, before: String, last: Int, name: String, description: String, sortOption: String, tags: [ID], stores: [ID]): SpecialConnection
   shoppingList(after: String, first: Int, before: String, last: Int, name: String): ShoppingListConnection
   stapleShoppingList(after: String, first: Int, before: String, last: Int, name: String): StapleShoppingListConnection
 }

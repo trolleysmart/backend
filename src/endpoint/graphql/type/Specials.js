@@ -1,6 +1,6 @@
 // @flow
 
-import Immutable, { Map, Range } from 'immutable';
+import Immutable, { List, Map, Range } from 'immutable';
 import { GraphQLID, GraphQLFloat, GraphQLObjectType, GraphQLString, GraphQLNonNull } from 'graphql';
 import { connectionDefinitions } from 'graphql-relay';
 import { MasterProductPriceService } from 'smart-grocery-parse-server-common';
@@ -85,7 +85,7 @@ const SpecialConnectionDefinition = connectionDefinitions({
   nodeType: SpecialType,
 });
 
-const getCriteria = (names, descriptions, sortOption, tags) =>
+const getCriteria = (names, descriptions, sortOption, tags, stores) =>
   Map({
     includeStore: true,
     includeMasterProduct: true,
@@ -94,6 +94,7 @@ const getCriteria = (names, descriptions, sortOption, tags) =>
       contains_descriptions: descriptions,
       not_specialType: 'none',
       tagIds: tags ? Immutable.fromJS(tags) : undefined,
+      storeIds: stores ? Immutable.fromJS(stores) : List(),
     }),
   });
 
@@ -105,20 +106,20 @@ const addSortOptionToCriteria = (criteria, sortOption) => {
   return criteria.set('orderByFieldAscending', 'name');
 };
 
-const getMasterProductCountMatchCriteria = async (names, descriptions, sortOption, tags) =>
-  MasterProductPriceService.count(addSortOptionToCriteria(getCriteria(names, descriptions, sortOption, tags), sortOption));
+const getMasterProductCountMatchCriteria = async (names, descriptions, sortOption, tags, stores) =>
+  MasterProductPriceService.count(addSortOptionToCriteria(getCriteria(names, descriptions, sortOption, tags, stores), sortOption));
 
-const getMasterProductMatchCriteria = async (limit, skip, names, descriptions, sortOption, tags) =>
+const getMasterProductMatchCriteria = async (limit, skip, names, descriptions, sortOption, tags, stores) =>
   MasterProductPriceService.search(
-    addSortOptionToCriteria(getCriteria(names, descriptions, sortOption, tags), sortOption).set('limit', limit).set('skip', skip),
+    addSortOptionToCriteria(getCriteria(names, descriptions, sortOption, tags, stores), sortOption).set('limit', limit).set('skip', skip),
   );
 
 export const getSpecials = async (args) => {
   const names = convertStringArgumentToSet(args.name);
   const descriptions = convertStringArgumentToSet(args.description);
-  const count = await getMasterProductCountMatchCriteria(names, descriptions, args.sortOption, args.tags);
+  const count = await getMasterProductCountMatchCriteria(names, descriptions, args.sortOption, args.tags, args.stores);
   const { limit, skip, hasNextPage, hasPreviousPage } = getLimitAndSkipValue(args, count, 10, 1000);
-  const masterProductPriceItems = await getMasterProductMatchCriteria(limit, skip, names, descriptions, args.sortOption, args.tags);
+  const masterProductPriceItems = await getMasterProductMatchCriteria(limit, skip, names, descriptions, args.sortOption, args.tags, args.stores);
   const indexedMasterProductPriceItems = masterProductPriceItems.zip(Range(skip, skip + limit));
 
   const edges = indexedMasterProductPriceItems.map(indexedItem => ({
