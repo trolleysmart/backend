@@ -54,6 +54,10 @@ const ShoppingListType = new GraphQLObjectType({
       type: GraphQLString,
       resolve: _ => _.get('barcode'),
     },
+    size: {
+      type: GraphQLString,
+      resolve: _ => _.get('size'),
+    },
     specialType: {
       type: GraphQLString,
       resolve: _ => _.get('specialType'),
@@ -267,6 +271,7 @@ export const getShoppingList = async (userId, args) => {
           description: foundItem.getIn(['masterProduct', 'description']),
           imageUrl: foundItem.getIn(['masterProduct', 'imageUrl']),
           barcode: foundItem.getIn(['masterProduct', 'barcode']),
+          size: foundItem.getIn(['masterProduct', 'size']),
           specialType: foundItem.getIn(['priceDetails', 'specialType']),
           priceToDisplay: foundItem.get('priceToDisplay'),
           currentPrice: foundItem.getIn(['priceDetails', 'currentPrice']),

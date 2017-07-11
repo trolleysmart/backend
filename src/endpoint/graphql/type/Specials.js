@@ -32,6 +32,10 @@ const SpecialType = new GraphQLObjectType({
       type: GraphQLString,
       resolve: _ => _.getIn(['masterProduct', 'barcode']),
     },
+    size: {
+      type: GraphQLString,
+      resolve: _ => _.getIn(['masterProduct', 'size']),
+    },
     specialType: {
       type: GraphQLString,
       resolve: _ => _.getIn(['priceDetails', 'specialType']),

@@ -136,6 +136,7 @@ type ShoppingList implements Node {
   description: String
   imageUrl: String
   barcode: String
+  size: String
   specialType: String
   priceToDisplay: Float
   currentPrice: Float
@@ -174,6 +175,7 @@ type Special implements Node {
   description: String
   imageUrl: String
   barcode: String
+  size: String
   specialType: String
   priceToDisplay: Float
   currentPrice: Float

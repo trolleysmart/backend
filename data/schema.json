@@ -690,6 +690,18 @@
               "deprecationReason": null
             },
             {
+              "name": "size",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "specialType",
               "description": null,
               "args": [],
@@ -1086,6 +1098,18 @@
             },
             {
               "name": "barcode",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "size",
               "description": null,
               "args": [],
               "type": {
