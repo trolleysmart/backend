@@ -147,6 +147,7 @@ type ShoppingList implements Node {
   offerEndDate: String
   quantity: Int
   comments: String
+  status: String
 }
 
 # A connection to a list of items.

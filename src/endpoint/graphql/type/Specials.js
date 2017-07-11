@@ -92,6 +92,7 @@ const getCriteria = (names, descriptions, sortOption, tags, stores) =>
     conditions: Map({
       contains_names: names,
       contains_descriptions: descriptions,
+      status: 'A',
       not_specialType: 'none',
       tagIds: tags ? Immutable.fromJS(tags) : undefined,
       storeIds: stores ? Immutable.fromJS(stores) : List(),

@@ -1,6 +1,6 @@
 // @flow
 
-import { List, Map } from 'immutable';
+import Immutable, { List, Map } from 'immutable';
 import { GraphQLID, GraphQLFloat, GraphQLList, GraphQLInt, GraphQLObjectType, GraphQLString, GraphQLNonNull } from 'graphql';
 import { connectionDefinitions, connectionFromArray } from 'graphql-relay';
 import { Exception } from 'micro-business-parse-server-common';
@@ -98,6 +98,10 @@ const ShoppingListType = new GraphQLObjectType({
       type: GraphQLString,
       resolve: _ => _.get('comments'),
     },
+    status: {
+      type: GraphQLString,
+      resolve: _ => _.get('status'),
+    },
   },
   interfaces: [NodeInterface],
 });
@@ -184,6 +188,23 @@ const getMasterProductPriceInfo = async (ids) => {
   return masterProductPriceInfo;
 };
 
+const getActiveMasterProductPrice = async (inactiveMasterProduct) => {
+  const criteria = Map({
+    includeStore: true,
+    includeMasterProduct: true,
+    topMost: true,
+    conditions: Map({
+      masterProductId: inactiveMasterProduct.get('masterProductId'),
+      storeId: inactiveMasterProduct.get('storeId'),
+      status: 'A',
+    }),
+  });
+
+  const activeMasterProducts = await MasterProductPriceService.searchAll(criteria);
+
+  return activeMasterProducts.isEmpty() ? null : activeMasterProducts.first();
+};
+
 export const getShoppingList = async (userId, args) => {
   const names = convertStringArgumentToSet(args.name);
   const shoppingListItems = await getShoppingListMatchCriteria(userId, names);
@@ -197,10 +218,18 @@ export const getShoppingList = async (userId, args) => {
   ]);
   const groupedStapleShoppingListIds = stapleShoppingListIds.groupBy(id => id);
   const groupedMasterProductPriceIds = masterProductPriceIds.groupBy(id => id);
+  const stapleShoppingListItems = results[0];
+  const masterProductPrices = results[1];
+  const inactiveMasterProductPrices = masterProductPrices.filter(masterProductPrice => masterProductPrice.get('status').localeCompare('I') === 0);
+  const matchedActiveMasterProductPrices = inactiveMasterProductPrices.isEmpty()
+    ? List()
+    : Immutable.fromJS(await Promise.all(inactiveMasterProductPrices.map(getActiveMasterProductPrice).toArray())).filter(
+        masterProductPrice => masterProductPrice,
+      );
+
   const completeListWithDuplication = shoppingListItems.map((shoppingListItem) => {
     if (shoppingListItem.get('stapleShoppingList')) {
-      const info = results[0];
-      const foundItem = info.find(item => item.get('id').localeCompare(shoppingListItem.get('stapleShoppingListId')) === 0);
+      const foundItem = stapleShoppingListItems.find(item => item.get('id').localeCompare(shoppingListItem.get('stapleShoppingListId')) === 0);
 
       if (foundItem) {
         return Map({
@@ -208,16 +237,29 @@ export const getShoppingList = async (userId, args) => {
           stapleShoppingListId: foundItem.get('id'),
           name: foundItem.get('name'),
           quantity: groupedStapleShoppingListIds.get(foundItem.get('id')).size,
+          status: 'A',
         });
       }
 
       throw new Exception(`Staple Shopping List not found: ${shoppingListItem.getIn(['stapleShoppingList', 'id'])}`);
     } else {
-      const info = results[1];
-      const foundItem = info.find(item => item.get('id').localeCompare(shoppingListItem.get('masterProductPriceId')) === 0);
-      const offerEndDate = foundItem.getIn(['priceDetails', 'offerEndDate']);
+      let foundItem = masterProductPrices.find(item => item.get('id').localeCompare(shoppingListItem.get('masterProductPriceId')) === 0);
 
       if (foundItem) {
+        if (foundItem.get('status').localeCompare('I') === 0) {
+          const foundMatchActiveMasterProductPrice = matchedActiveMasterProductPrices.find(
+            activeMasterProduct =>
+              activeMasterProduct.get('masterProductId').localeCompare(foundItem.get('masterProductId')) === 0 &&
+              activeMasterProduct.get('storeId').localeCompare(foundItem.get('storeId')) === 0,
+          );
+
+          if (foundMatchActiveMasterProductPrice) {
+            foundItem = foundMatchActiveMasterProductPrice;
+          }
+        }
+
+        const offerEndDate = foundItem.getIn(['priceDetails', 'offerEndDate']);
+
         return Map({
           id: shoppingListItem.get('id'),
           specialId: foundItem.get('id'),
@@ -236,6 +278,7 @@ export const getShoppingList = async (userId, args) => {
           offerEndDate: offerEndDate ? offerEndDate.toISOString() : undefined,
           quantity: groupedMasterProductPriceIds.get(foundItem.get('id')).size,
           comments: '',
+          status: foundItem.get('status'),
         });
       }
 

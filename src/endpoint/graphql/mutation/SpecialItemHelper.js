@@ -73,6 +73,7 @@ export const addSpecialItemToUserShoppingList = async (userId, specialItemId) =>
         offerEndDate: offerEndDate ? offerEndDate.toISOString() : undefined,
         unitPrice: masterProductPrice.getIn(['priceDetails', 'unitPrice']),
         quantity: shoppingListItems.count(),
+        status: masterProductPrice.get('status'),
       }),
     };
   } catch (ex) {
@@ -115,6 +116,7 @@ export const removeSpecialItemFromUserShoppingList = async (userId, specialItemI
         offerEndDate: offerEndDate ? offerEndDate.toISOString() : undefined,
         unitPrice: masterProductPrice.getIn(['priceDetails', 'unitPrice']),
         quantity: shoppingListItems.count() - 1,
+        status: masterProductPrice.get('status'),
       }),
     };
   } catch (ex) {
