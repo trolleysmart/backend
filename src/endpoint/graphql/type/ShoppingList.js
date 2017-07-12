@@ -204,7 +204,7 @@ const getActiveMasterProductPrice = async (inactiveMasterProduct) => {
     }),
   });
 
-  const activeMasterProducts = await MasterProductPriceService.searchAll(criteria);
+  const activeMasterProducts = await MasterProductPriceService.search(criteria);
 
   return activeMasterProducts.isEmpty() ? null : activeMasterProducts.first();
 };
@@ -247,9 +247,11 @@ export const getShoppingList = async (userId, args) => {
 
       throw new Exception(`Staple Shopping List not found: ${shoppingListItem.getIn(['stapleShoppingList', 'id'])}`);
     } else {
-      let foundItem = masterProductPrices.find(item => item.get('id').localeCompare(shoppingListItem.get('masterProductPriceId')) === 0);
+      const foundItem = masterProductPrices.find(item => item.get('id').localeCompare(shoppingListItem.get('masterProductPriceId')) === 0);
 
       if (foundItem) {
+        let foundActiveProductPrice = null;
+
         if (foundItem.get('status').localeCompare('I') === 0) {
           const foundMatchActiveMasterProductPrice = matchedActiveMasterProductPrices.find(
             activeMasterProduct =>
@@ -258,32 +260,33 @@ export const getShoppingList = async (userId, args) => {
           );
 
           if (foundMatchActiveMasterProductPrice) {
-            foundItem = foundMatchActiveMasterProductPrice;
+            foundActiveProductPrice = foundMatchActiveMasterProductPrice;
           }
         }
 
-        const offerEndDate = foundItem.getIn(['priceDetails', 'offerEndDate']);
+        const itemWithDataToFecth = foundActiveProductPrice || foundItem;
+        const offerEndDate = itemWithDataToFecth.getIn(['priceDetails', 'offerEndDate']);
 
         return Map({
           id: shoppingListItem.get('id'),
-          specialId: foundItem.get('id'),
-          name: foundItem.getIn(['masterProduct', 'name']),
-          description: foundItem.getIn(['masterProduct', 'description']),
-          imageUrl: foundItem.getIn(['masterProduct', 'imageUrl']),
-          barcode: foundItem.getIn(['masterProduct', 'barcode']),
-          size: foundItem.getIn(['masterProduct', 'size']),
-          specialType: foundItem.getIn(['priceDetails', 'specialType']),
-          priceToDisplay: foundItem.get('priceToDisplay'),
-          currentPrice: foundItem.getIn(['priceDetails', 'currentPrice']),
-          wasPrice: foundItem.getIn(['priceDetails', 'wasPrice']),
-          multiBuyInfo: foundItem.getIn(['priceDetails', 'multiBuyInfo']),
-          storeName: foundItem.getIn(['store', 'name']),
-          storeImageUrl: foundItem.getIn(['store', 'imageUrl']),
-          unitPrice: foundItem.getIn(['priceDetails', 'unitPrice']),
+          specialId: itemWithDataToFecth.get('id'),
+          name: itemWithDataToFecth.getIn(['masterProduct', 'name']),
+          description: itemWithDataToFecth.getIn(['masterProduct', 'description']),
+          imageUrl: itemWithDataToFecth.getIn(['masterProduct', 'imageUrl']),
+          barcode: itemWithDataToFecth.getIn(['masterProduct', 'barcode']),
+          size: itemWithDataToFecth.getIn(['masterProduct', 'size']),
+          specialType: itemWithDataToFecth.getIn(['priceDetails', 'specialType']),
+          priceToDisplay: itemWithDataToFecth.get('priceToDisplay'),
+          currentPrice: itemWithDataToFecth.getIn(['priceDetails', 'currentPrice']),
+          wasPrice: itemWithDataToFecth.getIn(['priceDetails', 'wasPrice']),
+          multiBuyInfo: itemWithDataToFecth.getIn(['priceDetails', 'multiBuyInfo']),
+          storeName: itemWithDataToFecth.getIn(['store', 'name']),
+          storeImageUrl: itemWithDataToFecth.getIn(['store', 'imageUrl']),
+          unitPrice: itemWithDataToFecth.getIn(['priceDetails', 'unitPrice']),
           offerEndDate: offerEndDate ? offerEndDate.toISOString() : undefined,
           quantity: groupedMasterProductPriceIds.get(foundItem.get('id')).size,
           comments: '',
-          status: foundItem.get('status'),
+          status: itemWithDataToFecth.get('status'),
         });
       }
 
