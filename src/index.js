@@ -1,5 +1,6 @@
 // @flow
 
+import path from 'path';
 import 'newrelic';
 import backend from 'micro-business-parse-server-backend';
 import setupEndPoint from './endpoint';
@@ -16,7 +17,7 @@ const backendInfo = backend({
   startParseDashboard: process.env.START_PARSE_DASHBOARD,
   parseDashboardAuthentication: process.env.PARSE_DASHBOARD_AUTHENTICATION,
   parseServerDashboardApplicationName: process.env.PARSE_SERVER_DASHBOARD_APPLICATION_NAME,
-  initializeParseSdk: true,
+  parseServerCloudFilePath: path.resolve(__dirname, 'cloud.js'),
 });
 
 setupEndPoint(backendInfo.get('server'));
