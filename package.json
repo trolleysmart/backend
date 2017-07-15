@@ -31,7 +31,7 @@
     "graphql-fields": "^1.0.2",
     "graphql-relay": "^0.5.2",
     "immutable": "^3.8.1",
-    "micro-business-parse-server-backend": "^0.1.42",
+    "micro-business-parse-server-backend": "^0.1.43",
     "micro-business-parse-server-common": "^0.1.83",
     "newrelic": "^1.40.0",
     "smart-grocery-parse-server-common": "^0.1.181"
