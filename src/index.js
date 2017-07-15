@@ -26,14 +26,5 @@ process.on('SIGINT', () => process.exit());
 
 backendInfo.get('server').listen(backendInfo.get('serverPort'), () => {
   console.log('Smart Grocery backend started.');
-  console.log('Server host: ', backendInfo.get('serverHost'));
-  console.log('Listening port: ', backendInfo.get('serverPort'));
-  console.log('Parse Server url: ', backendInfo.get('parseServerUrl'));
-  console.log('Parse Server Application Id: ', backendInfo.get('parseServerApplicationId'));
-  console.log('Parse Server Master Key: ', backendInfo.get('parseServerMasterKey'));
-  console.log('Parse Server Client Key: ', backendInfo.get('parseServerClientKey'));
-  console.log('Parse Server Javascript Key: ', backendInfo.get('parseServerJavascriptKey'));
-  console.log('Parse Server File Key: ', backendInfo.get('parseServerFileKey'));
-  console.log('Parse Server Database Uri: ', backendInfo.get('parseServerDatabaseUri'));
-  console.log('Parse Server Dashboard Application Name: ', backendInfo.get('parseServerDashboardApplicationName'));
+  console.log(JSON.stringify(backendInfo.toJS(), null, 2));
 });
