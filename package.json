@@ -34,7 +34,7 @@
     "micro-business-parse-server-backend": "^0.1.43",
     "micro-business-parse-server-common": "^0.1.90",
     "newrelic": "^1.40.0",
-    "smart-grocery-parse-server-common": "^0.1.186"
+    "smart-grocery-parse-server-common": "^0.1.187"
   },
   "devDependencies": {
     "babel-eslint": "^7.2.3",
