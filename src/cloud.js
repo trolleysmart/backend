@@ -4,12 +4,13 @@ import { Exception, ParseWrapperService } from 'micro-business-parse-server-comm
 import { StapleShoppingListService } from 'smart-grocery-parse-server-common';
 
 Parse.Cloud.afterSave('_User', async (request) => {
+  const log = request.log;
+  log.info('----------------------------', JSON.stringify(request, null, 2));
+
   if (request.original) {
     return;
   }
 
-  // eslint-disable-line no-undef
-  const log = request.log;
   const user = request.object;
   const userId = user.id;
 
