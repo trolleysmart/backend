@@ -15,5 +15,6 @@ export default mutationWithClientMutationId({
       type: GraphQLString,
     },
   },
-  mutateAndGetPayload: async ({ userId, specialItemId }) => removeSpecialItemsFromUserShoppingList(userId, specialItemId),
+  mutateAndGetPayload: async ({ userId, specialItemId }, request) =>
+    removeSpecialItemsFromUserShoppingList(request.headers.authorization, userId, specialItemId),
 });
