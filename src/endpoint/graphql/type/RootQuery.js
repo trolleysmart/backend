@@ -17,7 +17,7 @@ const rootQueryType = new GraphQLObjectType({
           type: new GraphQLNonNull(GraphQLString),
         },
       },
-      resolve: (_, args) => UserService.getUserInfo(args.username),
+      resolve: (_, args, request) => UserService.getUserInfo(args.username, request.headers.authorization),
     },
     viewer: {
       type: ViewerType,

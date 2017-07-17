@@ -111,20 +111,30 @@ const addSortOptionToCriteria = (criteria, sortOption) => {
   return criteria.set('orderByFieldAscending', 'name');
 };
 
-const getMasterProductCountMatchCriteria = async (names, descriptions, sortOption, tags, stores) =>
-  MasterProductPriceService.count(addSortOptionToCriteria(getCriteria(names, descriptions, sortOption, tags, stores), sortOption));
+const getMasterProductCountMatchCriteria = async (sessionToken, names, descriptions, sortOption, tags, stores) =>
+  MasterProductPriceService.count(addSortOptionToCriteria(getCriteria(names, descriptions, sortOption, tags, stores), sortOption), sessionToken);
 
-const getMasterProductMatchCriteria = async (limit, skip, names, descriptions, sortOption, tags, stores) =>
+const getMasterProductMatchCriteria = async (sessionToken, limit, skip, names, descriptions, sortOption, tags, stores) =>
   MasterProductPriceService.search(
     addSortOptionToCriteria(getCriteria(names, descriptions, sortOption, tags, stores), sortOption).set('limit', limit).set('skip', skip),
+    sessionToken,
   );
 
-export const getSpecials = async (args) => {
+export const getSpecials = async (sessionToken, args) => {
   const names = convertStringArgumentToSet(args.name);
   const descriptions = convertStringArgumentToSet(args.description);
-  const count = await getMasterProductCountMatchCriteria(names, descriptions, args.sortOption, args.tags, args.stores);
+  const count = await getMasterProductCountMatchCriteria(sessionToken, names, descriptions, args.sortOption, args.tags, args.stores);
   const { limit, skip, hasNextPage, hasPreviousPage } = getLimitAndSkipValue(args, count, 10, 1000);
-  const masterProductPriceItems = await getMasterProductMatchCriteria(limit, skip, names, descriptions, args.sortOption, args.tags, args.stores);
+  const masterProductPriceItems = await getMasterProductMatchCriteria(
+    sessionToken,
+    limit,
+    skip,
+    names,
+    descriptions,
+    args.sortOption,
+    args.tags,
+    args.stores,
+  );
   const indexedMasterProductPriceItems = masterProductPriceItems.zip(Range(skip, skip + limit));
 
   const edges = indexedMasterProductPriceItems.map(indexedItem => ({

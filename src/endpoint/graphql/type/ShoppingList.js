@@ -115,7 +115,7 @@ const ShoppingListConnectionDefinition = connectionDefinitions({
   nodeType: ShoppingListType,
 });
 
-const getShoppingListMatchCriteria = async (userId, names) => {
+const getShoppingListMatchCriteria = async (sessionToken, userId, names) => {
   let shoppingListItems = List();
   const criteria = Map({
     includeStapleShoppingList: true,
@@ -128,7 +128,7 @@ const getShoppingListMatchCriteria = async (userId, names) => {
     }),
   });
 
-  const result = await ShoppingListService.searchAll(criteria);
+  const result = await ShoppingListService.searchAll(criteria, sessionToken);
 
   try {
     result.event.subscribe(info => (shoppingListItems = shoppingListItems.push(info)));
@@ -141,7 +141,7 @@ const getShoppingListMatchCriteria = async (userId, names) => {
   return shoppingListItems;
 };
 
-const getStapleShoppingListInfo = async (userId, ids) => {
+const getStapleShoppingListInfo = async (sessionToken, userId, ids) => {
   if (ids.isEmpty()) {
     return List();
   }
@@ -154,7 +154,7 @@ const getStapleShoppingListInfo = async (userId, ids) => {
   });
 
   let stapleShoppingListInfo = List();
-  const masterProductPriceSearchResult = await StapleShoppingListService.searchAll(criteria);
+  const masterProductPriceSearchResult = await StapleShoppingListService.searchAll(criteria, sessionToken);
 
   try {
     masterProductPriceSearchResult.event.subscribe(info => (stapleShoppingListInfo = stapleShoppingListInfo.push(info)));
@@ -167,7 +167,7 @@ const getStapleShoppingListInfo = async (userId, ids) => {
   return stapleShoppingListInfo;
 };
 
-const getMasterProductPriceInfo = async (ids) => {
+const getMasterProductPriceInfo = async (sessionToken, ids) => {
   if (ids.isEmpty()) {
     return List();
   }
@@ -179,7 +179,7 @@ const getMasterProductPriceInfo = async (ids) => {
   });
 
   let masterProductPriceInfo = List();
-  const masterProductPriceSearchResult = await MasterProductPriceService.searchAll(criteria);
+  const masterProductPriceSearchResult = await MasterProductPriceService.searchAll(criteria, sessionToken);
 
   try {
     masterProductPriceSearchResult.event.subscribe(info => (masterProductPriceInfo = masterProductPriceInfo.push(info)));
@@ -192,7 +192,7 @@ const getMasterProductPriceInfo = async (ids) => {
   return masterProductPriceInfo;
 };
 
-const getActiveMasterProductPrice = async (inactiveMasterProduct) => {
+const getActiveMasterProductPrice = async (sessionToken, inactiveMasterProduct) => {
   const criteria = Map({
     includeStore: true,
     includeMasterProduct: true,
@@ -204,21 +204,21 @@ const getActiveMasterProductPrice = async (inactiveMasterProduct) => {
     }),
   });
 
-  const activeMasterProducts = await MasterProductPriceService.search(criteria);
+  const activeMasterProducts = await MasterProductPriceService.search(criteria, sessionToken);
 
   return activeMasterProducts.isEmpty() ? null : activeMasterProducts.first();
 };
 
-export const getShoppingList = async (userId, args) => {
+export const getShoppingList = async (sessionToken, userId, args) => {
   const names = convertStringArgumentToSet(args.name);
-  const shoppingListItems = await getShoppingListMatchCriteria(userId, names);
+  const shoppingListItems = await getShoppingListMatchCriteria(sessionToken, userId, names);
   const stapleShoppingListInInShoppingList = shoppingListItems.filter(item => item.get('stapleShoppingList'));
   const masterProductPriceInShoppingList = shoppingListItems.filter(item => item.get('masterProductPrice'));
   const stapleShoppingListIds = stapleShoppingListInInShoppingList.map(item => item.get('stapleShoppingListId'));
   const masterProductPriceIds = masterProductPriceInShoppingList.map(item => item.get('masterProductPriceId'));
   const results = await Promise.all([
-    getStapleShoppingListInfo(userId, stapleShoppingListIds.toSet()),
-    getMasterProductPriceInfo(masterProductPriceIds.toSet()),
+    getStapleShoppingListInfo(sessionToken, userId, stapleShoppingListIds.toSet()),
+    getMasterProductPriceInfo(sessionToken, masterProductPriceIds.toSet()),
   ]);
   const groupedStapleShoppingListIds = stapleShoppingListIds.groupBy(id => id);
   const groupedMasterProductPriceIds = masterProductPriceIds.groupBy(id => id);
@@ -227,9 +227,13 @@ export const getShoppingList = async (userId, args) => {
   const inactiveMasterProductPrices = masterProductPrices.filter(masterProductPrice => masterProductPrice.get('status').localeCompare('I') === 0);
   const matchedActiveMasterProductPrices = inactiveMasterProductPrices.isEmpty()
     ? List()
-    : Immutable.fromJS(await Promise.all(inactiveMasterProductPrices.map(getActiveMasterProductPrice).toArray())).filter(
-        masterProductPrice => masterProductPrice,
-      );
+    : Immutable.fromJS(
+        await Promise.all(
+          inactiveMasterProductPrices
+            .map(inactiveMasterProductPrice => getActiveMasterProductPrice(sessionToken, inactiveMasterProductPrice))
+            .toArray(),
+        ),
+      ).filter(masterProductPrice => masterProductPrice);
 
   const completeListWithDuplication = shoppingListItems.map((shoppingListItem) => {
     if (shoppingListItem.get('stapleShoppingList')) {

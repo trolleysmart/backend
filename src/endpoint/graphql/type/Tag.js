@@ -52,15 +52,16 @@ const getCriteria = names =>
     }),
   });
 
-const getTagsCountMatchCriteria = async names => TagService.count(getCriteria(names));
+const getTagsCountMatchCriteria = async (sessionToken, names) => TagService.count(getCriteria(names), sessionToken);
 
-const getTagsMatchCriteria = async (limit, skip, names) => TagService.search(getCriteria(names).set('limit', limit).set('skip', skip));
+const getTagsMatchCriteria = async (sessionToken, limit, skip, names) =>
+  TagService.search(getCriteria(names).set('limit', limit).set('skip', skip), sessionToken);
 
-export const getTags = async (args) => {
+export const getTags = async (sessionToken, args) => {
   const names = convertStringArgumentToSet(args.name);
-  const count = await getTagsCountMatchCriteria(names);
+  const count = await getTagsCountMatchCriteria(sessionToken, names);
   const { limit, skip, hasNextPage, hasPreviousPage } = getLimitAndSkipValue(args, count, 10, 1000);
-  const tags = await getTagsMatchCriteria(limit, skip, names);
+  const tags = await getTagsMatchCriteria(sessionToken, limit, skip, names);
   const indexedTags = tags.zip(Range(skip, skip + limit));
 
   const edges = indexedTags.map(indexedItem => ({

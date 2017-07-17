@@ -39,15 +39,16 @@ const getCriteria = names =>
     }),
   });
 
-const getStoresCountMatchCriteria = async names => StoreService.count(getCriteria(names));
+const getStoresCountMatchCriteria = async (sessionToken, names) => StoreService.count(getCriteria(names), sessionToken);
 
-const getStoresMatchCriteria = async (limit, skip, names) => StoreService.search(getCriteria(names).set('limit', limit).set('skip', skip));
+const getStoresMatchCriteria = async (sessionToken, limit, skip, names) =>
+  StoreService.search(getCriteria(names).set('limit', limit).set('skip', skip), sessionToken);
 
-export const getStores = async (args) => {
+export const getStores = async (sessionToken, args) => {
   const names = convertStringArgumentToSet(args.name);
-  const count = await getStoresCountMatchCriteria(names);
+  const count = await getStoresCountMatchCriteria(sessionToken, names);
   const { limit, skip, hasNextPage, hasPreviousPage } = getLimitAndSkipValue(args, count, 10, 1000);
-  const stores = await getStoresMatchCriteria(limit, skip, names);
+  const stores = await getStoresMatchCriteria(sessionToken, limit, skip, names);
   const indexedStores = stores.zip(Range(skip, skip + limit));
 
   const edges = indexedStores.map(indexedItem => ({

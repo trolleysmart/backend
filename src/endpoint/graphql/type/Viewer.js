@@ -21,7 +21,7 @@ export default new GraphQLObjectType({
           type: GraphQLString,
         },
       },
-      resolve: async (_, args) => getTags(args),
+      resolve: async (_, args, request) => getTags(request.headers.authorization, args),
     },
     stores: {
       type: Store.StoreConnectionDefinition.connectionType,
@@ -31,7 +31,7 @@ export default new GraphQLObjectType({
           type: GraphQLString,
         },
       },
-      resolve: async (_, args) => getStores(args),
+      resolve: async (_, args, request) => getStores(request.headers.authorization, args),
     },
   },
   interfaces: [NodeInterface],

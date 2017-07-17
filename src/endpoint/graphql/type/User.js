@@ -3,8 +3,8 @@
 import { GraphQLID, GraphQLObjectType, GraphQLString, GraphQLNonNull, GraphQLList } from 'graphql';
 import { connectionArgs } from 'graphql-relay';
 import { NodeInterface } from '../interface';
-import Specials, { getSpecials } from './Specials';
 import ShoppingList, { getShoppingList } from './ShoppingList';
+import Specials, { getSpecials } from './Specials';
 import StapleShoppingList, { getStapleShoppingList } from './StapleShoppingList';
 
 export default new GraphQLObjectType({
@@ -17,6 +17,16 @@ export default new GraphQLObjectType({
     username: {
       type: GraphQLString,
       resolve: _ => _.get('username'),
+    },
+    shoppingList: {
+      type: ShoppingList.ShoppingListConnectionDefinition.connectionType,
+      args: {
+        ...connectionArgs,
+        name: {
+          type: GraphQLString,
+        },
+      },
+      resolve: async (_, args, request) => getShoppingList(request.headers.authorization, _.get('id'), args),
     },
     specials: {
       type: Specials.SpecialConnectionDefinition.connectionType,
@@ -38,17 +48,7 @@ export default new GraphQLObjectType({
           type: new GraphQLList(GraphQLID),
         },
       },
-      resolve: async (_, args) => getSpecials(args),
-    },
-    shoppingList: {
-      type: ShoppingList.ShoppingListConnectionDefinition.connectionType,
-      args: {
-        ...connectionArgs,
-        name: {
-          type: GraphQLString,
-        },
-      },
-      resolve: async (_, args) => getShoppingList(_.get('id'), args),
+      resolve: async (_, args, request) => getSpecials(request.headers.authorization, args),
     },
     stapleShoppingList: {
       type: StapleShoppingList.StapleShoppingListConnectionDefinition.connectionType,
@@ -58,7 +58,7 @@ export default new GraphQLObjectType({
           type: GraphQLString,
         },
       },
-      resolve: async (_, args, request) => getStapleShoppingList(_.get('id'), args, request.headers.authorization),
+      resolve: async (_, args, request) => getStapleShoppingList(request.headers.authorization, _.get('id'), args),
     },
   },
   interfaces: [NodeInterface],
