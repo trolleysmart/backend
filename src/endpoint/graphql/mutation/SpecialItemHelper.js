@@ -47,12 +47,9 @@ const getAllShoppingListContainsSpecialItemId = async (sessionToken, userId, spe
 
 export const addSpecialItemToUserShoppingList = async (sessionToken, userId, specialItemId) => {
   try {
-    console.log(`--------------------- 1) ${sessionToken}`);
     const masterProductPrice = await getMasterProductPriceById(sessionToken, specialItemId);
     const user = await UserService.getUserForProvidedSessionToken(sessionToken);
-    console.log(`--------------------- 2) ${user}`);
     const acl = ParseWrapperService.createACL(user);
-    console.log(`--------------------- 3) ${acl}`);
 
     await ShoppingListService.create(Map({ userId, masterProductPriceId: specialItemId, name: masterProductPrice.get('name') }), acl, sessionToken);
 
