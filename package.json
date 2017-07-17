@@ -27,14 +27,14 @@
     "babel-preset-stage-0": "^6.24.1",
     "bluebird": "^3.5.0",
     "express-graphql": "^0.6.6",
-    "graphql": "^0.10.4",
+    "graphql": "^0.10.5",
     "graphql-fields": "^1.0.2",
     "graphql-relay": "^0.5.2",
     "immutable": "^3.8.1",
     "micro-business-parse-server-backend": "^0.1.43",
-    "micro-business-parse-server-common": "^0.1.90",
+    "micro-business-parse-server-common": "^0.1.92",
     "newrelic": "^1.40.0",
-    "smart-grocery-parse-server-common": "^0.1.187"
+    "smart-grocery-parse-server-common": "^0.1.188"
   },
   "devDependencies": {
     "babel-eslint": "^7.2.3",
@@ -45,7 +45,7 @@
     "eslint-plugin-react": "^7.1.0",
     "flow-bin": "^0.50.0",
     "jest": "^20.0.4",
-    "lint-staged": "^4.0.1",
+    "lint-staged": "^4.0.2",
     "nodemon": "^1.11.0",
     "prettier": "^1.5.3",
     "uuid": "^3.1.0"
