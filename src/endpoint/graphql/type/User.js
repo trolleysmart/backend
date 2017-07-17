@@ -58,7 +58,7 @@ export default new GraphQLObjectType({
           type: GraphQLString,
         },
       },
-      resolve: async (_, args) => getStapleShoppingList(_.get('id'), args),
+      resolve: async (_, args, request) => getStapleShoppingList(_.get('id'), args, request.headers.authorization),
     },
   },
   interfaces: [NodeInterface],

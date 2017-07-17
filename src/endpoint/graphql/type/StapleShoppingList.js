@@ -41,16 +41,17 @@ const getCriteria = (userId, names) =>
     }),
   });
 
-const getStapleShoppingListCountMatchCriteria = async (userId, names) => StapleShoppingListService.count(getCriteria(userId, names));
+const getStapleShoppingListCountMatchCriteria = async (userId, names, sessionToken) =>
+  StapleShoppingListService.count(getCriteria(userId, names), sessionToken);
 
-const getStapleShoppingListMatchCriteria = async (limit, skip, userId, names) =>
-  StapleShoppingListService.search(getCriteria(userId, names).set('limit', limit).set('skip', skip));
+const getStapleShoppingListMatchCriteria = async (limit, skip, userId, names, sessionToken) =>
+  StapleShoppingListService.search(getCriteria(userId, names).set('limit', limit).set('skip', skip), sessionToken);
 
-export const getStapleShoppingList = async (userId, args) => {
+export const getStapleShoppingList = async (userId, args, sessionToken) => {
   const names = convertStringArgumentToSet(args.name);
-  const count = await getStapleShoppingListCountMatchCriteria(userId, names);
+  const count = await getStapleShoppingListCountMatchCriteria(userId, names, sessionToken);
   const { limit, skip, hasNextPage, hasPreviousPage } = getLimitAndSkipValue(args, count, 10, 1000);
-  const stapleShoppingListItems = await getStapleShoppingListMatchCriteria(limit, skip, userId, names);
+  const stapleShoppingListItems = await getStapleShoppingListMatchCriteria(limit, skip, userId, names, sessionToken);
   const indexedStapleShoppingListItems = stapleShoppingListItems.zip(Range(skip, skip + limit));
 
   const edges = indexedStapleShoppingListItems.map(indexedItem => ({
