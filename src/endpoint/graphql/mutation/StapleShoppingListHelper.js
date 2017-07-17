@@ -2,7 +2,7 @@
 
 import BluebirdPromise from 'bluebird';
 import Immutable, { List, Map, Range } from 'immutable';
-import { Exception } from 'micro-business-parse-server-common';
+import { Exception, ParseWrapperService, UserService } from 'micro-business-parse-server-common';
 import { StapleShoppingListService, StapleTemplateShoppingListService, ShoppingListService } from 'smart-grocery-parse-server-common';
 
 const splitIntoChunks = (list, chunkSize) => Range(0, list.count(), chunkSize).map(chunkStart => list.slice(chunkStart, chunkStart + chunkSize));
@@ -18,7 +18,7 @@ const removeNameInvalidCharacters = (name) => {
   return '';
 };
 
-const getStapleShoppingListItems = async (userId, name) => {
+const getStapleShoppingListItems = async (sessionToken, userId, name) => {
   const criteria = Map({
     conditions: Map({
       userId,
@@ -26,27 +26,27 @@ const getStapleShoppingListItems = async (userId, name) => {
     }),
   });
 
-  return StapleShoppingListService.search(criteria);
+  return StapleShoppingListService.search(criteria, sessionToken);
 };
 
-const getStapleTemplateShoppingListItems = async (name) => {
+const getStapleTemplateShoppingListItems = async (sessionToken, name) => {
   const criteria = Map({
     conditions: Map({
       name,
     }),
   });
 
-  return StapleTemplateShoppingListService.search(criteria);
+  return StapleTemplateShoppingListService.search(criteria, sessionToken);
 };
 
-const getStapleShoppingListById = async (userId, id) => {
+const getStapleShoppingListById = async (sessionToken, userId, id) => {
   const stapleShoppingListCriteria = Map({
     id,
     conditions: Map({
       userId,
     }),
   });
-  const stapleShoppingListItems = await StapleShoppingListService.search(stapleShoppingListCriteria);
+  const stapleShoppingListItems = await StapleShoppingListService.search(stapleShoppingListCriteria, sessionToken);
 
   if (stapleShoppingListItems.isEmpty()) {
     throw new Exception('Provided staple shopping list item Id is invalid.');
@@ -55,7 +55,7 @@ const getStapleShoppingListById = async (userId, id) => {
   return stapleShoppingListItems.first();
 };
 
-const getAllShoppingListContainsStapleShoppingListItemId = async (userId, stapleShoppingListItemId) => {
+const getAllShoppingListContainsStapleShoppingListItemId = async (sessionToken, userId, stapleShoppingListItemId) => {
   const criteria = Map({
     conditions: Map({
       userId,
@@ -65,7 +65,7 @@ const getAllShoppingListContainsStapleShoppingListItemId = async (userId, staple
     }),
   });
 
-  const result = await ShoppingListService.searchAll(criteria);
+  const result = await ShoppingListService.searchAll(criteria, sessionToken);
   let shoppingListItems = List();
 
   try {
@@ -79,11 +79,18 @@ const getAllShoppingListContainsStapleShoppingListItemId = async (userId, staple
   return shoppingListItems;
 };
 
-export const addStapleShoppingListItemToUserShoppingList = async (userId, stapleShoppingListItemId) => {
+export const addStapleShoppingListItemToUserShoppingList = async (sessionToken, userId, stapleShoppingListItemId) => {
   try {
-    const stapleShoppingList = await getStapleShoppingListById(userId, stapleShoppingListItemId);
-    await ShoppingListService.create(Map({ userId, stapleShoppingListId: stapleShoppingListItemId, name: stapleShoppingList.get('name') }));
-    const shoppingListItems = await getAllShoppingListContainsStapleShoppingListItemId(userId, stapleShoppingListItemId);
+    const stapleShoppingList = await getStapleShoppingListById(sessionToken, userId, stapleShoppingListItemId);
+    const user = await UserService.getUserForProvidedSessionToken(sessionToken);
+    const acl = ParseWrapperService.createACL(user);
+
+    await ShoppingListService.create(
+      Map({ userId, stapleShoppingListId: stapleShoppingListItemId, name: stapleShoppingList.get('name') }),
+      acl,
+      sessionToken,
+    );
+    const shoppingListItems = await getAllShoppingListContainsStapleShoppingListItemId(sessionToken, userId, stapleShoppingListItemId);
 
     return {
       item: Map({
@@ -98,7 +105,7 @@ export const addStapleShoppingListItemToUserShoppingList = async (userId, staple
   }
 };
 
-export const addNewStapleShoppingListToShoppingList = async (userId, name) => {
+export const addNewStapleShoppingListToShoppingList = async (sessionToken, userId, name) => {
   try {
     const trimmedName = removeNameInvalidCharacters(name);
 
@@ -106,42 +113,48 @@ export const addNewStapleShoppingListToShoppingList = async (userId, name) => {
       throw new Exception('Name is invalid.');
     }
 
-    const stapleShoppingListItems = await getStapleShoppingListItems(userId, trimmedName);
+    const stapleShoppingListItems = await getStapleShoppingListItems(sessionToken, userId, trimmedName);
     let stapleShoppingListItemId;
 
     if (stapleShoppingListItems.isEmpty()) {
-      const stapleTemplateShoppingListItems = await getStapleTemplateShoppingListItems(trimmedName);
+      const stapleTemplateShoppingListItems = await getStapleTemplateShoppingListItems(sessionToken, trimmedName);
+      const user = await UserService.getUserForProvidedSessionToken(sessionToken);
+      const acl = ParseWrapperService.createACL(user);
 
       if (stapleTemplateShoppingListItems.isEmpty()) {
-        stapleShoppingListItemId = await StapleShoppingListService.create(Map({ userId, name }));
+        stapleShoppingListItemId = await StapleShoppingListService.create(Map({ userId, name }), acl, sessionToken);
       } else {
-        stapleShoppingListItemId = await StapleShoppingListService.create(stapleTemplateShoppingListItems.first().set('userId', userId));
+        stapleShoppingListItemId = await StapleShoppingListService.create(
+          stapleTemplateShoppingListItems.first().set('userId', userId),
+          acl,
+          sessionToken,
+        );
       }
     } else {
       stapleShoppingListItemId = stapleShoppingListItems.first().get('id');
     }
 
-    return await addStapleShoppingListItemToUserShoppingList(userId, stapleShoppingListItemId);
+    return await addStapleShoppingListItemToUserShoppingList(sessionToken, userId, stapleShoppingListItemId);
   } catch (ex) {
     return { errorMessage: ex instanceof Exception ? ex.getErrorMessage() : ex };
   }
 };
 
-export const removeStapleShoppingListItemFromUserShoppingList = async (userId, stapleShoppingListItemId) => {
+export const removeStapleShoppingListItemFromUserShoppingList = async (sessionToken, userId, stapleShoppingListItemId) => {
   try {
-    const shoppingListItems = await getAllShoppingListContainsStapleShoppingListItemId(userId, stapleShoppingListItemId);
+    const shoppingListItems = await getAllShoppingListContainsStapleShoppingListItemId(sessionToken, userId, stapleShoppingListItemId);
 
     if (shoppingListItems.isEmpty()) {
       return {};
     }
 
-    await ShoppingListService.update(shoppingListItems.first().set('doneDate', new Date()));
+    await ShoppingListService.update(shoppingListItems.first().set('doneDate', new Date()), sessionToken);
 
     if (shoppingListItems.count() === 1) {
       return {};
     }
 
-    const stapleShoppingList = await getStapleShoppingListById(userId, stapleShoppingListItemId);
+    const stapleShoppingList = await getStapleShoppingListById(sessionToken, userId, stapleShoppingListItemId);
 
     return {
       item: Map({
@@ -156,9 +169,9 @@ export const removeStapleShoppingListItemFromUserShoppingList = async (userId, s
   }
 };
 
-export const removeStapleShoppingListItemsFromUserShoppingList = async (userId, stapleShoppingListItemId) => {
+export const removeStapleShoppingListItemsFromUserShoppingList = async (sessionToken, userId, stapleShoppingListItemId) => {
   try {
-    const shoppingListItems = await getAllShoppingListContainsStapleShoppingListItemId(userId, stapleShoppingListItemId);
+    const shoppingListItems = await getAllShoppingListContainsStapleShoppingListItemId(sessionToken, userId, stapleShoppingListItemId);
 
     if (shoppingListItems.isEmpty()) {
       return {};
@@ -166,7 +179,7 @@ export const removeStapleShoppingListItemsFromUserShoppingList = async (userId, 
 
     const splittedShoppingListItems = splitIntoChunks(shoppingListItems, 100);
     await BluebirdPromise.each(splittedShoppingListItems.toArray(), chunck =>
-      Promise.all(chunck.map(item => ShoppingListService.update(item.set('doneDate', new Date())))),
+      Promise.all(chunck.map(item => ShoppingListService.update(item.set('doneDate', new Date()), sessionToken))),
     );
 
     return {};

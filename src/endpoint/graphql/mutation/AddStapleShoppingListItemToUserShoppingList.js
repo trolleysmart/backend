@@ -23,5 +23,6 @@ export default mutationWithClientMutationId({
       }),
     },
   },
-  mutateAndGetPayload: async ({ userId, stapleShoppingListItemId }) => addStapleShoppingListItemToUserShoppingList(userId, stapleShoppingListItemId),
+  mutateAndGetPayload: async ({ userId, stapleShoppingListItemId }, request) =>
+    addStapleShoppingListItemToUserShoppingList(request.headers.authorization, userId, stapleShoppingListItemId),
 });

@@ -23,5 +23,6 @@ export default mutationWithClientMutationId({
       }),
     },
   },
-  mutateAndGetPayload: async ({ userId, specialItemId }) => removeSpecialItemFromUserShoppingList(userId, specialItemId),
+  mutateAndGetPayload: async ({ userId, specialItemId }, request) =>
+    removeSpecialItemFromUserShoppingList(request.headers.authorization, userId, specialItemId),
 });

@@ -23,5 +23,5 @@ export default mutationWithClientMutationId({
       }),
     },
   },
-  mutateAndGetPayload: async ({ userId, name }) => addNewStapleShoppingListToShoppingList(userId, name),
+  mutateAndGetPayload: async ({ userId, name }, request) => addNewStapleShoppingListToShoppingList(request.headers.authorization, userId, name),
 });

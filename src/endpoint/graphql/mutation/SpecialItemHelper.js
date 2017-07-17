@@ -2,18 +2,18 @@
 
 import BluebirdPromise from 'bluebird';
 import { List, Map, Range } from 'immutable';
-import { Exception } from 'micro-business-parse-server-common';
+import { Exception, ParseWrapperService, UserService } from 'micro-business-parse-server-common';
 import { MasterProductPriceService, ShoppingListService } from 'smart-grocery-parse-server-common';
 
 const splitIntoChunks = (list, chunkSize) => Range(0, list.count(), chunkSize).map(chunkStart => list.slice(chunkStart, chunkStart + chunkSize));
 
-const getMasterProductPriceById = async (id) => {
+const getMasterProductPriceById = async (sessionToken, id) => {
   const masterProductPriceCriteria = Map({
     includeStore: true,
     includeMasterProduct: true,
     id,
   });
-  const masterProductPriceItems = await MasterProductPriceService.search(masterProductPriceCriteria);
+  const masterProductPriceItems = await MasterProductPriceService.search(masterProductPriceCriteria, sessionToken);
 
   if (masterProductPriceItems.isEmpty()) {
     throw new Exception('Provided special item Id is invalid.');
@@ -22,7 +22,7 @@ const getMasterProductPriceById = async (id) => {
   return masterProductPriceItems.first();
 };
 
-const getAllShoppingListContainsSpecialItemId = async (userId, specialItemId) => {
+const getAllShoppingListContainsSpecialItemId = async (sessionToken, userId, specialItemId) => {
   const criteria = Map({
     conditions: Map({
       userId,
@@ -31,8 +31,7 @@ const getAllShoppingListContainsSpecialItemId = async (userId, specialItemId) =>
       includeMasterProductPriceOnly: true,
     }),
   });
-
-  const result = await ShoppingListService.searchAll(criteria);
+  const result = await ShoppingListService.searchAll(criteria, sessionToken);
   let shoppingListItems = List();
 
   try {
@@ -46,13 +45,15 @@ const getAllShoppingListContainsSpecialItemId = async (userId, specialItemId) =>
   return shoppingListItems;
 };
 
-export const addSpecialItemToUserShoppingList = async (userId, specialItemId) => {
+export const addSpecialItemToUserShoppingList = async (sessionToken, userId, specialItemId) => {
   try {
-    const masterProductPrice = await getMasterProductPriceById(specialItemId);
+    const masterProductPrice = await getMasterProductPriceById(sessionToken, specialItemId);
+    const user = await UserService.getUserForProvidedSessionToken(sessionToken);
+    const acl = ParseWrapperService.createACL(user);
 
-    await ShoppingListService.create(Map({ userId, masterProductPriceId: specialItemId, name: masterProductPrice.get('name') }));
+    await ShoppingListService.create(Map({ userId, masterProductPriceId: specialItemId, name: masterProductPrice.get('name') }), acl, sessionToken);
 
-    const shoppingListItems = await getAllShoppingListContainsSpecialItemId(userId, specialItemId);
+    const shoppingListItems = await getAllShoppingListContainsSpecialItemId(sessionToken, userId, specialItemId);
     const offerEndDate = masterProductPrice.getIn(['priceDetails', 'offerEndDate']);
 
     return {
@@ -82,21 +83,21 @@ export const addSpecialItemToUserShoppingList = async (userId, specialItemId) =>
   }
 };
 
-export const removeSpecialItemFromUserShoppingList = async (userId, specialItemId) => {
+export const removeSpecialItemFromUserShoppingList = async (sessionToken, userId, specialItemId) => {
   try {
-    const shoppingListItems = await getAllShoppingListContainsSpecialItemId(userId, specialItemId);
+    const shoppingListItems = await getAllShoppingListContainsSpecialItemId(sessionToken, userId, specialItemId);
 
     if (shoppingListItems.isEmpty()) {
       return {};
     }
 
-    await ShoppingListService.update(shoppingListItems.first().set('doneDate', new Date()));
+    await ShoppingListService.update(shoppingListItems.first().set('doneDate', new Date()), sessionToken);
 
     if (shoppingListItems.count() === 1) {
       return {};
     }
 
-    const masterProductPrice = await getMasterProductPriceById(specialItemId);
+    const masterProductPrice = await getMasterProductPriceById(sessionToken, specialItemId);
     const offerEndDate = masterProductPrice.getIn(['priceDetails', 'offerEndDate']);
 
     return {
@@ -126,9 +127,9 @@ export const removeSpecialItemFromUserShoppingList = async (userId, specialItemI
   }
 };
 
-export const removeSpecialItemsFromUserShoppingList = async (userId, specialItemId) => {
+export const removeSpecialItemsFromUserShoppingList = async (sessionToken, userId, specialItemId) => {
   try {
-    const shoppingListItems = await getAllShoppingListContainsSpecialItemId(userId, specialItemId);
+    const shoppingListItems = await getAllShoppingListContainsSpecialItemId(sessionToken, userId, specialItemId);
 
     if (shoppingListItems.isEmpty()) {
       return {};
@@ -136,7 +137,7 @@ export const removeSpecialItemsFromUserShoppingList = async (userId, specialItem
 
     const splittedShoppingListItems = splitIntoChunks(shoppingListItems, 100);
     await BluebirdPromise.each(splittedShoppingListItems.toArray(), chunck =>
-      Promise.all(chunck.map(item => ShoppingListService.update(item.set('doneDate', new Date())))),
+      Promise.all(chunck.map(item => ShoppingListService.update(item.set('doneDate', new Date()), sessionToken))),
     );
 
     return {};
