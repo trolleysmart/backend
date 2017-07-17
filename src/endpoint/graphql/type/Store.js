@@ -14,6 +14,10 @@ const StoreType = new GraphQLObjectType({
       type: new GraphQLNonNull(GraphQLID),
       resolve: _ => _.get('id'),
     },
+    key: {
+      type: GraphQLString,
+      resolve: _ => _.get('key'),
+    },
     name: {
       type: GraphQLString,
       resolve: _ => _.get('name'),

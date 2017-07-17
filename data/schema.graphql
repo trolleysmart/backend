@@ -232,6 +232,7 @@ type StapleShoppingListEdge {
 
 type Store implements Node {
   id: ID!
+  key: String
   name: String
   imageUrl: String
 }
