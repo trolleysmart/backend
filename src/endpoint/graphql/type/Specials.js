@@ -112,8 +112,36 @@ const getCriteria = (names, descriptions, sortOption, tags, stores) =>
   });
 
 const addSortOptionToCriteria = (criteria, sortOption) => {
+  if (sortOption && sortOption.localeCompare('PriceDescending') === 0) {
+    return criteria.set('orderByFieldDescending', 'priceToDisplay');
+  }
+
+  if (sortOption && sortOption.localeCompare('PriceAscending') === 0) {
+    return criteria.set('orderByFieldAscending', 'priceToDisplay');
+  }
+
+  if (sortOption && sortOption.localeCompare('SavingDescending') === 0) {
+    return criteria.set('orderByFieldDescending', 'saving');
+  }
+
+  if (sortOption && sortOption.localeCompare('SavingAscending') === 0) {
+    return criteria.set('orderByFieldAscending', 'saving');
+  }
+
+  if (sortOption && sortOption.localeCompare('SavingPercentageDescending') === 0) {
+    return criteria.set('orderByFieldDescending', 'savingPercentage');
+  }
+
+  if (sortOption && sortOption.localeCompare('SavingPercentageAscending') === 0) {
+    return criteria.set('orderByFieldAscending', 'savingPercentage');
+  }
+
   if (sortOption && sortOption.localeCompare('NameDescending') === 0) {
     return criteria.set('orderByFieldDescending', 'name');
+  }
+
+  if (sortOption && sortOption.localeCompare('NameAscending') === 0) {
+    return criteria.set('orderByFieldAscending', 'name');
   }
 
   return criteria.set('orderByFieldAscending', 'name');
