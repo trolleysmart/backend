@@ -44,6 +44,14 @@ const SpecialType = new GraphQLObjectType({
       type: GraphQLFloat,
       resolve: _ => _.get('priceToDisplay'),
     },
+    saving: {
+      type: GraphQLFloat,
+      resolve: _ => _.get('saving'),
+    },
+    savingPercentage: {
+      type: GraphQLFloat,
+      resolve: _ => _.get('savingPercentage'),
+    },
     currentPrice: {
       type: GraphQLFloat,
       resolve: _ => _.getIn(['priceDetails', 'currentPrice']),

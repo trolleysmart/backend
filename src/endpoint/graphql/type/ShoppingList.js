@@ -66,6 +66,14 @@ const ShoppingListType = new GraphQLObjectType({
       type: GraphQLFloat,
       resolve: _ => _.get('priceToDisplay'),
     },
+    saving: {
+      type: GraphQLFloat,
+      resolve: _ => _.get('saving'),
+    },
+    savingPercentage: {
+      type: GraphQLFloat,
+      resolve: _ => _.get('savingPercentage'),
+    },
     currentPrice: {
       type: GraphQLFloat,
       resolve: _ => _.get('currentPrice'),
@@ -281,6 +289,8 @@ export const getShoppingList = async (sessionToken, userId, args) => {
           size: itemWithDataToFecth.getIn(['masterProduct', 'size']),
           specialType: itemWithDataToFecth.getIn(['priceDetails', 'specialType']),
           priceToDisplay: itemWithDataToFecth.get('priceToDisplay'),
+          saving: itemWithDataToFecth.get('saving'),
+          savingPercentage: itemWithDataToFecth.get('savingPercentage'),
           currentPrice: itemWithDataToFecth.getIn(['priceDetails', 'currentPrice']),
           wasPrice: itemWithDataToFecth.getIn(['priceDetails', 'wasPrice']),
           multiBuyInfo: itemWithDataToFecth.getIn(['priceDetails', 'multiBuyInfo']),

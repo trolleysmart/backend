@@ -139,6 +139,8 @@ type ShoppingList implements Node {
   size: String
   specialType: String
   priceToDisplay: Float
+  saving: Float
+  savingPercentage: Float
   currentPrice: Float
   wasPrice: Float
   multiBuy: MultiBuy
@@ -178,6 +180,8 @@ type Special implements Node {
   size: String
   specialType: String
   priceToDisplay: Float
+  saving: Float
+  savingPercentage: Float
   currentPrice: Float
   wasPrice: Float
   multiBuy: MultiBuy
