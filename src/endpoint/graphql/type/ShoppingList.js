@@ -277,7 +277,7 @@ export const getShoppingList = async (sessionToken, userId, args) => {
         }
 
         const itemWithDataToFecth = foundActiveProductPrice || foundItem;
-        const offerEndDate = itemWithDataToFecth.getIn(['priceDetails', 'offerEndDate']);
+        const offerEndDate = itemWithDataToFecth.get('offerEndDate');
 
         return Map({
           id: shoppingListItem.get('id'),

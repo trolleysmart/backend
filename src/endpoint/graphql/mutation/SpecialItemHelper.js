@@ -54,7 +54,7 @@ export const addSpecialItemToUserShoppingList = async (sessionToken, userId, spe
     await ShoppingListService.create(Map({ userId, masterProductPriceId: specialItemId, name: masterProductPrice.get('name') }), acl, sessionToken);
 
     const shoppingListItems = await getAllShoppingListContainsSpecialItemId(sessionToken, userId, specialItemId);
-    const offerEndDate = masterProductPrice.getIn(['priceDetails', 'offerEndDate']);
+    const offerEndDate = masterProductPrice.get('offerEndDate');
 
     return {
       item: Map({
@@ -100,7 +100,7 @@ export const removeSpecialItemFromUserShoppingList = async (sessionToken, userId
     }
 
     const masterProductPrice = await getMasterProductPriceById(sessionToken, specialItemId);
-    const offerEndDate = masterProductPrice.getIn(['priceDetails', 'offerEndDate']);
+    const offerEndDate = masterProductPrice.get('offerEndDate');
 
     return {
       item: Map({

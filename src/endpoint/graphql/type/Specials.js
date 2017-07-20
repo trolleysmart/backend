@@ -79,7 +79,7 @@ const SpecialType = new GraphQLObjectType({
     offerEndDate: {
       type: GraphQLString,
       resolve: (_) => {
-        const offerEndDate = _.getIn(['priceDetails', 'offerEndDate']);
+        const offerEndDate = _.get('offerEndDate');
 
         return offerEndDate ? offerEndDate.toISOString() : undefined;
       },
@@ -134,6 +134,14 @@ const addSortOptionToCriteria = (criteria, sortOption) => {
 
   if (sortOption && sortOption.localeCompare('SavingPercentageAscending') === 0) {
     return criteria.set('orderByFieldAscending', 'savingPercentage');
+  }
+
+  if (sortOption && sortOption.localeCompare('OfferEndDateDescending') === 0) {
+    return criteria.set('orderByFieldDescending', 'offerEndDate');
+  }
+
+  if (sortOption && sortOption.localeCompare('OfferEndDateAscending') === 0) {
+    return criteria.set('orderByFieldAscending', 'offerEndDate');
   }
 
   if (sortOption && sortOption.localeCompare('NameDescending') === 0) {

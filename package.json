@@ -33,8 +33,8 @@
     "immutable": "^3.8.1",
     "micro-business-parse-server-backend": "^0.1.44",
     "micro-business-parse-server-common": "^0.1.92",
-    "newrelic": "^1.40.0",
-    "smart-grocery-parse-server-common": "^0.1.191"
+    "newrelic": "^2.0.0",
+    "smart-grocery-parse-server-common": "^0.1.192"
   },
   "devDependencies": {
     "babel-eslint": "^7.2.3",
