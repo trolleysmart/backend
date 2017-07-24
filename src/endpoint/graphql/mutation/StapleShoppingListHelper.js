@@ -9,7 +9,13 @@ const splitIntoChunks = (list, chunkSize) => Range(0, list.count(), chunkSize).m
 
 const removeNameInvalidCharacters = (name) => {
   if (name) {
-    return Immutable.fromJS(name.replace(/\W/g, ' ').trim().split(' '))
+    const trimmedName = name.trim();
+
+    if (trimmedName.length === 0) {
+      return trimmedName;
+    }
+
+    return Immutable.fromJS(trimmedName.split(' '))
       .map(_ => _.trim())
       .filter(_ => _.length > 0)
       .reduce((reduction, value) => `${reduction} ${value}`);
