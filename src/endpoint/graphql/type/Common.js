@@ -69,7 +69,13 @@ export const getLimitAndSkipValue = (args, count, defaultPageSize, maximumPageSi
 
 export const convertStringArgumentToSet = (string) => {
   if (string) {
-    return Immutable.fromJS(string.replace(/\W/g, ' ').trim().toLowerCase().split(' ')).map(_ => _.trim()).filter(_ => _.length > 0).toSet();
+    const trimmedString = string.trim();
+
+    if (trimmedString.length === 0) {
+      return Set();
+    }
+
+    return Immutable.fromJS(trimmedString.toLowerCase().split(' ')).map(_ => _.trim()).filter(_ => _.length > 0).toSet();
   }
 
   return Set();
