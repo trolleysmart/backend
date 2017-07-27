@@ -139,7 +139,9 @@ const getShoppingListMatchCriteria = async (sessionToken, userId, names) => {
   const result = await ShoppingListService.searchAll(criteria, sessionToken);
 
   try {
-    result.event.subscribe(info => (shoppingListItems = shoppingListItems.push(info)));
+    result.event.subscribe((info) => {
+      shoppingListItems = shoppingListItems.push(info);
+    });
 
     await result.promise;
   } finally {
@@ -165,7 +167,9 @@ const getStapleShoppingListInfo = async (sessionToken, userId, ids) => {
   const masterProductPriceSearchResult = await StapleShoppingListService.searchAll(criteria, sessionToken);
 
   try {
-    masterProductPriceSearchResult.event.subscribe(info => (stapleShoppingListInfo = stapleShoppingListInfo.push(info)));
+    masterProductPriceSearchResult.event.subscribe((info) => {
+      stapleShoppingListInfo = stapleShoppingListInfo.push(info);
+    });
 
     await masterProductPriceSearchResult.promise;
   } finally {
@@ -190,7 +194,9 @@ const getMasterProductPriceInfo = async (sessionToken, ids) => {
   const masterProductPriceSearchResult = await MasterProductPriceService.searchAll(criteria, sessionToken);
 
   try {
-    masterProductPriceSearchResult.event.subscribe(info => (masterProductPriceInfo = masterProductPriceInfo.push(info)));
+    masterProductPriceSearchResult.event.subscribe((info) => {
+      masterProductPriceInfo = masterProductPriceInfo.push(info);
+    });
 
     await masterProductPriceSearchResult.promise;
   } finally {
@@ -236,12 +242,12 @@ export const getShoppingList = async (sessionToken, userId, args) => {
   const matchedActiveMasterProductPrices = inactiveMasterProductPrices.isEmpty()
     ? List()
     : Immutable.fromJS(
-        await Promise.all(
-          inactiveMasterProductPrices
-            .map(inactiveMasterProductPrice => getActiveMasterProductPrice(sessionToken, inactiveMasterProductPrice))
-            .toArray(),
-        ),
-      ).filter(masterProductPrice => masterProductPrice);
+      await Promise.all(
+        inactiveMasterProductPrices
+          .map(inactiveMasterProductPrice => getActiveMasterProductPrice(sessionToken, inactiveMasterProductPrice))
+          .toArray(),
+      ),
+    ).filter(masterProductPrice => masterProductPrice);
 
   const completeListWithDuplication = shoppingListItems.map((shoppingListItem) => {
     if (shoppingListItem.get('stapleShoppingList')) {

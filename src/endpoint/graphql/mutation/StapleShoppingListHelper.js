@@ -75,7 +75,9 @@ const getAllShoppingListContainsStapleShoppingListItemId = async (sessionToken, 
   let shoppingListItems = List();
 
   try {
-    result.event.subscribe(info => (shoppingListItems = shoppingListItems.push(info)));
+    result.event.subscribe((info) => {
+      shoppingListItems = shoppingListItems.push(info);
+    });
 
     await result.promise;
   } finally {
