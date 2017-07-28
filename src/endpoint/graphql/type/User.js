@@ -14,10 +14,6 @@ export default new GraphQLObjectType({
       type: new GraphQLNonNull(GraphQLID),
       resolve: _ => _.get('id'),
     },
-    username: {
-      type: GraphQLString,
-      resolve: _ => _.get('username'),
-    },
     shoppingList: {
       type: ShoppingList.ShoppingListConnectionDefinition.connectionType,
       args: {
