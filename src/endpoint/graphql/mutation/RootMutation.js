@@ -8,6 +8,7 @@ import removeSpecialItemsFromUserShoppingList from './RemoveSpecialItemsFromUser
 import addStapleShoppingListItemToUserShoppingList from './AddStapleShoppingListItemToUserShoppingList';
 import removeStapleShoppingListItemFromUserShoppingList from './RemoveStapleShoppingListItemFromUserShoppingList';
 import removeStapleShoppingListItemsFromUserShoppingList from './RemoveStapleShoppingListItemsFromUserShoppingList';
+import submitUserFeedback from './SubmitUserFeedback';
 
 export default new GraphQLObjectType({
   name: 'Mutation',
@@ -19,5 +20,6 @@ export default new GraphQLObjectType({
     addStapleShoppingListItemToUserShoppingList,
     removeStapleShoppingListItemFromUserShoppingList,
     removeStapleShoppingListItemsFromUserShoppingList,
+    submitUserFeedback,
   },
 });

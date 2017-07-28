@@ -31,10 +31,10 @@
     "graphql-fields": "^1.0.2",
     "graphql-relay": "^0.5.2",
     "immutable": "^3.8.1",
-    "micro-business-parse-server-backend": "^0.1.45",
-    "micro-business-parse-server-common": "^0.1.93",
+    "micro-business-parse-server-backend": "^0.1.46",
+    "micro-business-parse-server-common": "^0.1.94",
     "newrelic": "^2.0.1",
-    "smart-grocery-parse-server-common": "^0.1.195"
+    "smart-grocery-parse-server-common": "^0.1.196"
   },
   "devDependencies": {
     "babel-eslint": "^7.2.3",
@@ -43,7 +43,7 @@
     "eslint-plugin-import": "^2.7.0",
     "eslint-plugin-jsx-a11y": "6.0.2",
     "eslint-plugin-react": "^7.1.0",
-    "flow-bin": "^0.51.0",
+    "flow-bin": "^0.51.1",
     "jest": "^20.0.4",
     "lint-staged": "^4.0.2",
     "nodemon": "^1.11.0",

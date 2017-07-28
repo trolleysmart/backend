@@ -47,6 +47,7 @@ type Mutation {
   addStapleShoppingListItemToUserShoppingList(input: AddStapleShoppingListItemToUserShoppingListInput!): AddStapleShoppingListItemToUserShoppingListPayload
   removeStapleShoppingListItemFromUserShoppingList(input: RemoveStapleShoppingListItemFromUserShoppingListInput!): RemoveStapleShoppingListItemFromUserShoppingListPayload
   removeStapleShoppingListItemsFromUserShoppingList(input: RemoveStapleShoppingListItemsFromUserShoppingListInput!): RemoveStapleShoppingListItemsFromUserShoppingListPayload
+  submitUserFeedback(input: SubmitUserFeedbackInput!): SubmitUserFeedbackPayload
 }
 
 # An object with an ID
@@ -257,6 +258,16 @@ type StoreTypeEdge {
 
   # A cursor for use in pagination
   cursor: String!
+}
+
+input SubmitUserFeedbackInput {
+  feedback: String
+  clientMutationId: String
+}
+
+type SubmitUserFeedbackPayload {
+  errorMessage: String
+  clientMutationId: String
 }
 
 type Tag implements Node {
