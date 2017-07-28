@@ -8,7 +8,6 @@ import { removeStapleShoppingListItemFromUserShoppingList } from './StapleShoppi
 export default mutationWithClientMutationId({
   name: 'RemoveStapleShoppingListItemFromUserShoppingList',
   inputFields: {
-    userId: { type: new GraphQLNonNull(GraphQLID) },
     stapleShoppingListItemId: { type: new GraphQLNonNull(GraphQLID) },
   },
   outputFields: {
@@ -23,6 +22,6 @@ export default mutationWithClientMutationId({
       }),
     },
   },
-  mutateAndGetPayload: async ({ userId, stapleShoppingListItemId }, request) =>
-    removeStapleShoppingListItemFromUserShoppingList(request.headers.authorization, userId, stapleShoppingListItemId),
+  mutateAndGetPayload: async ({ stapleShoppingListItemId }, request) =>
+    removeStapleShoppingListItemFromUserShoppingList(request.headers.authorization, stapleShoppingListItemId),
 });

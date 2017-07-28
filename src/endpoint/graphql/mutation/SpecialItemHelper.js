@@ -47,11 +47,12 @@ const getAllShoppingListContainsSpecialItemId = async (sessionToken, userId, spe
   return shoppingListItems;
 };
 
-export const addSpecialItemToUserShoppingList = async (sessionToken, userId, specialItemId) => {
+export const addSpecialItemToUserShoppingList = async (sessionToken, specialItemId) => {
   try {
     const masterProductPrice = await getMasterProductPriceById(sessionToken, specialItemId);
     const user = await UserService.getUserForProvidedSessionToken(sessionToken);
     const acl = ParseWrapperService.createACL(user);
+    const userId = user.id;
 
     await ShoppingListService.create(Map({ userId, masterProductPriceId: specialItemId, name: masterProductPrice.get('name') }), acl, sessionToken);
 
@@ -87,8 +88,10 @@ export const addSpecialItemToUserShoppingList = async (sessionToken, userId, spe
   }
 };
 
-export const removeSpecialItemFromUserShoppingList = async (sessionToken, userId, specialItemId) => {
+export const removeSpecialItemFromUserShoppingList = async (sessionToken, specialItemId) => {
   try {
+    const user = await UserService.getUserForProvidedSessionToken(sessionToken);
+    const userId = user.id;
     const shoppingListItems = await getAllShoppingListContainsSpecialItemId(sessionToken, userId, specialItemId);
 
     if (shoppingListItems.isEmpty()) {
@@ -133,8 +136,10 @@ export const removeSpecialItemFromUserShoppingList = async (sessionToken, userId
   }
 };
 
-export const removeSpecialItemsFromUserShoppingList = async (sessionToken, userId, specialItemId) => {
+export const removeSpecialItemsFromUserShoppingList = async (sessionToken, specialItemId) => {
   try {
+    const user = await UserService.getUserForProvidedSessionToken(sessionToken);
+    const userId = user.id;
     const shoppingListItems = await getAllShoppingListContainsSpecialItemId(sessionToken, userId, specialItemId);
 
     if (shoppingListItems.isEmpty()) {

@@ -8,7 +8,6 @@ import { addStapleShoppingListItemToUserShoppingList } from './StapleShoppingLis
 export default mutationWithClientMutationId({
   name: 'AddStapleShoppingListItemToUserShoppingList',
   inputFields: {
-    userId: { type: new GraphQLNonNull(GraphQLID) },
     stapleShoppingListItemId: { type: new GraphQLNonNull(GraphQLID) },
   },
   outputFields: {
@@ -23,6 +22,6 @@ export default mutationWithClientMutationId({
       }),
     },
   },
-  mutateAndGetPayload: async ({ userId, stapleShoppingListItemId }, request) =>
-    addStapleShoppingListItemToUserShoppingList(request.headers.authorization, userId, stapleShoppingListItemId),
+  mutateAndGetPayload: async ({ stapleShoppingListItemId }, request) =>
+    addStapleShoppingListItemToUserShoppingList(request.headers.authorization, stapleShoppingListItemId),
 });

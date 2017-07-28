@@ -1,6 +1,6 @@
 // @flow
 
-import { GraphQLID, GraphQLString, GraphQLNonNull } from 'graphql';
+import { GraphQLString, GraphQLNonNull } from 'graphql';
 import { mutationWithClientMutationId } from 'graphql-relay';
 import { ShoppingList } from '../type';
 import { addNewStapleShoppingListToShoppingList } from './StapleShoppingListHelper';
@@ -8,7 +8,6 @@ import { addNewStapleShoppingListToShoppingList } from './StapleShoppingListHelp
 export default mutationWithClientMutationId({
   name: 'AddNewStapleShoppingListToShoppingList',
   inputFields: {
-    userId: { type: new GraphQLNonNull(GraphQLID) },
     name: { type: new GraphQLNonNull(GraphQLString) },
   },
   outputFields: {
@@ -23,5 +22,5 @@ export default mutationWithClientMutationId({
       }),
     },
   },
-  mutateAndGetPayload: async ({ userId, name }, request) => addNewStapleShoppingListToShoppingList(request.headers.authorization, userId, name),
+  mutateAndGetPayload: async ({ name }, request) => addNewStapleShoppingListToShoppingList(request.headers.authorization, name),
 });

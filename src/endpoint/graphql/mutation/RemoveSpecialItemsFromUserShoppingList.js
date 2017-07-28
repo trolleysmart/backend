@@ -7,7 +7,6 @@ import { removeSpecialItemsFromUserShoppingList } from './SpecialItemHelper';
 export default mutationWithClientMutationId({
   name: 'RemoveSpecialItemsFromUserShoppingList',
   inputFields: {
-    userId: { type: new GraphQLNonNull(GraphQLID) },
     specialItemId: { type: new GraphQLNonNull(GraphQLID) },
   },
   outputFields: {
@@ -15,6 +14,5 @@ export default mutationWithClientMutationId({
       type: GraphQLString,
     },
   },
-  mutateAndGetPayload: async ({ userId, specialItemId }, request) =>
-    removeSpecialItemsFromUserShoppingList(request.headers.authorization, userId, specialItemId),
+  mutateAndGetPayload: async ({ specialItemId }, request) => removeSpecialItemsFromUserShoppingList(request.headers.authorization, specialItemId),
 });

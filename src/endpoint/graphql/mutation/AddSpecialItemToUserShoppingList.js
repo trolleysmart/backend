@@ -8,7 +8,6 @@ import { addSpecialItemToUserShoppingList } from './SpecialItemHelper';
 export default mutationWithClientMutationId({
   name: 'AddSpecialItemToUserShoppingList',
   inputFields: {
-    userId: { type: new GraphQLNonNull(GraphQLID) },
     specialItemId: { type: new GraphQLNonNull(GraphQLID) },
   },
   outputFields: {
@@ -23,6 +22,5 @@ export default mutationWithClientMutationId({
       }),
     },
   },
-  mutateAndGetPayload: async ({ userId, specialItemId }, request) =>
-    addSpecialItemToUserShoppingList(request.headers.authorization, userId, specialItemId),
+  mutateAndGetPayload: async ({ specialItemId }, request) => addSpecialItemToUserShoppingList(request.headers.authorization, specialItemId),
 });

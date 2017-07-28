@@ -2190,20 +2190,6 @@
           "fields": null,
           "inputFields": [
             {
-              "name": "userId",
-              "description": null,
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "ID",
-                  "ofType": null
-                }
-              },
-              "defaultValue": null
-            },
-            {
               "name": "name",
               "description": null,
               "type": {
@@ -2285,20 +2271,6 @@
           "description": null,
           "fields": null,
           "inputFields": [
-            {
-              "name": "userId",
-              "description": null,
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "ID",
-                  "ofType": null
-                }
-              },
-              "defaultValue": null
-            },
             {
               "name": "specialItemId",
               "description": null,
@@ -2382,20 +2354,6 @@
           "fields": null,
           "inputFields": [
             {
-              "name": "userId",
-              "description": null,
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "ID",
-                  "ofType": null
-                }
-              },
-              "defaultValue": null
-            },
-            {
               "name": "specialItemId",
               "description": null,
               "type": {
@@ -2478,20 +2436,6 @@
           "fields": null,
           "inputFields": [
             {
-              "name": "userId",
-              "description": null,
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "ID",
-                  "ofType": null
-                }
-              },
-              "defaultValue": null
-            },
-            {
               "name": "specialItemId",
               "description": null,
               "type": {
@@ -2561,20 +2505,6 @@
           "description": null,
           "fields": null,
           "inputFields": [
-            {
-              "name": "userId",
-              "description": null,
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "ID",
-                  "ofType": null
-                }
-              },
-              "defaultValue": null
-            },
             {
               "name": "stapleShoppingListItemId",
               "description": null,
@@ -2658,20 +2588,6 @@
           "fields": null,
           "inputFields": [
             {
-              "name": "userId",
-              "description": null,
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "ID",
-                  "ofType": null
-                }
-              },
-              "defaultValue": null
-            },
-            {
               "name": "stapleShoppingListItemId",
               "description": null,
               "type": {
@@ -2753,20 +2669,6 @@
           "description": null,
           "fields": null,
           "inputFields": [
-            {
-              "name": "userId",
-              "description": null,
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "ID",
-                  "ofType": null
-                }
-              },
-              "defaultValue": null
-            },
             {
               "name": "stapleShoppingListItemId",
               "description": null,

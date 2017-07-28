@@ -1,5 +1,4 @@
 input AddNewStapleShoppingListToShoppingListInput {
-  userId: ID!
   name: String!
   clientMutationId: String
 }
@@ -11,7 +10,6 @@ type AddNewStapleShoppingListToShoppingListPayload {
 }
 
 input AddSpecialItemToUserShoppingListInput {
-  userId: ID!
   specialItemId: ID!
   clientMutationId: String
 }
@@ -23,7 +21,6 @@ type AddSpecialItemToUserShoppingListPayload {
 }
 
 input AddStapleShoppingListItemToUserShoppingListInput {
-  userId: ID!
   stapleShoppingListItemId: ID!
   clientMutationId: String
 }
@@ -83,7 +80,6 @@ type Query {
 }
 
 input RemoveSpecialItemFromUserShoppingListInput {
-  userId: ID!
   specialItemId: ID!
   clientMutationId: String
 }
@@ -95,7 +91,6 @@ type RemoveSpecialItemFromUserShoppingListPayload {
 }
 
 input RemoveSpecialItemsFromUserShoppingListInput {
-  userId: ID!
   specialItemId: ID!
   clientMutationId: String
 }
@@ -106,7 +101,6 @@ type RemoveSpecialItemsFromUserShoppingListPayload {
 }
 
 input RemoveStapleShoppingListItemFromUserShoppingListInput {
-  userId: ID!
   stapleShoppingListItemId: ID!
   clientMutationId: String
 }
@@ -118,7 +112,6 @@ type RemoveStapleShoppingListItemFromUserShoppingListPayload {
 }
 
 input RemoveStapleShoppingListItemsFromUserShoppingListInput {
-  userId: ID!
   stapleShoppingListItemId: ID!
   clientMutationId: String
 }

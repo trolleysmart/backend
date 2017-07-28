@@ -7,7 +7,6 @@ import { removeStapleShoppingListItemsFromUserShoppingList } from './StapleShopp
 export default mutationWithClientMutationId({
   name: 'RemoveStapleShoppingListItemsFromUserShoppingList',
   inputFields: {
-    userId: { type: new GraphQLNonNull(GraphQLID) },
     stapleShoppingListItemId: { type: new GraphQLNonNull(GraphQLID) },
   },
   outputFields: {
@@ -15,6 +14,6 @@ export default mutationWithClientMutationId({
       type: GraphQLString,
     },
   },
-  mutateAndGetPayload: async ({ userId, stapleShoppingListItemId }, request) =>
-    removeStapleShoppingListItemsFromUserShoppingList(request.headers.authorization, userId, stapleShoppingListItemId),
+  mutateAndGetPayload: async ({ stapleShoppingListItemId }, request) =>
+    removeStapleShoppingListItemsFromUserShoppingList(request.headers.authorization, stapleShoppingListItemId),
 });

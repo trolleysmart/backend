@@ -20,10 +20,6 @@ export default mutationWithClientMutationId({
     const user = await UserService.getUserForProvidedSessionToken(request.headers.authorization);
     const acl = ParseWrapperService.createACL(user);
 
-    return UserFeedbackService.create(
-      Map({ userId: user.get('id'), feedback: Immutable.fromJS(JSON.parse(feedback)) }),
-      acl,
-      request.headers.authorization,
-    );
+    return UserFeedbackService.create(Map({ userId: user.id, feedback: Immutable.fromJS(JSON.parse(feedback)) }), acl, request.headers.authorization);
   },
 });

@@ -87,11 +87,12 @@ const getAllShoppingListContainsStapleShoppingListItemId = async (sessionToken, 
   return shoppingListItems;
 };
 
-export const addStapleShoppingListItemToUserShoppingList = async (sessionToken, userId, stapleShoppingListItemId) => {
+export const addStapleShoppingListItemToUserShoppingList = async (sessionToken, stapleShoppingListItemId) => {
   try {
-    const stapleShoppingList = await getStapleShoppingListById(sessionToken, userId, stapleShoppingListItemId);
     const user = await UserService.getUserForProvidedSessionToken(sessionToken);
     const acl = ParseWrapperService.createACL(user);
+    const userId = user.id;
+    const stapleShoppingList = await getStapleShoppingListById(sessionToken, userId, stapleShoppingListItemId);
 
     await ShoppingListService.create(
       Map({ userId, stapleShoppingListId: stapleShoppingListItemId, name: stapleShoppingList.get('name') }),
@@ -113,8 +114,10 @@ export const addStapleShoppingListItemToUserShoppingList = async (sessionToken, 
   }
 };
 
-export const addNewStapleShoppingListToShoppingList = async (sessionToken, userId, name) => {
+export const addNewStapleShoppingListToShoppingList = async (sessionToken, name) => {
   try {
+    const user = await UserService.getUserForProvidedSessionToken(sessionToken);
+    const userId = user.id;
     const trimmedName = removeNameInvalidCharacters(name);
 
     if (trimmedName.length === 0) {
@@ -125,9 +128,8 @@ export const addNewStapleShoppingListToShoppingList = async (sessionToken, userI
     let stapleShoppingListItemId;
 
     if (stapleShoppingListItems.isEmpty()) {
-      const stapleTemplateShoppingListItems = await getStapleTemplateShoppingListItems(sessionToken, trimmedName);
-      const user = await UserService.getUserForProvidedSessionToken(sessionToken);
       const acl = ParseWrapperService.createACL(user);
+      const stapleTemplateShoppingListItems = await getStapleTemplateShoppingListItems(sessionToken, trimmedName);
 
       if (stapleTemplateShoppingListItems.isEmpty()) {
         stapleShoppingListItemId = await StapleShoppingListService.create(Map({ userId, name }), acl, sessionToken);
@@ -142,14 +144,16 @@ export const addNewStapleShoppingListToShoppingList = async (sessionToken, userI
       stapleShoppingListItemId = stapleShoppingListItems.first().get('id');
     }
 
-    return await addStapleShoppingListItemToUserShoppingList(sessionToken, userId, stapleShoppingListItemId);
+    return await addStapleShoppingListItemToUserShoppingList(sessionToken, stapleShoppingListItemId);
   } catch (ex) {
     return { errorMessage: ex instanceof Exception ? ex.getErrorMessage() : ex };
   }
 };
 
-export const removeStapleShoppingListItemFromUserShoppingList = async (sessionToken, userId, stapleShoppingListItemId) => {
+export const removeStapleShoppingListItemFromUserShoppingList = async (sessionToken, stapleShoppingListItemId) => {
   try {
+    const user = await UserService.getUserForProvidedSessionToken(sessionToken);
+    const userId = user.id;
     const shoppingListItems = await getAllShoppingListContainsStapleShoppingListItemId(sessionToken, userId, stapleShoppingListItemId);
 
     if (shoppingListItems.isEmpty()) {
@@ -177,8 +181,10 @@ export const removeStapleShoppingListItemFromUserShoppingList = async (sessionTo
   }
 };
 
-export const removeStapleShoppingListItemsFromUserShoppingList = async (sessionToken, userId, stapleShoppingListItemId) => {
+export const removeStapleShoppingListItemsFromUserShoppingList = async (sessionToken, stapleShoppingListItemId) => {
   try {
+    const user = await UserService.getUserForProvidedSessionToken(sessionToken);
+    const userId = user.id;
     const shoppingListItems = await getAllShoppingListContainsStapleShoppingListItemId(sessionToken, userId, stapleShoppingListItemId);
 
     if (shoppingListItems.isEmpty()) {
