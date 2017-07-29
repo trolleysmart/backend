@@ -1,7 +1,7 @@
 // @flow
 
 import { Exception, ParseWrapperService } from 'micro-business-parse-server-common';
-import { StapleShoppingListService } from 'smart-grocery-parse-server-common';
+import { StapleShoppingListService } from 'trolley-smart-parse-server-common';
 
 Parse.Cloud.afterSave('_User', async (request) => {
   if (request.object.createdAt !== request.object.updatedAt) {

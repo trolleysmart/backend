@@ -3,7 +3,7 @@
 import Immutable, { List, Map, Range } from 'immutable';
 import { GraphQLID, GraphQLFloat, GraphQLObjectType, GraphQLString, GraphQLNonNull } from 'graphql';
 import { connectionDefinitions } from 'graphql-relay';
-import { MasterProductPriceService } from 'smart-grocery-parse-server-common';
+import { MasterProductPriceService } from 'trolley-smart-parse-server-common';
 import { NodeInterface } from '../interface';
 import multiBuyType from './MultiBuy';
 import unitPriceType from './UnitPrice';

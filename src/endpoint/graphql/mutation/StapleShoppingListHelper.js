@@ -3,7 +3,7 @@
 import BluebirdPromise from 'bluebird';
 import Immutable, { List, Map, Range } from 'immutable';
 import { Exception, ParseWrapperService, UserService } from 'micro-business-parse-server-common';
-import { StapleShoppingListService, StapleTemplateShoppingListService, ShoppingListService } from 'smart-grocery-parse-server-common';
+import { StapleShoppingListService, StapleTemplateShoppingListService, ShoppingListService } from 'trolley-smart-parse-server-common';
 
 const splitIntoChunks = (list, chunkSize) => Range(0, list.count(), chunkSize).map(chunkStart => list.slice(chunkStart, chunkStart + chunkSize));
 

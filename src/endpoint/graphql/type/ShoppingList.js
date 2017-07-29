@@ -4,7 +4,7 @@ import Immutable, { List, Map } from 'immutable';
 import { GraphQLID, GraphQLFloat, GraphQLList, GraphQLInt, GraphQLObjectType, GraphQLString, GraphQLNonNull } from 'graphql';
 import { connectionDefinitions, connectionFromArray } from 'graphql-relay';
 import { Exception } from 'micro-business-parse-server-common';
-import { MasterProductPriceService, ShoppingListService, StapleShoppingListService } from 'smart-grocery-parse-server-common';
+import { MasterProductPriceService, ShoppingListService, StapleShoppingListService } from 'trolley-smart-parse-server-common';
 import { NodeInterface } from '../interface';
 import multiBuyType from './MultiBuy';
 import unitPriceType from './UnitPrice';

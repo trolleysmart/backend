@@ -3,7 +3,7 @@
 import { Map, Range } from 'immutable';
 import { GraphQLID, GraphQLList, GraphQLObjectType, GraphQLString, GraphQLNonNull } from 'graphql';
 import { connectionDefinitions } from 'graphql-relay';
-import { StapleShoppingListService } from 'smart-grocery-parse-server-common';
+import { StapleShoppingListService } from 'trolley-smart-parse-server-common';
 import { NodeInterface } from '../interface';
 import { getLimitAndSkipValue, convertStringArgumentToSet } from './Common';
 
