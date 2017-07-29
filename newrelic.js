@@ -10,11 +10,11 @@ exports.config = {
   /**
    * Array of application names.
    */
-  app_name: ['smart-grocery-backend'],
+  app_name: ['trolley-smart'],
   /**
    * Your New Relic license key.
    */
-  license_key: '8957ae937e73defbf965ba835801f9ddaf7ac85a',
+  license_key: 'a85fa10ea35edccc797bdb446db07d97fc48c9b6',
   logging: {
     /**
      * Level at which to log. 'trace' is most useful to New Relic when diagnosing
