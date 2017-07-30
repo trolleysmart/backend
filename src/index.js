@@ -17,6 +17,7 @@ const backendInfo = backend({
   startParseDashboard: process.env.START_PARSE_DASHBOARD,
   parseDashboardAuthentication: process.env.PARSE_DASHBOARD_AUTHENTICATION,
   parseServerDashboardApplicationName: process.env.PARSE_SERVER_DASHBOARD_APPLICATION_NAME,
+  facebookAppId: process.env.FACEBOOK_APP_ID,
   parseServerCloudFilePath: path.resolve(__dirname, 'cloud.js'),
 });
 
