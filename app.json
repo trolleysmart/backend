@@ -1,6 +1,6 @@
 {
-  "name": "Evaluating Parse Server on Heroku using Express",
-  "description": "Evaluating Parse Server on Heroku using Express",
-  "repository": "git+ssh://git@bitbucket.org/microbusiness/micro-business-parse-server-backend.git",
+  "name": "Trolley Smart Backend",
+  "description": "Trolley Smart Backend",
+  "repository": "git+ssh://git@bitbucket.org/microbusiness/trolley-smart-backend.git",
   "image": "heroku/nodejs"
 }
