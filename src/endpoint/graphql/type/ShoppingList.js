@@ -1,14 +1,14 @@
 // @flow
 
-import Immutable, { List, Map } from 'immutable';
+import Immutable, { List, Map, Range } from 'immutable';
 import { GraphQLID, GraphQLFloat, GraphQLList, GraphQLInt, GraphQLObjectType, GraphQLString, GraphQLNonNull } from 'graphql';
-import { connectionDefinitions, connectionFromArray } from 'graphql-relay';
+import { connectionDefinitions } from 'graphql-relay';
 import { Exception } from 'micro-business-parse-server-common';
 import { MasterProductPriceService, ShoppingListService, StapleShoppingListService } from 'trolley-smart-parse-server-common';
 import { NodeInterface } from '../interface';
 import multiBuyType from './MultiBuy';
 import unitPriceType from './UnitPrice';
-import { convertStringArgumentToSet } from './Common';
+import { getLimitAndSkipValue, convertStringArgumentToSet } from './Common';
 
 const ShoppingListType = new GraphQLObjectType({
   name: 'ShoppingList',
@@ -327,7 +327,28 @@ export const getShoppingList = async (sessionToken, userId, args) => {
     .sort((item1, item2) => item1.get('name').localeCompare(item2.get('name')))
     .take(args.first ? args.first : 10);
 
-  return connectionFromArray(completeList.toArray(), args);
+  const count = completeList.count();
+  const { limit, skip, hasNextPage, hasPreviousPage } = getLimitAndSkipValue(args, count, 10, 1000);
+  const indexedList = completeList.skip(skip).take(limit).zip(Range(skip, skip + limit));
+
+  const edges = indexedList.map(indexedItem => ({
+    node: indexedItem[0],
+    cursor: indexedItem[1] + 1,
+  }));
+
+  const firstEdge = edges.first();
+  const lastEdge = edges.last();
+
+  return {
+    edges: edges.toArray(),
+    count,
+    pageInfo: {
+      startCursor: firstEdge ? firstEdge.cursor : null,
+      endCursor: lastEdge ? lastEdge.cursor : null,
+      hasPreviousPage,
+      hasNextPage,
+    },
+  };
 };
 
 export default { ShoppingListType, ShoppingListConnectionDefinition };
