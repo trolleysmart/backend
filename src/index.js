@@ -18,6 +18,8 @@ const backendInfo = backend({
   parseDashboardAuthentication: process.env.PARSE_DASHBOARD_AUTHENTICATION,
   parseServerDashboardApplicationName: process.env.PARSE_SERVER_DASHBOARD_APPLICATION_NAME,
   facebookAppIds: process.env.FACEBOOK_APP_IDS,
+  androidCloudMessagingSenderId: process.env.ANDROID_CLOUD_MESSAGING_SENDER_ID,
+  androidCloudMessagingServerKey: process.env.ANDROID_CLOUD_MESSAGING_SERVER_KEY,
   parseServerCloudFilePath: path.resolve(__dirname, 'cloud.js'),
 });
 
@@ -26,6 +28,6 @@ setupEndPoint(backendInfo.get('server'));
 process.on('SIGINT', () => process.exit());
 
 backendInfo.get('server').listen(backendInfo.get('serverPort'), () => {
-  console.log('Smart Grocery backend started.');
+  console.log('TrolleySmart backend started.');
   console.log(JSON.stringify(backendInfo.toJS(), null, 2));
 });
