@@ -325,17 +325,14 @@ export const getShoppingList = async (sessionToken, userId, args) => {
   const completeList = completeStapleShoppingList
     .concat(completeMasterProductPrice)
     .sort((item1, item2) => item1.get('name').localeCompare(item2.get('name')))
-    .take(args.first ? args.first : 10);
-
+    .toList();
   const count = completeList.count();
   const { limit, skip, hasNextPage, hasPreviousPage } = getLimitAndSkipValue(args, count, 10, 1000);
   const indexedList = completeList.skip(skip).take(limit).zip(Range(skip, skip + limit));
-
   const edges = indexedList.map(indexedItem => ({
     node: indexedItem[0],
     cursor: indexedItem[1] + 1,
   }));
-
   const firstEdge = edges.first();
   const lastEdge = edges.last();
 
