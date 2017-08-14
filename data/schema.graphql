@@ -207,7 +207,7 @@ type SpecialEdge {
 type StapleShoppingList implements Node {
   id: ID!
   name: String
-  tags: [ID]
+  tags: [Tag]
 }
 
 # A connection to a list of items.

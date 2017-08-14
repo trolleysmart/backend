@@ -6,6 +6,7 @@ import { connectionDefinitions } from 'graphql-relay';
 import { StapleShoppingListService } from 'trolley-smart-parse-server-common';
 import { NodeInterface } from '../interface';
 import { getLimitAndSkipValue, convertStringArgumentToSet } from './Common';
+import Tag from './Tag';
 
 const StapleShoppingListType = new GraphQLObjectType({
   name: 'StapleShoppingList',
@@ -19,8 +20,8 @@ const StapleShoppingListType = new GraphQLObjectType({
       resolve: _ => _.get('name'),
     },
     tags: {
-      type: new GraphQLList(GraphQLID),
-      resolve: _ => _.get('tagIds') || [],
+      type: new GraphQLList(Tag.TagType),
+      resolve: _ => _.get('tags'),
     },
   },
   interfaces: [NodeInterface],
