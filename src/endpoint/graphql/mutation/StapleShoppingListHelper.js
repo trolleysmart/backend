@@ -129,35 +129,43 @@ export const addNewStapleShoppingListToShoppingList = async (sessionToken, names
 
     const user = await UserService.getUserForProvidedSessionToken(sessionToken);
     const userId = user.id;
-    const results = await Promise.all(
-      trimmedNames
-        .map(async (trimmedName) => {
-          const stapleShoppingListItems = await getStapleShoppingListItems(sessionToken, userId, trimmedName);
-          let stapleShoppingListItemId;
+    const results = Immutable.fromJS(
+      await Promise.all(
+        trimmedNames
+          .map(async (trimmedName) => {
+            const stapleShoppingListItems = await getStapleShoppingListItems(sessionToken, userId, trimmedName);
+            let stapleShoppingListItemId;
 
-          if (stapleShoppingListItems.isEmpty()) {
-            const acl = ParseWrapperService.createACL(user);
-            const stapleTemplateShoppingListItems = await getStapleTemplateShoppingListItems(sessionToken, trimmedName);
+            if (stapleShoppingListItems.isEmpty()) {
+              const acl = ParseWrapperService.createACL(user);
+              const stapleTemplateShoppingListItems = await getStapleTemplateShoppingListItems(sessionToken, trimmedName);
 
-            if (stapleTemplateShoppingListItems.isEmpty()) {
-              stapleShoppingListItemId = await StapleShoppingListService.create(Map({ userId, name: trimmedName }), acl, sessionToken);
+              if (stapleTemplateShoppingListItems.isEmpty()) {
+                stapleShoppingListItemId = await StapleShoppingListService.create(Map({ userId, name: trimmedName }), acl, sessionToken);
+              } else {
+                stapleShoppingListItemId = await StapleShoppingListService.create(
+                  stapleTemplateShoppingListItems.first().set('userId', userId),
+                  acl,
+                  sessionToken,
+                );
+              }
             } else {
-              stapleShoppingListItemId = await StapleShoppingListService.create(
-                stapleTemplateShoppingListItems.first().set('userId', userId),
-                acl,
-                sessionToken,
-              );
+              stapleShoppingListItemId = stapleShoppingListItems.first().get('id');
             }
-          } else {
-            stapleShoppingListItemId = stapleShoppingListItems.first().get('id');
-          }
 
-          return addStapleShoppingListItemToUserShoppingList(sessionToken, stapleShoppingListItemId);
-        })
-        .toArray(),
+            return addStapleShoppingListItemToUserShoppingList(sessionToken, stapleShoppingListItemId);
+          })
+          .toArray(),
+      ),
     );
 
-    return results;
+    const errors = results.filter(result => result.errorMessage);
+
+    if (!errors.isEmpty()) {
+      return errors.first();
+    }
+
+    return results.toJS();
   } catch (ex) {
     return { errorMessage: ex instanceof Exception ? ex.getErrorMessage() : ex };
   }

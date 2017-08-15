@@ -17,11 +17,16 @@ export default mutationWithClientMutationId({
     },
     items: {
       type: new GraphQLList(ShoppingList.ShoppingListConnectionDefinition.edgeType),
-      resolve: _ =>
-        _.map(node => ({
+      resolve: (_) => {
+        if (_.errorMessage) {
+          return null;
+        }
+
+        return _.map(node => ({
           cursor: 'DummyCursor',
           node: node.item,
-        })),
+        }));
+      },
     },
   },
   mutateAndGetPayload: async ({ names }, request) => addNewStapleShoppingListToShoppingList(request.headers.authorization, Immutable.fromJS(names)),

@@ -16,10 +16,16 @@ export default mutationWithClientMutationId({
     },
     item: {
       type: ShoppingList.ShoppingListConnectionDefinition.edgeType,
-      resolve: _ => ({
-        cursor: 'DummyCursor',
-        node: _.item,
-      }),
+      resolve: (_) => {
+        if (_.errorMessage) {
+          return null;
+        }
+
+        return {
+          cursor: 'DummyCursor',
+          node: _.item,
+        };
+      },
     },
   },
   mutateAndGetPayload: async ({ specialItemId }, request) => addSpecialItemToUserShoppingList(request.headers.authorization, specialItemId),
