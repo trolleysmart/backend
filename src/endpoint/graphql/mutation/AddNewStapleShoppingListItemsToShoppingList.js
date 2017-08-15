@@ -20,7 +20,7 @@ export default mutationWithClientMutationId({
       resolve: _ =>
         _.map(node => ({
           cursor: 'DummyCursor',
-          node,
+          node: node.item,
         })),
     },
   },

@@ -157,7 +157,7 @@ export const addNewStapleShoppingListToShoppingList = async (sessionToken, names
         .toArray(),
     );
 
-    return Immutable.fromJS(results);
+    return results;
   } catch (ex) {
     return { errorMessage: ex instanceof Exception ? ex.getErrorMessage() : ex };
   }
