@@ -1,11 +1,11 @@
-input AddNewStapleShoppingListToShoppingListInput {
-  name: String!
+input AddNewStapleShoppingListItemsToShoppingListInput {
+  names: [String!]
   clientMutationId: String
 }
 
-type AddNewStapleShoppingListToShoppingListPayload {
+type AddNewStapleShoppingListItemsToShoppingListPayload {
   errorMessage: String
-  item: ShoppingListEdge
+  items: [ShoppingListEdge]
   clientMutationId: String
 }
 
@@ -37,7 +37,7 @@ type MultiBuy {
 }
 
 type Mutation {
-  addNewStapleShoppingListToShoppingList(input: AddNewStapleShoppingListToShoppingListInput!): AddNewStapleShoppingListToShoppingListPayload
+  addNewStapleShoppingListItemsToShoppingList(input: AddNewStapleShoppingListItemsToShoppingListInput!): AddNewStapleShoppingListItemsToShoppingListPayload
   addSpecialItemToUserShoppingList(input: AddSpecialItemToUserShoppingListInput!): AddSpecialItemToUserShoppingListPayload
   removeSpecialItemFromUserShoppingList(input: RemoveSpecialItemFromUserShoppingListInput!): RemoveSpecialItemFromUserShoppingListPayload
   removeSpecialItemsFromUserShoppingList(input: RemoveSpecialItemsFromUserShoppingListInput!): RemoveSpecialItemsFromUserShoppingListPayload

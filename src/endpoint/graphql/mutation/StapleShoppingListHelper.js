@@ -114,37 +114,48 @@ export const addStapleShoppingListItemToUserShoppingList = async (sessionToken, 
   }
 };
 
-export const addNewStapleShoppingListToShoppingList = async (sessionToken, name) => {
+export const addNewStapleShoppingListToShoppingList = async (sessionToken, names) => {
   try {
+    const trimmedNames = names
+      .map(removeNameInvalidCharacters)
+      .groupBy(_ => _.toLowerCase())
+      .map(_ => _.first())
+      .valueSeq()
+      .filter(_ => _.length > 0);
+
+    if (trimmedNames.isEmpty()) {
+      throw new Exception('Names is invalid.');
+    }
+
     const user = await UserService.getUserForProvidedSessionToken(sessionToken);
     const userId = user.id;
-    const trimmedName = removeNameInvalidCharacters(name);
+    const results = await Promise.all(
+      trimmedNames.map(async (trimmedName) => {
+        const stapleShoppingListItems = await getStapleShoppingListItems(sessionToken, userId, trimmedName);
+        let stapleShoppingListItemId;
 
-    if (trimmedName.length === 0) {
-      throw new Exception('Name is invalid.');
-    }
+        if (stapleShoppingListItems.isEmpty()) {
+          const acl = ParseWrapperService.createACL(user);
+          const stapleTemplateShoppingListItems = await getStapleTemplateShoppingListItems(sessionToken, trimmedName);
 
-    const stapleShoppingListItems = await getStapleShoppingListItems(sessionToken, userId, trimmedName);
-    let stapleShoppingListItemId;
+          if (stapleTemplateShoppingListItems.isEmpty()) {
+            stapleShoppingListItemId = await StapleShoppingListService.create(Map({ userId, trimmedName }), acl, sessionToken);
+          } else {
+            stapleShoppingListItemId = await StapleShoppingListService.create(
+              stapleTemplateShoppingListItems.first().set('userId', userId),
+              acl,
+              sessionToken,
+            );
+          }
+        } else {
+          stapleShoppingListItemId = stapleShoppingListItems.first().get('id');
+        }
 
-    if (stapleShoppingListItems.isEmpty()) {
-      const acl = ParseWrapperService.createACL(user);
-      const stapleTemplateShoppingListItems = await getStapleTemplateShoppingListItems(sessionToken, trimmedName);
+        return addStapleShoppingListItemToUserShoppingList(sessionToken, stapleShoppingListItemId);
+      }),
+    );
 
-      if (stapleTemplateShoppingListItems.isEmpty()) {
-        stapleShoppingListItemId = await StapleShoppingListService.create(Map({ userId, name }), acl, sessionToken);
-      } else {
-        stapleShoppingListItemId = await StapleShoppingListService.create(
-          stapleTemplateShoppingListItems.first().set('userId', userId),
-          acl,
-          sessionToken,
-        );
-      }
-    } else {
-      stapleShoppingListItemId = stapleShoppingListItems.first().get('id');
-    }
-
-    return await addStapleShoppingListItemToUserShoppingList(sessionToken, stapleShoppingListItemId);
+    return Immutable.fromJS(results);
   } catch (ex) {
     return { errorMessage: ex instanceof Exception ? ex.getErrorMessage() : ex };
   }

@@ -1935,7 +1935,7 @@
           "description": null,
           "fields": [
             {
-              "name": "addNewStapleShoppingListToShoppingList",
+              "name": "addNewStapleShoppingListItemsToShoppingList",
               "description": null,
               "args": [
                 {
@@ -1946,7 +1946,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "INPUT_OBJECT",
-                      "name": "AddNewStapleShoppingListToShoppingListInput",
+                      "name": "AddNewStapleShoppingListItemsToShoppingListInput",
                       "ofType": null
                     }
                   },
@@ -1955,7 +1955,7 @@
               ],
               "type": {
                 "kind": "OBJECT",
-                "name": "AddNewStapleShoppingListToShoppingListPayload",
+                "name": "AddNewStapleShoppingListItemsToShoppingListPayload",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -2158,20 +2158,24 @@
         },
         {
           "kind": "INPUT_OBJECT",
-          "name": "AddNewStapleShoppingListToShoppingListInput",
+          "name": "AddNewStapleShoppingListItemsToShoppingListInput",
           "description": null,
           "fields": null,
           "inputFields": [
             {
-              "name": "name",
+              "name": "names",
               "description": null,
               "type": {
-                "kind": "NON_NULL",
+                "kind": "LIST",
                 "name": null,
                 "ofType": {
-                  "kind": "SCALAR",
-                  "name": "String",
-                  "ofType": null
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  }
                 }
               },
               "defaultValue": null
@@ -2193,7 +2197,7 @@
         },
         {
           "kind": "OBJECT",
-          "name": "AddNewStapleShoppingListToShoppingListPayload",
+          "name": "AddNewStapleShoppingListItemsToShoppingListPayload",
           "description": null,
           "fields": [
             {
@@ -2209,13 +2213,17 @@
               "deprecationReason": null
             },
             {
-              "name": "item",
+              "name": "items",
               "description": null,
               "args": [],
               "type": {
-                "kind": "OBJECT",
-                "name": "ShoppingListEdge",
-                "ofType": null
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "ShoppingListEdge",
+                  "ofType": null
+                }
               },
               "isDeprecated": false,
               "deprecationReason": null
