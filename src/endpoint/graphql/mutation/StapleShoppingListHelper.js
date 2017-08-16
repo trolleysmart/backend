@@ -162,7 +162,7 @@ export const addNewStapleShoppingListToShoppingList = async (sessionToken, names
     const errors = results.filter(result => result.errorMessage);
 
     if (errors.isEmpty()) {
-      return { items: results.toJS() };
+      return { items: results };
     }
 
     return { errorMessage: errors.first() };

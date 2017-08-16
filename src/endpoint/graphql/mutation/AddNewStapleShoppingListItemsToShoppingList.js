@@ -24,7 +24,7 @@ export default mutationWithClientMutationId({
 
         return result.items.map(node => ({
           cursor: 'DummyCursor',
-          node: node.item,
+          node: node.get('item'),
         }));
       },
     },
