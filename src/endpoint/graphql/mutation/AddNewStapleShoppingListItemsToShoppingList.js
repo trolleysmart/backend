@@ -17,12 +17,12 @@ export default mutationWithClientMutationId({
     },
     items: {
       type: new GraphQLList(ShoppingList.ShoppingListConnectionDefinition.edgeType),
-      resolve: (_) => {
-        if (_.errorMessage) {
+      resolve: (result) => {
+        if (result.errorMessage) {
           return null;
         }
 
-        return _.map(node => ({
+        return result.items.map(node => ({
           cursor: 'DummyCursor',
           node: node.item,
         }));

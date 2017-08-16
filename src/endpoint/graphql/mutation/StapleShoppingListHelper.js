@@ -161,11 +161,11 @@ export const addNewStapleShoppingListToShoppingList = async (sessionToken, names
 
     const errors = results.filter(result => result.errorMessage);
 
-    if (!errors.isEmpty()) {
-      return errors.first();
+    if (errors.isEmpty()) {
+      return { items: results.toJS() };
     }
 
-    return results.toJS();
+    return { errorMessage: errors.first() };
   } catch (ex) {
     return { errorMessage: ex instanceof Exception ? ex.getErrorMessage() : ex };
   }
