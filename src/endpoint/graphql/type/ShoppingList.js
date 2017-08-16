@@ -287,7 +287,7 @@ export const getShoppingList = async (sessionToken, userId, args) => {
 
         return Map({
           id: shoppingListItem.get('id'),
-          specialId: itemWithDataToFecth.get('id'),
+          specialId: foundItem.get('id'),
           name: itemWithDataToFecth.getIn(['masterProduct', 'name']),
           description: itemWithDataToFecth.getIn(['masterProduct', 'description']),
           imageUrl: itemWithDataToFecth.getIn(['masterProduct', 'imageUrl']),
