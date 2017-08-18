@@ -22,11 +22,11 @@ const getMasterProductPriceById = async (sessionToken, id) => {
   return masterProductPriceItems.first();
 };
 
-const getAllShoppingListContainsSpecialItemId = async (sessionToken, userId, productId) => {
+const getAllShoppingListContainsSpecialItemId = async (sessionToken, userId, productPriceIds) => {
   const criteria = Map({
     conditions: Map({
       userId,
-      masterProductPriceId: productId,
+      masterProductPriceId: productPriceIds,
       excludeItemsMarkedAsDone: true,
       includeMasterProductPriceOnly: true,
     }),
@@ -47,12 +47,12 @@ const getAllShoppingListContainsSpecialItemId = async (sessionToken, userId, pro
   return shoppingListItems;
 };
 
-const addProductToUserShoppingList = async (userId, acl, sessionToken, productId) => {
-  const masterProductPrice = await getMasterProductPriceById(sessionToken, productId);
+const addProductPriceToUserShoppingList = async (userId, acl, sessionToken, productPriceIds) => {
+  const masterProductPrice = await getMasterProductPriceById(sessionToken, productPriceIds);
 
-  await ShoppingListService.create(Map({ userId, masterProductPriceId: productId, name: masterProductPrice.get('name') }), acl, sessionToken);
+  await ShoppingListService.create(Map({ userId, masterProductPriceId: productPriceIds, name: masterProductPrice.get('name') }), acl, sessionToken);
 
-  const shoppingListItems = await getAllShoppingListContainsSpecialItemId(sessionToken, userId, productId);
+  const shoppingListItems = await getAllShoppingListContainsSpecialItemId(sessionToken, userId, productPriceIds);
   const offerEndDate = masterProductPrice.get('offerEndDate');
 
   return Map({
@@ -79,26 +79,28 @@ const addProductToUserShoppingList = async (userId, acl, sessionToken, productId
   });
 };
 
-export const addProductsToUserShoppingList = async (sessionToken, productIds) => {
-  if (productIds.isEmpty()) {
+export const addProductPricesToUserShoppingList = async (sessionToken, productPriceIdss) => {
+  if (productPriceIdss.isEmpty()) {
     return List();
   }
 
   const user = await UserService.getUserForProvidedSessionToken(sessionToken);
   const acl = ParseWrapperService.createACL(user);
   const userId = user.id;
-  const productIdsWithoutDuplicate = productIds.groupBy(_ => _).map(_ => _.first()).valueSeq();
+  const productPriceIdssWithoutDuplicate = productPriceIdss.groupBy(_ => _).map(_ => _.first()).valueSeq();
 
   return Immutable.fromJS(
-    await Promise.all(productIdsWithoutDuplicate.map(productId => addProductToUserShoppingList(userId, acl, sessionToken, productId))),
+    await Promise.all(
+      productPriceIdssWithoutDuplicate.map(productPriceIds => addProductPriceToUserShoppingList(userId, acl, sessionToken, productPriceIds)),
+    ),
   );
 };
 
-export const removeSpecialItemFromUserShoppingList = async (sessionToken, productId) => {
+export const removeSpecialItemFromUserShoppingList = async (sessionToken, productPriceIds) => {
   try {
     const user = await UserService.getUserForProvidedSessionToken(sessionToken);
     const userId = user.id;
-    const shoppingListItems = await getAllShoppingListContainsSpecialItemId(sessionToken, userId, productId);
+    const shoppingListItems = await getAllShoppingListContainsSpecialItemId(sessionToken, userId, productPriceIds);
 
     if (shoppingListItems.isEmpty()) {
       return {};
@@ -110,7 +112,7 @@ export const removeSpecialItemFromUserShoppingList = async (sessionToken, produc
       return {};
     }
 
-    const masterProductPrice = await getMasterProductPriceById(sessionToken, productId);
+    const masterProductPrice = await getMasterProductPriceById(sessionToken, productPriceIds);
     const offerEndDate = masterProductPrice.get('offerEndDate');
 
     return {
@@ -142,11 +144,11 @@ export const removeSpecialItemFromUserShoppingList = async (sessionToken, produc
   }
 };
 
-export const removeSpecialItemsFromUserShoppingList = async (sessionToken, productId) => {
+export const removeSpecialItemsFromUserShoppingList = async (sessionToken, productPriceIds) => {
   try {
     const user = await UserService.getUserForProvidedSessionToken(sessionToken);
     const userId = user.id;
-    const shoppingListItems = await getAllShoppingListContainsSpecialItemId(sessionToken, userId, productId);
+    const shoppingListItems = await getAllShoppingListContainsSpecialItemId(sessionToken, userId, productPriceIds);
 
     if (shoppingListItems.isEmpty()) {
       return {};

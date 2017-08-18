@@ -5,13 +5,13 @@ import { GraphQLID, GraphQLList, GraphQLString, GraphQLNonNull } from 'graphql';
 import { mutationWithClientMutationId } from 'graphql-relay';
 import { Exception } from 'micro-business-parse-server-common';
 import { ShoppingList } from '../type';
-import { addProductsToUserShoppingList } from './ProductHelper';
+import { addProductPricesToUserShoppingList } from './ProductPriceHelper';
 import { addStapleShoppingListItemsToUserShoppingList, addNewStapleShoppingListItemsToShoppingList } from './StapleShoppingListHelper';
 
 export default mutationWithClientMutationId({
   name: 'AddItemsToShoppingList',
   inputFields: {
-    productIds: { type: new GraphQLList(new GraphQLNonNull(GraphQLID)) },
+    productPriceIds: { type: new GraphQLList(new GraphQLNonNull(GraphQLID)) },
     stapleShoppingListIds: { type: new GraphQLList(new GraphQLNonNull(GraphQLID)) },
     newStapleShoppingListNames: { type: new GraphQLList(new GraphQLNonNull(GraphQLString)) },
   },
@@ -20,7 +20,7 @@ export default mutationWithClientMutationId({
       type: GraphQLString,
       resolve: _ => _.get('errorMessage'),
     },
-    products: {
+    productPrices: {
       type: new GraphQLList(ShoppingList.ShoppingListConnectionDefinition.edgeType),
       resolve: (result) => {
         if (result.get('errorMessage')) {
@@ -28,10 +28,10 @@ export default mutationWithClientMutationId({
         }
 
         return result
-          .get('products')
-          .map(product => ({
+          .get('productPrices')
+          .map(productPrice => ({
             cursor: 'DummyCursor',
-            node: product,
+            node: productPrice,
           }))
           .toArray();
       },
@@ -53,10 +53,10 @@ export default mutationWithClientMutationId({
       },
     },
   },
-  mutateAndGetPayload: async ({ productIds, stapleShoppingListIds, newStapleShoppingListNames }, request) => {
+  mutateAndGetPayload: async ({ productPriceIds, stapleShoppingListIds, newStapleShoppingListNames }, request) => {
     try {
       const results = await Promise.all([
-        addProductsToUserShoppingList(request.headers.authorization, productIds ? Immutable.fromJS(productIds) : List()),
+        addProductPricesToUserShoppingList(request.headers.authorization, productPriceIds ? Immutable.fromJS(productPriceIds) : List()),
         addStapleShoppingListItemsToUserShoppingList(
           request.headers.authorization,
           stapleShoppingListIds ? Immutable.fromJS(stapleShoppingListIds) : List(),
@@ -67,7 +67,7 @@ export default mutationWithClientMutationId({
         ),
       ]);
 
-      return Map({ products: results[0], stapleShoppingListItems: results[1].concat(results[2]) });
+      return Map({ productPrices: results[0], stapleShoppingListItems: results[1].concat(results[2]) });
     } catch (ex) {
       return Map({ errorMessage: ex instanceof Exception ? ex.getErrorMessage() : ex });
     }

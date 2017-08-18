@@ -3,7 +3,7 @@
 import { GraphQLID, GraphQLString, GraphQLNonNull } from 'graphql';
 import { mutationWithClientMutationId } from 'graphql-relay';
 import { ShoppingList } from '../type';
-import { removeSpecialItemFromUserShoppingList } from './ProductHelper';
+import { removeSpecialItemFromUserShoppingList } from './ProductPriceHelper';
 
 export default mutationWithClientMutationId({
   name: 'RemoveSpecialItemFromUserShoppingList',
