@@ -193,8 +193,8 @@ export const getSpecials = async (sessionToken, args) => {
     edges: edges.toArray(),
     count,
     pageInfo: {
-      startCursor: firstEdge ? firstEdge.cursor : null,
-      endCursor: lastEdge ? lastEdge.cursor : null,
+      startCursor: firstEdge ? firstEdge.cursor : 'cursor not available',
+      endCursor: lastEdge ? lastEdge.cursor : 'cursor not available',
       hasPreviousPage,
       hasNextPage,
     },
