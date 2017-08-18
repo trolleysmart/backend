@@ -5,7 +5,7 @@ import { GraphQLID, GraphQLList, GraphQLString, GraphQLNonNull } from 'graphql';
 import { mutationWithClientMutationId } from 'graphql-relay';
 import { Exception } from 'micro-business-parse-server-common';
 import { ShoppingList } from '../type';
-import { addProductsToUserShoppingList } from './SpecialItemHelper';
+import { addProductsToUserShoppingList } from './ProductHelper';
 import { addStapleShoppingListItemsToUserShoppingList, addNewStapleShoppingListItemsToShoppingList } from './StapleShoppingListHelper';
 
 export default mutationWithClientMutationId({
