@@ -87,88 +87,91 @@ const getAllShoppingListContainsStapleShoppingListItemId = async (sessionToken, 
   return shoppingListItems;
 };
 
-export const addStapleShoppingListItemToUserShoppingList = async (sessionToken, stapleShoppingListItemId) => {
-  try {
-    const user = await UserService.getUserForProvidedSessionToken(sessionToken);
-    const acl = ParseWrapperService.createACL(user);
-    const userId = user.id;
-    const stapleShoppingList = await getStapleShoppingListById(sessionToken, userId, stapleShoppingListItemId);
+const addStapleShoppingListItemToUserShoppingList = async (userId, acl, sessionToken, stapleShoppingListItemId) => {
+  const stapleShoppingList = await getStapleShoppingListById(sessionToken, userId, stapleShoppingListItemId);
 
-    await ShoppingListService.create(
-      Map({ userId, stapleShoppingListId: stapleShoppingListItemId, name: stapleShoppingList.get('name') }),
-      acl,
-      sessionToken,
-    );
-    const shoppingListItems = await getAllShoppingListContainsStapleShoppingListItemId(sessionToken, userId, stapleShoppingListItemId);
+  await ShoppingListService.create(
+    Map({ userId, stapleShoppingListId: stapleShoppingListItemId, name: stapleShoppingList.get('name') }),
+    acl,
+    sessionToken,
+  );
+  const shoppingListItems = await getAllShoppingListContainsStapleShoppingListItemId(sessionToken, userId, stapleShoppingListItemId);
 
-    return {
-      item: Map({
-        shoppingListIds: shoppingListItems.map(item => item.get('id')),
-        stapleShoppingListId: stapleShoppingList.get('id'),
-        name: stapleShoppingList.get('name'),
-        quantity: shoppingListItems.count(),
-      }),
-    };
-  } catch (ex) {
-    return { errorMessage: ex instanceof Exception ? ex.getErrorMessage() : ex };
-  }
+  return Map({
+    shoppingListIds: shoppingListItems.map(item => item.get('id')),
+    stapleShoppingListId: stapleShoppingList.get('id'),
+    name: stapleShoppingList.get('name'),
+    quantity: shoppingListItems.count(),
+  });
 };
 
-export const addNewStapleShoppingListToShoppingList = async (sessionToken, names) => {
-  try {
-    const trimmedNames = names
-      .map(removeNameInvalidCharacters)
-      .groupBy(_ => _.toLowerCase())
-      .map(_ => _.first())
-      .valueSeq()
-      .filter(_ => _.length > 0);
-
-    if (trimmedNames.isEmpty()) {
-      throw new Exception('Names is invalid.');
-    }
-
-    const user = await UserService.getUserForProvidedSessionToken(sessionToken);
-    const userId = user.id;
-    const results = Immutable.fromJS(
-      await Promise.all(
-        trimmedNames
-          .map(async (trimmedName) => {
-            const stapleShoppingListItems = await getStapleShoppingListItems(sessionToken, userId, trimmedName);
-            let stapleShoppingListItemId;
-
-            if (stapleShoppingListItems.isEmpty()) {
-              const acl = ParseWrapperService.createACL(user);
-              const stapleTemplateShoppingListItems = await getStapleTemplateShoppingListItems(sessionToken, trimmedName);
-
-              if (stapleTemplateShoppingListItems.isEmpty()) {
-                stapleShoppingListItemId = await StapleShoppingListService.create(Map({ userId, name: trimmedName }), acl, sessionToken);
-              } else {
-                stapleShoppingListItemId = await StapleShoppingListService.create(
-                  stapleTemplateShoppingListItems.first().set('userId', userId),
-                  acl,
-                  sessionToken,
-                );
-              }
-            } else {
-              stapleShoppingListItemId = stapleShoppingListItems.first().get('id');
-            }
-
-            return addStapleShoppingListItemToUserShoppingList(sessionToken, stapleShoppingListItemId);
-          })
-          .toArray(),
-      ),
-    );
-
-    const errors = results.filter(result => result.errorMessage);
-
-    if (errors.isEmpty()) {
-      return { items: results };
-    }
-
-    return { errorMessage: errors.first() };
-  } catch (ex) {
-    return { errorMessage: ex instanceof Exception ? ex.getErrorMessage() : ex };
+export const addStapleShoppingListItemsToUserShoppingList = async (sessionToken, stapleShoppingListItemIds) => {
+  if (stapleShoppingListItemIds.isEmpty()) {
+    return List();
   }
+
+  const user = await UserService.getUserForProvidedSessionToken(sessionToken);
+  const acl = ParseWrapperService.createACL(user);
+  const userId = user.id;
+  const stapleShoppingListItemIdsWithoutDuplicate = stapleShoppingListItemIds.groupBy(_ => _).map(_ => _.first()).valueSeq();
+
+  return Immutable.fromJS(
+    await Promise.all(
+      stapleShoppingListItemIdsWithoutDuplicate
+        .map(async stapleShoppingListItemId => addStapleShoppingListItemToUserShoppingList(userId, acl, sessionToken, stapleShoppingListItemId))
+        .toArray(),
+    ),
+  );
+};
+
+export const addNewStapleShoppingListItemsToShoppingList = async (sessionToken, names) => {
+  if (names.isEmpty()) {
+    return List();
+  }
+
+  const trimmedNamesWithoutDuplicate = names
+    .map(removeNameInvalidCharacters)
+    .groupBy(_ => _.toLowerCase())
+    .map(_ => _.first())
+    .valueSeq()
+    .filter(_ => _.length > 0);
+
+  if (trimmedNamesWithoutDuplicate.isEmpty()) {
+    return List();
+  }
+
+  const user = await UserService.getUserForProvidedSessionToken(sessionToken);
+  const acl = ParseWrapperService.createACL(user);
+  const userId = user.id;
+
+  return Immutable.fromJS(
+    await Promise.all(
+      trimmedNamesWithoutDuplicate
+        .map(async (name) => {
+          const stapleShoppingListItems = await getStapleShoppingListItems(sessionToken, userId, name);
+          let stapleShoppingListItemId;
+
+          if (stapleShoppingListItems.isEmpty()) {
+            const stapleTemplateShoppingListItems = await getStapleTemplateShoppingListItems(sessionToken, name);
+
+            if (stapleTemplateShoppingListItems.isEmpty()) {
+              stapleShoppingListItemId = await StapleShoppingListService.create(Map({ userId, name }), acl, sessionToken);
+            } else {
+              stapleShoppingListItemId = await StapleShoppingListService.create(
+                stapleTemplateShoppingListItems.first().set('userId', userId),
+                acl,
+                sessionToken,
+              );
+            }
+          } else {
+            stapleShoppingListItemId = stapleShoppingListItems.first().get('id');
+          }
+
+          return addStapleShoppingListItemToUserShoppingList(userId, acl, sessionToken, stapleShoppingListItemId);
+        })
+        .toArray(),
+    ),
+  );
 };
 
 export const removeStapleShoppingListItemFromUserShoppingList = async (sessionToken, stapleShoppingListItemId) => {
