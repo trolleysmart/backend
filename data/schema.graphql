@@ -1,33 +1,14 @@
-input AddNewStapleShoppingListItemsToShoppingListInput {
-  names: [String!]
+input AddItemsToShoppingListInput {
+  productIds: [ID!]
+  stapleShoppingListIds: [ID!]
+  newStapleShoppingListNames: [String!]
   clientMutationId: String
 }
 
-type AddNewStapleShoppingListItemsToShoppingListPayload {
+type AddItemsToShoppingListPayload {
   errorMessage: String
-  items: [ShoppingListEdge]
-  clientMutationId: String
-}
-
-input AddSpecialItemToUserShoppingListInput {
-  specialItemId: ID!
-  clientMutationId: String
-}
-
-type AddSpecialItemToUserShoppingListPayload {
-  errorMessage: String
-  item: ShoppingListEdge
-  clientMutationId: String
-}
-
-input AddStapleShoppingListItemToUserShoppingListInput {
-  stapleShoppingListItemId: ID!
-  clientMutationId: String
-}
-
-type AddStapleShoppingListItemToUserShoppingListPayload {
-  errorMessage: String
-  item: ShoppingListEdge
+  products: [ShoppingListEdge]
+  stapleShoppingListItems: [ShoppingListEdge]
   clientMutationId: String
 }
 
@@ -37,11 +18,9 @@ type MultiBuy {
 }
 
 type Mutation {
-  addNewStapleShoppingListItemsToShoppingList(input: AddNewStapleShoppingListItemsToShoppingListInput!): AddNewStapleShoppingListItemsToShoppingListPayload
-  addSpecialItemToUserShoppingList(input: AddSpecialItemToUserShoppingListInput!): AddSpecialItemToUserShoppingListPayload
+  addItemsToShoppingList(input: AddItemsToShoppingListInput!): AddItemsToShoppingListPayload
   removeSpecialItemFromUserShoppingList(input: RemoveSpecialItemFromUserShoppingListInput!): RemoveSpecialItemFromUserShoppingListPayload
   removeSpecialItemsFromUserShoppingList(input: RemoveSpecialItemsFromUserShoppingListInput!): RemoveSpecialItemsFromUserShoppingListPayload
-  addStapleShoppingListItemToUserShoppingList(input: AddStapleShoppingListItemToUserShoppingListInput!): AddStapleShoppingListItemToUserShoppingListPayload
   removeStapleShoppingListItemFromUserShoppingList(input: RemoveStapleShoppingListItemFromUserShoppingListInput!): RemoveStapleShoppingListItemFromUserShoppingListPayload
   removeStapleShoppingListItemsFromUserShoppingList(input: RemoveStapleShoppingListItemsFromUserShoppingListInput!): RemoveStapleShoppingListItemsFromUserShoppingListPayload
   submitUserFeedback(input: SubmitUserFeedbackInput!): SubmitUserFeedbackPayload

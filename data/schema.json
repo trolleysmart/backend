@@ -1935,7 +1935,7 @@
           "description": null,
           "fields": [
             {
-              "name": "addNewStapleShoppingListItemsToShoppingList",
+              "name": "addItemsToShoppingList",
               "description": null,
               "args": [
                 {
@@ -1946,7 +1946,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "INPUT_OBJECT",
-                      "name": "AddNewStapleShoppingListItemsToShoppingListInput",
+                      "name": "AddItemsToShoppingListInput",
                       "ofType": null
                     }
                   },
@@ -1955,34 +1955,7 @@
               ],
               "type": {
                 "kind": "OBJECT",
-                "name": "AddNewStapleShoppingListItemsToShoppingListPayload",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "addSpecialItemToUserShoppingList",
-              "description": null,
-              "args": [
-                {
-                  "name": "input",
-                  "description": null,
-                  "type": {
-                    "kind": "NON_NULL",
-                    "name": null,
-                    "ofType": {
-                      "kind": "INPUT_OBJECT",
-                      "name": "AddSpecialItemToUserShoppingListInput",
-                      "ofType": null
-                    }
-                  },
-                  "defaultValue": null
-                }
-              ],
-              "type": {
-                "kind": "OBJECT",
-                "name": "AddSpecialItemToUserShoppingListPayload",
+                "name": "AddItemsToShoppingListPayload",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -2037,33 +2010,6 @@
               "type": {
                 "kind": "OBJECT",
                 "name": "RemoveSpecialItemsFromUserShoppingListPayload",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "addStapleShoppingListItemToUserShoppingList",
-              "description": null,
-              "args": [
-                {
-                  "name": "input",
-                  "description": null,
-                  "type": {
-                    "kind": "NON_NULL",
-                    "name": null,
-                    "ofType": {
-                      "kind": "INPUT_OBJECT",
-                      "name": "AddStapleShoppingListItemToUserShoppingListInput",
-                      "ofType": null
-                    }
-                  },
-                  "defaultValue": null
-                }
-              ],
-              "type": {
-                "kind": "OBJECT",
-                "name": "AddStapleShoppingListItemToUserShoppingListPayload",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -2158,12 +2104,48 @@
         },
         {
           "kind": "INPUT_OBJECT",
-          "name": "AddNewStapleShoppingListItemsToShoppingListInput",
+          "name": "AddItemsToShoppingListInput",
           "description": null,
           "fields": null,
           "inputFields": [
             {
-              "name": "names",
+              "name": "productIds",
+              "description": null,
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "ID",
+                    "ofType": null
+                  }
+                }
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "stapleShoppingListIds",
+              "description": null,
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "ID",
+                    "ofType": null
+                  }
+                }
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "newStapleShoppingListNames",
               "description": null,
               "type": {
                 "kind": "LIST",
@@ -2197,7 +2179,7 @@
         },
         {
           "kind": "OBJECT",
-          "name": "AddNewStapleShoppingListItemsToShoppingListPayload",
+          "name": "AddItemsToShoppingListPayload",
           "description": null,
           "fields": [
             {
@@ -2213,7 +2195,7 @@
               "deprecationReason": null
             },
             {
-              "name": "items",
+              "name": "products",
               "description": null,
               "args": [],
               "type": {
@@ -2229,83 +2211,17 @@
               "deprecationReason": null
             },
             {
-              "name": "clientMutationId",
+              "name": "stapleShoppingListItems",
               "description": null,
               "args": [],
               "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            }
-          ],
-          "inputFields": null,
-          "interfaces": [],
-          "enumValues": null,
-          "possibleTypes": null
-        },
-        {
-          "kind": "INPUT_OBJECT",
-          "name": "AddSpecialItemToUserShoppingListInput",
-          "description": null,
-          "fields": null,
-          "inputFields": [
-            {
-              "name": "specialItemId",
-              "description": null,
-              "type": {
-                "kind": "NON_NULL",
+                "kind": "LIST",
                 "name": null,
                 "ofType": {
-                  "kind": "SCALAR",
-                  "name": "ID",
+                  "kind": "OBJECT",
+                  "name": "ShoppingListEdge",
                   "ofType": null
                 }
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "clientMutationId",
-              "description": null,
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              },
-              "defaultValue": null
-            }
-          ],
-          "interfaces": null,
-          "enumValues": null,
-          "possibleTypes": null
-        },
-        {
-          "kind": "OBJECT",
-          "name": "AddSpecialItemToUserShoppingListPayload",
-          "description": null,
-          "fields": [
-            {
-              "name": "errorMessage",
-              "description": null,
-              "args": [],
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "item",
-              "description": null,
-              "args": [],
-              "type": {
-                "kind": "OBJECT",
-                "name": "ShoppingListEdge",
-                "ofType": null
               },
               "isDeprecated": false,
               "deprecationReason": null
@@ -2457,88 +2373,6 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "clientMutationId",
-              "description": null,
-              "args": [],
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            }
-          ],
-          "inputFields": null,
-          "interfaces": [],
-          "enumValues": null,
-          "possibleTypes": null
-        },
-        {
-          "kind": "INPUT_OBJECT",
-          "name": "AddStapleShoppingListItemToUserShoppingListInput",
-          "description": null,
-          "fields": null,
-          "inputFields": [
-            {
-              "name": "stapleShoppingListItemId",
-              "description": null,
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "ID",
-                  "ofType": null
-                }
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "clientMutationId",
-              "description": null,
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              },
-              "defaultValue": null
-            }
-          ],
-          "interfaces": null,
-          "enumValues": null,
-          "possibleTypes": null
-        },
-        {
-          "kind": "OBJECT",
-          "name": "AddStapleShoppingListItemToUserShoppingListPayload",
-          "description": null,
-          "fields": [
-            {
-              "name": "errorMessage",
-              "description": null,
-              "args": [],
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "item",
-              "description": null,
-              "args": [],
-              "type": {
-                "kind": "OBJECT",
-                "name": "ShoppingListEdge",
                 "ofType": null
               },
               "isDeprecated": false,
