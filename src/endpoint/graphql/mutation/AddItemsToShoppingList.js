@@ -24,7 +24,7 @@ export default mutationWithClientMutationId({
       type: new GraphQLList(ShoppingList.ShoppingListConnectionDefinition.edgeType),
       resolve: (result) => {
         if (result.get('errorMessage')) {
-          return null;
+          return [];
         }
 
         return result
@@ -40,7 +40,7 @@ export default mutationWithClientMutationId({
       type: new GraphQLList(ShoppingList.ShoppingListConnectionDefinition.edgeType),
       resolve: (result) => {
         if (result.get('errorMessage')) {
-          return null;
+          return [];
         }
 
         return result
