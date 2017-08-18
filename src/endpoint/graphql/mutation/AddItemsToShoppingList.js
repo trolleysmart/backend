@@ -31,7 +31,7 @@ export default mutationWithClientMutationId({
           .get('products')
           .map(product => ({
             cursor: 'DummyCursor',
-            node: product.get('item'),
+            node: product,
           }))
           .toArray();
       },
@@ -47,7 +47,7 @@ export default mutationWithClientMutationId({
           .get('stapleShoppingListItems')
           .map(stapleShoppingListItem => ({
             cursor: 'DummyCursor',
-            node: stapleShoppingListItem.get('item'),
+            node: stapleShoppingListItem,
           }))
           .toArray();
       },
