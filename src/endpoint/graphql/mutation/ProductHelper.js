@@ -55,30 +55,28 @@ const addProductToUserShoppingList = async (userId, acl, sessionToken, productId
   const shoppingListItems = await getAllShoppingListContainsSpecialItemId(sessionToken, userId, productId);
   const offerEndDate = masterProductPrice.get('offerEndDate');
 
-  return {
-    item: Map({
-      shoppingListIds: shoppingListItems.map(item => item.get('id')),
-      specialId: masterProductPrice.get('id'),
-      name: masterProductPrice.getIn(['masterProduct', 'name']),
-      description: masterProductPrice.getIn(['masterProduct', 'description']),
-      imageUrl: masterProductPrice.getIn(['masterProduct', 'imageUrl']),
-      barcode: masterProductPrice.getIn(['masterProduct', 'barcode']),
-      size: masterProductPrice.getIn(['masterProduct', 'size']),
-      specialType: masterProductPrice.getIn(['priceDetails', 'specialType']),
-      priceToDisplay: masterProductPrice.get('priceToDisplay'),
-      saving: masterProductPrice.get('saving'),
-      savingPercentage: masterProductPrice.get('savingPercentage'),
-      currentPrice: masterProductPrice.getIn(['priceDetails', 'currentPrice']),
-      wasPrice: masterProductPrice.getIn(['priceDetails', 'wasPrice']),
-      multiBuyInfo: masterProductPrice.getIn(['priceDetails', 'multiBuyInfo']),
-      storeName: masterProductPrice.getIn(['store', 'name']),
-      storeImageUrl: masterProductPrice.getIn(['store', 'imageUrl']),
-      offerEndDate: offerEndDate ? offerEndDate.toISOString() : undefined,
-      unitPrice: masterProductPrice.getIn(['priceDetails', 'unitPrice']),
-      quantity: shoppingListItems.count(),
-      status: masterProductPrice.get('status'),
-    }),
-  };
+  return Map({
+    shoppingListIds: shoppingListItems.map(item => item.get('id')),
+    specialId: masterProductPrice.get('id'),
+    name: masterProductPrice.getIn(['masterProduct', 'name']),
+    description: masterProductPrice.getIn(['masterProduct', 'description']),
+    imageUrl: masterProductPrice.getIn(['masterProduct', 'imageUrl']),
+    barcode: masterProductPrice.getIn(['masterProduct', 'barcode']),
+    size: masterProductPrice.getIn(['masterProduct', 'size']),
+    specialType: masterProductPrice.getIn(['priceDetails', 'specialType']),
+    priceToDisplay: masterProductPrice.get('priceToDisplay'),
+    saving: masterProductPrice.get('saving'),
+    savingPercentage: masterProductPrice.get('savingPercentage'),
+    currentPrice: masterProductPrice.getIn(['priceDetails', 'currentPrice']),
+    wasPrice: masterProductPrice.getIn(['priceDetails', 'wasPrice']),
+    multiBuyInfo: masterProductPrice.getIn(['priceDetails', 'multiBuyInfo']),
+    storeName: masterProductPrice.getIn(['store', 'name']),
+    storeImageUrl: masterProductPrice.getIn(['store', 'imageUrl']),
+    offerEndDate: offerEndDate ? offerEndDate.toISOString() : undefined,
+    unitPrice: masterProductPrice.getIn(['priceDetails', 'unitPrice']),
+    quantity: shoppingListItems.count(),
+    status: masterProductPrice.get('status'),
+  });
 };
 
 export const addProductsToUserShoppingList = async (sessionToken, productIds) => {
