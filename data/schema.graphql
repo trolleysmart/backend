@@ -1,5 +1,5 @@
 input AddItemsToShoppingListInput {
-  productIds: [ID!]
+  productPriceIds: [ID!]
   stapleShoppingListIds: [ID!]
   newStapleShoppingListNames: [String!]
   clientMutationId: String
@@ -7,7 +7,7 @@ input AddItemsToShoppingListInput {
 
 type AddItemsToShoppingListPayload {
   errorMessage: String
-  products: [ShoppingListEdge]
+  productPrices: [ShoppingListEdge]
   stapleShoppingListItems: [ShoppingListEdge]
   clientMutationId: String
 }
