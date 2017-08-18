@@ -55,7 +55,7 @@ export default mutationWithClientMutationId({
   },
   mutateAndGetPayload: async ({ productIds, stapleShoppingListIds, newStapleShoppingListNames }, request) => {
     try {
-      const results = Promise.all([
+      const results = await Promise.all([
         addProductsToUserShoppingList(request.headers.authorization, productIds ? Immutable.fromJS(productIds) : List()),
         addStapleShoppingListItemsToUserShoppingList(
           request.headers.authorization,
