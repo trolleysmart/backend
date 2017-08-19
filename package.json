@@ -31,14 +31,14 @@
     "graphql-fields": "^1.0.2",
     "graphql-relay": "^0.5.2",
     "immutable": "^3.8.1",
-    "micro-business-parse-server-backend": "^0.1.54",
-    "micro-business-parse-server-common": "^0.1.96",
+    "micro-business-parse-server-backend": "^0.1.55",
+    "micro-business-parse-server-common": "^0.1.97",
     "newrelic": "^2.1.0",
-    "trolley-smart-parse-server-common": "^0.1.201"
+    "trolley-smart-parse-server-common": "^0.1.203"
   },
   "devDependencies": {
     "babel-eslint": "^7.2.3",
-    "eslint": "^4.4.1",
+    "eslint": "^4.5.0",
     "eslint-config-airbnb": "^15.1.0",
     "eslint-plugin-import": "^2.7.0",
     "eslint-plugin-jsx-a11y": "6.0.2",
