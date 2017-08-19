@@ -155,7 +155,7 @@ export const addNewStapleShoppingListItemsToShoppingList = async (sessionToken, 
             const stapleTemplateShoppingListItems = await getStapleTemplateShoppingListItems(sessionToken, name);
 
             if (stapleTemplateShoppingListItems.isEmpty()) {
-              stapleShoppingListItemId = await StapleShoppingListService.create(Map({ userId, name }), acl, sessionToken);
+              stapleShoppingListItemId = await StapleShoppingListService.create(Map({ userId, name, addedByUser: true }), acl, sessionToken);
             } else {
               stapleShoppingListItemId = await StapleShoppingListService.create(
                 stapleTemplateShoppingListItems.first().set('userId', userId),
