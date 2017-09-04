@@ -21,6 +21,7 @@ const backendInfo = backend({
   androidCloudMessagingSenderId: process.env.ANDROID_CLOUD_MESSAGING_SENDER_ID,
   androidCloudMessagingServerKey: process.env.ANDROID_CLOUD_MESSAGING_SERVER_KEY,
   parseServerCloudFilePath: path.resolve(__dirname, 'cloud.js'),
+  parseServerAllowClientClassCreation: process.env.PARSE_SERVER_ALLOW_CLIENT_CLASS_CREATION,
 });
 
 setupEndPoint(backendInfo.get('server'));
