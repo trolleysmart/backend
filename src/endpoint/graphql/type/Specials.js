@@ -161,10 +161,10 @@ const addSortOptionToCriteria = (criteria, sortOption) => {
   return criteria.set('orderByFieldAscending', 'name');
 };
 
-const getMasterProductCountMatchCriteria = async (sessionToken, names, descriptions, sortOption, tags, stores) =>
+const getProductPriceCountMatchCriteria = async (sessionToken, names, descriptions, sortOption, tags, stores) =>
   new ProductPriceService().count(addSortOptionToCriteria(getCriteria(names, descriptions, sortOption, tags, stores), sortOption), sessionToken);
 
-const getMasterProductMatchCriteria = async (sessionToken, limit, skip, names, descriptions, sortOption, tags, stores) =>
+const getProductPriceMatchCriteria = async (sessionToken, limit, skip, names, descriptions, sortOption, tags, stores) =>
   new ProductPriceService().search(
     addSortOptionToCriteria(getCriteria(names, descriptions, sortOption, tags, stores), sortOption)
       .set('limit', limit)
@@ -175,9 +175,9 @@ const getMasterProductMatchCriteria = async (sessionToken, limit, skip, names, d
 export const getSpecials = async (sessionToken, args) => {
   const names = convertStringArgumentToSet(args.name);
   const descriptions = convertStringArgumentToSet(args.description);
-  const count = await getMasterProductCountMatchCriteria(sessionToken, names, descriptions, args.sortOption, args.tags, args.stores);
+  const count = await getProductPriceCountMatchCriteria(sessionToken, names, descriptions, args.sortOption, args.tags, args.stores);
   const { limit, skip, hasNextPage, hasPreviousPage } = getLimitAndSkipValue(args, count, 10, 1000);
-  const productPriceItems = await getMasterProductMatchCriteria(
+  const productPriceItems = await getProductPriceMatchCriteria(
     sessionToken,
     limit,
     skip,
