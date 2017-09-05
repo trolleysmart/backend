@@ -1,13 +1,14 @@
 // @flow
 
 import Immutable, { List, Map, Range } from 'immutable';
-import { GraphQLID, GraphQLFloat, GraphQLObjectType, GraphQLString, GraphQLNonNull } from 'graphql';
+import { GraphQLID, GraphQLFloat, GraphQLList, GraphQLObjectType, GraphQLString, GraphQLNonNull } from 'graphql';
 import { connectionDefinitions } from 'graphql-relay';
-import { MasterProductPriceService } from 'trolley-smart-parse-server-common';
+import { ProductPriceService } from 'trolley-smart-parse-server-common';
 import { NodeInterface } from '../interface';
 import multiBuyType from './MultiBuy';
 import unitPriceType from './UnitPrice';
 import { getLimitAndSkipValue, convertStringArgumentToSet } from './Common';
+import Tag from './Tag';
 
 const SpecialType = new GraphQLObjectType({
   name: 'Special',
@@ -18,23 +19,23 @@ const SpecialType = new GraphQLObjectType({
     },
     name: {
       type: GraphQLString,
-      resolve: _ => _.getIn(['masterProduct', 'name']),
+      resolve: _ => _.get('name'),
     },
     description: {
       type: GraphQLString,
-      resolve: _ => _.getIn(['masterProduct', 'description']),
+      resolve: _ => _.get('description'),
     },
     imageUrl: {
       type: GraphQLString,
-      resolve: _ => _.getIn(['masterProduct', 'imageUrl']),
+      resolve: _ => _.getIn(['storeProduct', 'imageUrl']),
     },
     barcode: {
       type: GraphQLString,
-      resolve: _ => _.getIn(['masterProduct', 'barcode']),
+      resolve: _ => _.getIn(['storeProduct', 'barcode']),
     },
     size: {
       type: GraphQLString,
-      resolve: _ => _.getIn(['masterProduct', 'size']),
+      resolve: _ => _.getIn(['storeProduct', 'size']),
     },
     specialType: {
       type: GraphQLString,
@@ -78,7 +79,7 @@ const SpecialType = new GraphQLObjectType({
     },
     offerEndDate: {
       type: GraphQLString,
-      resolve: (_) => {
+      resolve: _ => {
         const offerEndDate = _.get('offerEndDate');
 
         return offerEndDate ? offerEndDate.toISOString() : undefined;
@@ -87,6 +88,10 @@ const SpecialType = new GraphQLObjectType({
     comments: {
       type: GraphQLString,
       resolve: () => '',
+    },
+    tags: {
+      type: new GraphQLList(Tag.TagType),
+      resolve: _ => _.get('tags'),
     },
   },
   interfaces: [NodeInterface],
@@ -99,13 +104,14 @@ const SpecialConnectionDefinition = connectionDefinitions({
 
 const getCriteria = (names, descriptions, sortOption, tags, stores) =>
   Map({
-    includeStore: true,
-    includeMasterProduct: true,
+    include_store: true,
+    include_tags: true,
+    include_storeProduct: true,
     conditions: Map({
       contains_names: names,
       contains_descriptions: descriptions,
       status: 'A',
-      not_specialType: 'none',
+      special: true,
       tagIds: tags ? Immutable.fromJS(tags) : undefined,
       storeIds: stores ? Immutable.fromJS(stores) : List(),
     }),
@@ -156,11 +162,13 @@ const addSortOptionToCriteria = (criteria, sortOption) => {
 };
 
 const getMasterProductCountMatchCriteria = async (sessionToken, names, descriptions, sortOption, tags, stores) =>
-  MasterProductPriceService.count(addSortOptionToCriteria(getCriteria(names, descriptions, sortOption, tags, stores), sortOption), sessionToken);
+  new ProductPriceService().count(addSortOptionToCriteria(getCriteria(names, descriptions, sortOption, tags, stores), sortOption), sessionToken);
 
 const getMasterProductMatchCriteria = async (sessionToken, limit, skip, names, descriptions, sortOption, tags, stores) =>
-  MasterProductPriceService.search(
-    addSortOptionToCriteria(getCriteria(names, descriptions, sortOption, tags, stores), sortOption).set('limit', limit).set('skip', skip),
+  new ProductPriceService().search(
+    addSortOptionToCriteria(getCriteria(names, descriptions, sortOption, tags, stores), sortOption)
+      .set('limit', limit)
+      .set('skip', skip),
     sessionToken,
   );
 
@@ -169,7 +177,7 @@ export const getSpecials = async (sessionToken, args) => {
   const descriptions = convertStringArgumentToSet(args.description);
   const count = await getMasterProductCountMatchCriteria(sessionToken, names, descriptions, args.sortOption, args.tags, args.stores);
   const { limit, skip, hasNextPage, hasPreviousPage } = getLimitAndSkipValue(args, count, 10, 1000);
-  const masterProductPriceItems = await getMasterProductMatchCriteria(
+  const productPriceItems = await getMasterProductMatchCriteria(
     sessionToken,
     limit,
     skip,
@@ -179,13 +187,11 @@ export const getSpecials = async (sessionToken, args) => {
     args.tags,
     args.stores,
   );
-  const indexedMasterProductPriceItems = masterProductPriceItems.zip(Range(skip, skip + limit));
-
-  const edges = indexedMasterProductPriceItems.map(indexedItem => ({
+  const indexedProductPriceItems = productPriceItems.zip(Range(skip, skip + limit));
+  const edges = indexedProductPriceItems.map(indexedItem => ({
     node: indexedItem[0],
     cursor: indexedItem[1] + 1,
   }));
-
   const firstEdge = edges.first();
   const lastEdge = edges.last();
 
