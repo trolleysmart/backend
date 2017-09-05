@@ -79,7 +79,7 @@ const SpecialType = new GraphQLObjectType({
     },
     offerEndDate: {
       type: GraphQLString,
-      resolve: _ => {
+      resolve: (_) => {
         const offerEndDate = _.get('offerEndDate');
 
         return offerEndDate ? offerEndDate.toISOString() : undefined;
