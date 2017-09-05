@@ -1,7 +1,7 @@
 // @flow
 
 import { Map, Range } from 'immutable';
-import { GraphQLBoolean, GraphQLID, GraphQLInt, GraphQLList, GraphQLObjectType, GraphQLString, GraphQLNonNull } from 'graphql';
+import { GraphQLBoolean, GraphQLID, GraphQLInt, GraphQLObjectType, GraphQLString, GraphQLNonNull } from 'graphql';
 import { connectionDefinitions } from 'graphql-relay';
 import { TagService } from 'trolley-smart-parse-server-common';
 import { getLimitAndSkipValue, convertStringArgumentToSet } from './Common';
@@ -22,17 +22,25 @@ const TagType = new GraphQLObjectType({
       type: GraphQLString,
       resolve: _ => _.get('name'),
     },
-    weight: {
+    description: {
+      type: GraphQLString,
+      resolve: _ => _.get('description'),
+    },
+    imageUrl: {
+      type: GraphQLString,
+      resolve: _ => _.get('imageUrl'),
+    },
+    level: {
       type: GraphQLInt,
-      resolve: _ => _.get('weight'),
+      resolve: _ => _.get('level'),
     },
     forDisplay: {
       type: GraphQLBoolean,
       resolve: _ => _.get('forDisplay'),
     },
-    parentTagIds: {
-      type: new GraphQLList(GraphQLID),
-      resolve: _ => _.get('tagIds') || [],
+    parentTagId: {
+      type: GraphQLID,
+      resolve: _ => _.get('parentTagId'),
     },
   },
   interfaces: [NodeInterface],
@@ -52,10 +60,15 @@ const getCriteria = names =>
     }),
   });
 
-const getTagsCountMatchCriteria = async (sessionToken, names) => TagService.count(getCriteria(names), sessionToken);
+const getTagsCountMatchCriteria = async (sessionToken, names) => new TagService().count(getCriteria(names), sessionToken);
 
 const getTagsMatchCriteria = async (sessionToken, limit, skip, names) =>
-  TagService.search(getCriteria(names).set('limit', limit).set('skip', skip), sessionToken);
+  new TagService().search(
+    getCriteria(names)
+      .set('limit', limit)
+      .set('skip', skip),
+    sessionToken,
+  );
 
 export const getTags = async (sessionToken, args) => {
   const names = convertStringArgumentToSet(args.name);
