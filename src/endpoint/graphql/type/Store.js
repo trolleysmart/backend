@@ -26,6 +26,14 @@ const StoreType = new GraphQLObjectType({
       type: GraphQLString,
       resolve: _ => _.get('imageUrl'),
     },
+    address: {
+      type: GraphQLString,
+      resolve: _ => _.get('address'),
+    },
+    parentStoreId: {
+      type: GraphQLID,
+      resolve: _ => _.get('parentStoreId'),
+    },
   },
   interfaces: [NodeInterface],
 });
@@ -43,10 +51,15 @@ const getCriteria = names =>
     }),
   });
 
-const getStoresCountMatchCriteria = async (sessionToken, names) => StoreService.count(getCriteria(names), sessionToken);
+const getStoresCountMatchCriteria = async (sessionToken, names) => new StoreService().count(getCriteria(names), sessionToken);
 
 const getStoresMatchCriteria = async (sessionToken, limit, skip, names) =>
-  StoreService.search(getCriteria(names).set('limit', limit).set('skip', skip), sessionToken);
+  new StoreService().search(
+    getCriteria(names)
+      .set('limit', limit)
+      .set('skip', skip),
+    sessionToken,
+  );
 
 export const getStores = async (sessionToken, args) => {
   const names = convertStringArgumentToSet(args.name);
