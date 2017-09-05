@@ -31,6 +31,7 @@
     "graphql-fields": "^1.0.2",
     "graphql-relay": "^0.5.2",
     "immutable": "^3.8.1",
+    "micro-business-common-javascript": "^1.0.0-alpha.5",
     "micro-business-parse-server-backend": "^1.0.0-alpha.1",
     "micro-business-parse-server-common": "^1.0.2-alpha.21",
     "newrelic": "^2.2.0",

@@ -1,7 +1,9 @@
 // @flow
 
-import { Exception, ParseWrapperService } from 'micro-business-parse-server-common';
-import { StapleShoppingListService } from 'trolley-smart-parse-server-common';
+import { Map } from 'immutable';
+import { Exception } from 'micro-business-common-javascript';
+import { ParseWrapperService } from 'micro-business-parse-server-common';
+import { StapleItemService, StapleTemplateItemService } from 'trolley-smart-parse-server-common';
 
 Parse.Cloud.afterSave('_User', async (request) => {
   if (request.object.createdAt !== request.object.updatedAt) {
@@ -16,13 +18,21 @@ Parse.Cloud.afterSave('_User', async (request) => {
     log.info(`Cloning staple template shopping list for user: ${userId}...`);
 
     const acl = ParseWrapperService.createACL(user);
+    const stapleTemplateItems = await new StapleTemplateItemService().search(Map({ limit: 1000 }));
+    const stapleItemService = new StapleItemService();
 
-    await StapleShoppingListService.cloneStapleShoppingList(userId, acl);
+    await Promise.all(
+      stapleTemplateItems
+        .map(stapleTemplateItem =>
+          stapleItemService.create(stapleTemplateItem.merge({ userId, stapleTemplateItemId: stapleTemplateItem.get('id') }), acl),
+        )
+        .toArray(),
+    );
 
     log.info(`Successfully cloned staple template shopping list for user: ${userId}`);
   } catch (ex) {
     const errorMessage = ex instanceof Exception ? ex.getErrorMessage() : ex;
 
-    log.error(`Failed to clone stapel shopping list for userId: ${userId}. Error message: ${errorMessage}`);
+    log.error(`Failed to clone staple shopping list for userId: ${userId}. Error message: ${errorMessage}`);
   }
 });
