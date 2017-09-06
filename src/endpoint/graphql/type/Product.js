@@ -10,8 +10,8 @@ import unitPriceType from './UnitPrice';
 import { getLimitAndSkipValue, convertStringArgumentToSet } from './Common';
 import Tag from './Tag';
 
-const SpecialType = new GraphQLObjectType({
-  name: 'Special',
+const ProductType = new GraphQLObjectType({
+  name: 'Product',
   fields: {
     id: {
       type: new GraphQLNonNull(GraphQLID),
@@ -97,12 +97,12 @@ const SpecialType = new GraphQLObjectType({
   interfaces: [NodeInterface],
 });
 
-const SpecialConnectionDefinition = connectionDefinitions({
-  name: 'Special',
-  nodeType: SpecialType,
+const ProductConnectionDefinition = connectionDefinitions({
+  name: 'Product',
+  nodeType: ProductType,
 });
 
-const getCriteria = (names, descriptions, sortOption, tags, stores) =>
+const getCriteria = (names, descriptions, sortOption, tags, stores, special) =>
   Map({
     include_store: true,
     include_tags: true,
@@ -111,7 +111,7 @@ const getCriteria = (names, descriptions, sortOption, tags, stores) =>
       contains_names: names,
       contains_descriptions: descriptions,
       status: 'A',
-      special: true,
+      special: !!special,
       tagIds: tags ? Immutable.fromJS(tags) : undefined,
       storeIds: stores ? Immutable.fromJS(stores) : List(),
     }),
@@ -161,21 +161,24 @@ const addSortOptionToCriteria = (criteria, sortOption) => {
   return criteria.set('orderByFieldAscending', 'name');
 };
 
-const getProductPriceCountMatchCriteria = async (sessionToken, names, descriptions, sortOption, tags, stores) =>
-  new ProductPriceService().count(addSortOptionToCriteria(getCriteria(names, descriptions, sortOption, tags, stores), sortOption), sessionToken);
+const getProductPriceCountMatchCriteria = async (sessionToken, names, descriptions, sortOption, tags, stores, special) =>
+  new ProductPriceService().count(
+    addSortOptionToCriteria(getCriteria(names, descriptions, sortOption, tags, stores, special), sortOption),
+    sessionToken,
+  );
 
-const getProductPriceMatchCriteria = async (sessionToken, limit, skip, names, descriptions, sortOption, tags, stores) =>
+const getProductPriceMatchCriteria = async (sessionToken, limit, skip, names, descriptions, sortOption, tags, stores, special) =>
   new ProductPriceService().search(
-    addSortOptionToCriteria(getCriteria(names, descriptions, sortOption, tags, stores), sortOption)
+    addSortOptionToCriteria(getCriteria(names, descriptions, sortOption, tags, stores, special), sortOption)
       .set('limit', limit)
       .set('skip', skip),
     sessionToken,
   );
 
-export const getSpecials = async (sessionToken, args) => {
+export const getProducts = async (sessionToken, args) => {
   const names = convertStringArgumentToSet(args.name);
   const descriptions = convertStringArgumentToSet(args.description);
-  const count = await getProductPriceCountMatchCriteria(sessionToken, names, descriptions, args.sortOption, args.tags, args.stores);
+  const count = await getProductPriceCountMatchCriteria(sessionToken, names, descriptions, args.sortOption, args.tags, args.stores, args.special);
   const { limit, skip, hasNextPage, hasPreviousPage } = getLimitAndSkipValue(args, count, 10, 1000);
   const productPriceItems = await getProductPriceMatchCriteria(
     sessionToken,
@@ -186,6 +189,7 @@ export const getSpecials = async (sessionToken, args) => {
     args.sortOption,
     args.tags,
     args.stores,
+    args.special,
   );
   const indexedProductPriceItems = productPriceItems.zip(Range(skip, skip + limit));
   const edges = indexedProductPriceItems.map(indexedItem => ({
@@ -207,4 +211,4 @@ export const getSpecials = async (sessionToken, args) => {
   };
 };
 
-export default { SpecialType, SpecialConnectionDefinition };
+export default { ProductType, ProductConnectionDefinition };

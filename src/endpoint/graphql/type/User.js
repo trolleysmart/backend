@@ -1,10 +1,10 @@
 // @flow
 
-import { GraphQLID, GraphQLObjectType, GraphQLString, GraphQLNonNull, GraphQLList } from 'graphql';
+import { GraphQLBoolean, GraphQLID, GraphQLObjectType, GraphQLString, GraphQLNonNull, GraphQLList } from 'graphql';
 import { connectionArgs } from 'graphql-relay';
 import { NodeInterface } from '../interface';
 import ShoppingList, { getShoppingList } from './ShoppingList';
-import Specials, { getSpecials } from './Specials';
+import Product, { getProducts } from './Product';
 import StapleShoppingList, { getStapleShoppingList } from './StapleShoppingList';
 
 export default new GraphQLObjectType({
@@ -24,8 +24,8 @@ export default new GraphQLObjectType({
       },
       resolve: async (_, args, request) => getShoppingList(request.headers.authorization, _.get('id'), args),
     },
-    specials: {
-      type: Specials.SpecialConnectionDefinition.connectionType,
+    products: {
+      type: Product.ProductConnectionDefinition.connectionType,
       args: {
         ...connectionArgs,
         name: {
@@ -43,8 +43,11 @@ export default new GraphQLObjectType({
         stores: {
           type: new GraphQLList(GraphQLID),
         },
+        special: {
+          type: new GraphQLList(GraphQLBoolean),
+        },
       },
-      resolve: async (_, args, request) => getSpecials(request.headers.authorization, args),
+      resolve: async (_, args, request) => getProducts(request.headers.authorization, args),
     },
     stapleShoppingList: {
       type: StapleShoppingList.StapleShoppingListConnectionDefinition.connectionType,
