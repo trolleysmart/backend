@@ -1,6 +1,6 @@
 // @flow
 
-import Immutable, { List, Map, Range } from 'immutable';
+import { Map, Range } from 'immutable';
 import { GraphQLID, GraphQLFloat, GraphQLList, GraphQLObjectType, GraphQLString, GraphQLNonNull } from 'graphql';
 import { connectionDefinitions } from 'graphql-relay';
 import { ProductPriceService } from 'trolley-smart-parse-server-common';
@@ -102,18 +102,18 @@ const ProductConnectionDefinition = connectionDefinitions({
   nodeType: ProductType,
 });
 
-const getCriteria = (names, descriptions, sortOption, tags, stores, special) =>
+const getCriteria = searchArgs =>
   Map({
     include_store: true,
     include_tags: true,
     include_storeProduct: true,
     conditions: Map({
-      contains_names: names,
-      contains_descriptions: descriptions,
+      contains_names: convertStringArgumentToSet(searchArgs.get('name')),
+      contains_descriptions: convertStringArgumentToSet(searchArgs.get('description')),
       status: 'A',
-      special: !!special,
-      tagIds: tags ? Immutable.fromJS(tags) : undefined,
-      storeIds: stores ? Immutable.fromJS(stores) : List(),
+      special: searchArgs.has('special') ? searchArgs.get('special') : undefined,
+      tagIds: searchArgs.get('tags') ? searchArgs.get('tags') : undefined,
+      storeIds: searchArgs.get('stores') ? searchArgs.get('stores') : undefined,
     }),
   });
 
@@ -161,36 +161,21 @@ const addSortOptionToCriteria = (criteria, sortOption) => {
   return criteria.set('orderByFieldAscending', 'name');
 };
 
-const getProductPriceCountMatchCriteria = async (sessionToken, names, descriptions, sortOption, tags, stores, special) =>
-  new ProductPriceService().count(
-    addSortOptionToCriteria(getCriteria(names, descriptions, sortOption, tags, stores, special), sortOption),
-    sessionToken,
-  );
+const getProductPriceCountMatchCriteria = async (searchArgs, sessionToken) =>
+  new ProductPriceService().count(addSortOptionToCriteria(getCriteria(searchArgs), searchArgs.get('sortOption')), sessionToken);
 
-const getProductPriceMatchCriteria = async (sessionToken, limit, skip, names, descriptions, sortOption, tags, stores, special) =>
+const getProductPriceMatchCriteria = async (searchArgs, sessionToken, limit, skip) =>
   new ProductPriceService().search(
-    addSortOptionToCriteria(getCriteria(names, descriptions, sortOption, tags, stores, special), sortOption)
+    addSortOptionToCriteria(getCriteria(searchArgs), searchArgs.get('sortOption'))
       .set('limit', limit)
       .set('skip', skip),
     sessionToken,
   );
 
-export const getProducts = async (sessionToken, args) => {
-  const names = convertStringArgumentToSet(args.name);
-  const descriptions = convertStringArgumentToSet(args.description);
-  const count = await getProductPriceCountMatchCriteria(sessionToken, names, descriptions, args.sortOption, args.tags, args.stores, args.special);
-  const { limit, skip, hasNextPage, hasPreviousPage } = getLimitAndSkipValue(args, count, 10, 1000);
-  const productPriceItems = await getProductPriceMatchCriteria(
-    sessionToken,
-    limit,
-    skip,
-    names,
-    descriptions,
-    args.sortOption,
-    args.tags,
-    args.stores,
-    args.special,
-  );
+export const getProducts = async (searchArgs, sessionToken) => {
+  const count = await getProductPriceCountMatchCriteria(searchArgs, sessionToken);
+  const { limit, skip, hasNextPage, hasPreviousPage } = getLimitAndSkipValue(searchArgs, count, 10, 1000);
+  const productPriceItems = await getProductPriceMatchCriteria(searchArgs, sessionToken, limit, skip);
   const indexedProductPriceItems = productPriceItems.zip(Range(skip, skip + limit));
   const edges = indexedProductPriceItems.map(indexedItem => ({
     node: indexedItem[0],

@@ -12,11 +12,10 @@ const rootQueryType = new GraphQLObjectType({
   fields: {
     user: {
       type: UserType,
-      resolve: async (_, args, request) => {
-        const user = await UserService.getUserForProvidedSessionToken(request.headers.authorization);
+      resolve: async (_, args, request) =>
+        /* const user = await UserService.getUserForProvidedSessionToken(request.headers.authorization); */
 
-        return Map({ id: user.id });
-      },
+        Map({ id: 'XCWwDvj3F3' }),
     },
     viewer: {
       type: ViewerType,

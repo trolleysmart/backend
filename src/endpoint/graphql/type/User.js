@@ -1,5 +1,6 @@
 // @flow
 
+import Immutable from 'immutable';
 import { GraphQLBoolean, GraphQLID, GraphQLObjectType, GraphQLString, GraphQLNonNull, GraphQLList } from 'graphql';
 import { connectionArgs } from 'graphql-relay';
 import { NodeInterface } from '../interface';
@@ -47,7 +48,7 @@ export default new GraphQLObjectType({
           type: GraphQLBoolean,
         },
       },
-      resolve: async (_, args, request) => getProducts(request.headers.authorization, args),
+      resolve: async (_, args, request) => getProducts(Immutable.fromJS(args), request.headers.authorization),
     },
     stapleShoppingList: {
       type: StapleShoppingList.StapleShoppingListConnectionDefinition.connectionType,
