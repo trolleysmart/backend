@@ -7,6 +7,33 @@ import { StoreService } from 'trolley-smart-parse-server-common';
 import { getLimitAndSkipValue, convertStringArgumentToSet } from './Common';
 import { NodeInterface } from '../interface';
 
+const ParentStoreType = new GraphQLObjectType({
+  name: 'ParentStore',
+  fields: {
+    id: {
+      type: new GraphQLNonNull(GraphQLID),
+      resolve: _ => _.get('id'),
+    },
+    key: {
+      type: GraphQLString,
+      resolve: _ => _.get('key'),
+    },
+    name: {
+      type: GraphQLString,
+      resolve: _ => _.get('name'),
+    },
+    imageUrl: {
+      type: GraphQLString,
+      resolve: _ => _.get('imageUrl'),
+    },
+    address: {
+      type: GraphQLString,
+      resolve: _ => _.get('address'),
+    },
+  },
+  interfaces: [NodeInterface],
+});
+
 const StoreType = new GraphQLObjectType({
   name: 'Store',
   fields: {
@@ -30,9 +57,9 @@ const StoreType = new GraphQLObjectType({
       type: GraphQLString,
       resolve: _ => _.get('address'),
     },
-    parentStoreId: {
-      type: GraphQLID,
-      resolve: _ => _.get('parentStoreId'),
+    parentStore: {
+      type: ParentStoreType,
+      resolve: _ => _.get('parentStore'),
     },
   },
   interfaces: [NodeInterface],
@@ -43,29 +70,29 @@ const StoreConnectionDefinition = connectionDefinitions({
   nodeType: StoreType,
 });
 
-const getCriteria = names =>
+const getCriteria = searchArgs =>
   Map({
+    include_parentStore: true,
     orderByFieldAscending: 'name',
     conditions: Map({
-      contains_names: names,
+      contains_names: convertStringArgumentToSet(searchArgs.get('name')),
     }),
   });
 
-const getStoresCountMatchCriteria = async (sessionToken, names) => new StoreService().count(getCriteria(names), sessionToken);
+const getStoresCountMatchCriteria = async (searchArgs, sessionToken) => new StoreService().count(getCriteria(searchArgs), sessionToken);
 
-const getStoresMatchCriteria = async (sessionToken, limit, skip, names) =>
+const getStoresMatchCriteria = async (searchArgs, sessionToken, limit, skip) =>
   new StoreService().search(
-    getCriteria(names)
+    getCriteria(searchArgs)
       .set('limit', limit)
       .set('skip', skip),
     sessionToken,
   );
 
-export const getStores = async (sessionToken, args) => {
-  const names = convertStringArgumentToSet(args.name);
-  const count = await getStoresCountMatchCriteria(sessionToken, names);
-  const { limit, skip, hasNextPage, hasPreviousPage } = getLimitAndSkipValue(args, count, 10, 1000);
-  const stores = await getStoresMatchCriteria(sessionToken, limit, skip, names);
+export const getStores = async (searchArgs, sessionToken) => {
+  const count = await getStoresCountMatchCriteria(searchArgs, sessionToken);
+  const { limit, skip, hasNextPage, hasPreviousPage } = getLimitAndSkipValue(searchArgs, count, 10, 1000);
+  const stores = await getStoresMatchCriteria(searchArgs, sessionToken, limit, skip);
   const indexedStores = stores.zip(Range(skip, skip + limit));
 
   const edges = indexedStores.map(indexedItem => ({

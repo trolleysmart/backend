@@ -1,6 +1,7 @@
 // @flow
 
-import { GraphQLID, GraphQLObjectType, GraphQLString, GraphQLNonNull } from 'graphql';
+import Immutable from 'immutable';
+import { GraphQLBoolean, GraphQLID, GraphQLInt, GraphQLObjectType, GraphQLString, GraphQLNonNull } from 'graphql';
 import { connectionArgs } from 'graphql-relay';
 import { NodeInterface } from '../interface';
 import Tag, { getTags } from './Tag';
@@ -20,8 +21,14 @@ export default new GraphQLObjectType({
         name: {
           type: GraphQLString,
         },
+        level: {
+          type: GraphQLInt,
+        },
+        forDisplay: {
+          type: GraphQLBoolean,
+        },
       },
-      resolve: async (_, args, request) => getTags(request.headers.authorization, args),
+      resolve: async (_, args, request) => getTags(Immutable.fromJS(args), request.headers.authorization),
     },
     stores: {
       type: Store.StoreConnectionDefinition.connectionType,
@@ -31,7 +38,7 @@ export default new GraphQLObjectType({
           type: GraphQLString,
         },
       },
-      resolve: async (_, args, request) => getStores(request.headers.authorization, args),
+      resolve: async (_, args, request) => getStores(Immutable.fromJS(args), request.headers.authorization),
     },
   },
   interfaces: [NodeInterface],

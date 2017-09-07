@@ -2,7 +2,7 @@
 
 import BluebirdPromise from 'bluebird';
 import Immutable, { List, Map, Range } from 'immutable';
-import { Exception, ParseWrapperService, UserService } from 'micro-business-parse-server-common';
+import { ParseWrapperService, UserService } from 'micro-business-parse-server-common';
 import { MasterProductPriceService, ShoppingListService } from 'trolley-smart-parse-server-common';
 
 const splitIntoChunks = (list, chunkSize) => Range(0, list.count(), chunkSize).map(chunkStart => list.slice(chunkStart, chunkStart + chunkSize));
@@ -16,7 +16,7 @@ const getMasterProductPriceById = async (sessionToken, id) => {
   const masterProductPriceItems = await MasterProductPriceService.search(masterProductPriceCriteria, sessionToken);
 
   if (masterProductPriceItems.isEmpty()) {
-    throw new Exception('Provided product Id is invalid.');
+    throw new Error('Provided product Id is invalid.');
   }
 
   return masterProductPriceItems.first();
@@ -87,7 +87,10 @@ export const addProductPricesToUserShoppingList = async (sessionToken, productPr
   const user = await UserService.getUserForProvidedSessionToken(sessionToken);
   const acl = ParseWrapperService.createACL(user);
   const userId = user.id;
-  const productPriceIdssWithoutDuplicate = productPriceIdss.groupBy(_ => _).map(_ => _.first()).valueSeq();
+  const productPriceIdssWithoutDuplicate = productPriceIdss
+    .groupBy(_ => _)
+    .map(_ => _.first())
+    .valueSeq();
 
   return Immutable.fromJS(
     await Promise.all(
@@ -140,7 +143,7 @@ export const removeSpecialItemFromUserShoppingList = async (sessionToken, produc
       }),
     };
   } catch (ex) {
-    return { errorMessage: ex instanceof Exception ? ex.getErrorMessage() : ex };
+    return { errorMessage: ex instanceof Error ? ex.message : ex };
   }
 };
 
@@ -161,6 +164,6 @@ export const removeSpecialItemsFromUserShoppingList = async (sessionToken, produ
 
     return {};
   } catch (ex) {
-    return { errorMessage: ex instanceof Exception ? ex.getErrorMessage() : ex };
+    return { errorMessage: ex instanceof Error ? ex.message : ex };
   }
 };

@@ -3,7 +3,6 @@
 import Immutable, { List, Map, Range } from 'immutable';
 import { GraphQLID, GraphQLFloat, GraphQLList, GraphQLInt, GraphQLObjectType, GraphQLString, GraphQLNonNull } from 'graphql';
 import { connectionDefinitions } from 'graphql-relay';
-import { Exception } from 'micro-business-parse-server-common';
 import { MasterProductPriceService, ShoppingListService, StapleShoppingListService } from 'trolley-smart-parse-server-common';
 import { NodeInterface } from '../interface';
 import multiBuyType from './MultiBuy';
@@ -263,7 +262,7 @@ export const getShoppingList = async (sessionToken, userId, args) => {
         });
       }
 
-      throw new Exception(`Staple Shopping List not found: ${shoppingListItem.getIn(['stapleShoppingList', 'id'])}`);
+      throw new Error(`Staple Shopping List not found: ${shoppingListItem.getIn(['stapleShoppingList', 'id'])}`);
     } else {
       const foundItem = masterProductPrices.find(item => item.get('id').localeCompare(shoppingListItem.get('masterProductPriceId')) === 0);
 
@@ -310,7 +309,7 @@ export const getShoppingList = async (sessionToken, userId, args) => {
         });
       }
 
-      throw new Exception(`Master Product Price not found: ${shoppingListItem.getIn(['masterProductPrice', 'id'])}`);
+      throw new Error(`Master Product Price not found: ${shoppingListItem.getIn(['masterProductPrice', 'id'])}`);
     }
   });
 
@@ -328,7 +327,10 @@ export const getShoppingList = async (sessionToken, userId, args) => {
     .toList();
   const count = completeList.count();
   const { limit, skip, hasNextPage, hasPreviousPage } = getLimitAndSkipValue(args, count, 10, 1000);
-  const indexedList = completeList.skip(skip).take(limit).zip(Range(skip, skip + limit));
+  const indexedList = completeList
+    .skip(skip)
+    .take(limit)
+    .zip(Range(skip, skip + limit));
   const edges = indexedList.map(indexedItem => ({
     node: indexedItem[0],
     cursor: indexedItem[1] + 1,

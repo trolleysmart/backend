@@ -1,14 +1,15 @@
 // @flow
 
 import Immutable, { Set } from 'immutable';
-import { Exception } from 'micro-business-parse-server-common';
 
-export const getLimitAndSkipValue = (args, count, defaultPageSize, maximumPageSize) => {
-  const { after, before } = args;
-  let { first, last } = args;
+export const getLimitAndSkipValue = (searchArgs, count, defaultPageSize, maximumPageSize) => {
+  const after = searchArgs.get('after');
+  const before = searchArgs.get('before');
+  let first = searchArgs.get('first');
+  let last = searchArgs.get('last');
 
   if ((first || after) && (last || before)) {
-    throw new Exception('Mixing first and after with last and before is not supported.');
+    throw new Error('Mixing first and after with last and before is not supported.');
   }
 
   let limit;
@@ -75,7 +76,10 @@ export const convertStringArgumentToSet = (string) => {
       return Set();
     }
 
-    return Immutable.fromJS(trimmedString.toLowerCase().split(' ')).map(_ => _.trim()).filter(_ => _.length > 0).toSet();
+    return Immutable.fromJS(trimmedString.toLowerCase().split(' '))
+      .map(_ => _.trim())
+      .filter(_ => _.length > 0)
+      .toSet();
   }
 
   return Set();

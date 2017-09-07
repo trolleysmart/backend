@@ -3,7 +3,6 @@
 import Immutable, { List, Map } from 'immutable';
 import { GraphQLID, GraphQLList, GraphQLString, GraphQLNonNull } from 'graphql';
 import { mutationWithClientMutationId } from 'graphql-relay';
-import { Exception } from 'micro-business-parse-server-common';
 import { ShoppingList } from '../type';
 import { addProductPricesToUserShoppingList } from './ProductPriceHelper';
 import { addStapleShoppingListItemsToUserShoppingList, addNewStapleShoppingListItemsToShoppingList } from './StapleShoppingListHelper';
@@ -69,7 +68,7 @@ export default mutationWithClientMutationId({
 
       return Map({ productPrices: results[0], stapleShoppingListItems: results[1].concat(results[2]) });
     } catch (ex) {
-      return Map({ errorMessage: ex instanceof Exception ? ex.getErrorMessage() : ex });
+      return Map({ errorMessage: ex instanceof Error ? ex.message : ex });
     }
   },
 });

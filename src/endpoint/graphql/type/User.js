@@ -44,7 +44,7 @@ export default new GraphQLObjectType({
           type: new GraphQLList(GraphQLID),
         },
         special: {
-          type: new GraphQLList(GraphQLBoolean),
+          type: GraphQLBoolean,
         },
       },
       resolve: async (_, args, request) => getProducts(request.headers.authorization, args),

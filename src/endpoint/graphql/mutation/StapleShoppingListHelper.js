@@ -2,7 +2,7 @@
 
 import BluebirdPromise from 'bluebird';
 import Immutable, { List, Map, Range } from 'immutable';
-import { Exception, ParseWrapperService, UserService } from 'micro-business-parse-server-common';
+import { ParseWrapperService, UserService } from 'micro-business-parse-server-common';
 import { StapleShoppingListService, StapleTemplateShoppingListService, ShoppingListService } from 'trolley-smart-parse-server-common';
 
 const splitIntoChunks = (list, chunkSize) => Range(0, list.count(), chunkSize).map(chunkStart => list.slice(chunkStart, chunkStart + chunkSize));
@@ -55,7 +55,7 @@ const getStapleShoppingListById = async (sessionToken, userId, id) => {
   const stapleShoppingListItems = await StapleShoppingListService.search(stapleShoppingListCriteria, sessionToken);
 
   if (stapleShoppingListItems.isEmpty()) {
-    throw new Exception('Provided staple shopping list item Id is invalid.');
+    throw new Error('Provided staple shopping list item Id is invalid.');
   }
 
   return stapleShoppingListItems.first();
@@ -113,7 +113,10 @@ export const addStapleShoppingListItemsToUserShoppingList = async (sessionToken,
   const user = await UserService.getUserForProvidedSessionToken(sessionToken);
   const acl = ParseWrapperService.createACL(user);
   const userId = user.id;
-  const stapleShoppingListItemIdsWithoutDuplicate = stapleShoppingListItemIds.groupBy(_ => _).map(_ => _.first()).valueSeq();
+  const stapleShoppingListItemIdsWithoutDuplicate = stapleShoppingListItemIds
+    .groupBy(_ => _)
+    .map(_ => _.first())
+    .valueSeq();
 
   return Immutable.fromJS(
     await Promise.all(
@@ -201,7 +204,7 @@ export const removeStapleShoppingListItemFromUserShoppingList = async (sessionTo
       }),
     };
   } catch (ex) {
-    return { errorMessage: ex instanceof Exception ? ex.getErrorMessage() : ex };
+    return { errorMessage: ex instanceof Error ? ex.message : ex };
   }
 };
 
@@ -222,6 +225,6 @@ export const removeStapleShoppingListItemsFromUserShoppingList = async (sessionT
 
     return {};
   } catch (ex) {
-    return { errorMessage: ex instanceof Exception ? ex.getErrorMessage() : ex };
+    return { errorMessage: ex instanceof Error ? ex.message : ex };
   }
 };
