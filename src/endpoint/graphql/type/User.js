@@ -38,11 +38,11 @@ export default new GraphQLObjectType({
         sortOption: {
           type: GraphQLString,
         },
-        tags: {
-          type: new GraphQLList(GraphQLID),
+        tagKeys: {
+          type: new GraphQLList(GraphQLString),
         },
-        stores: {
-          type: new GraphQLList(GraphQLID),
+        storeKeys: {
+          type: new GraphQLList(GraphQLString),
         },
         special: {
           type: GraphQLBoolean,

@@ -1,6 +1,6 @@
 // @flow
 
-import { Map, Range } from 'immutable';
+import Immutable, { Map, Range } from 'immutable';
 import { GraphQLID, GraphQLFloat, GraphQLList, GraphQLObjectType, GraphQLString, GraphQLNonNull } from 'graphql';
 import { connectionDefinitions } from 'graphql-relay';
 import { ProductPriceService } from 'trolley-smart-parse-server-common';
@@ -9,6 +9,7 @@ import multiBuyType from './MultiBuy';
 import unitPriceType from './UnitPrice';
 import { getLimitAndSkipValue, convertStringArgumentToSet } from './Common';
 import Tag from './Tag';
+import { storeLoader, tagLoader } from '../loader';
 
 const ProductType = new GraphQLObjectType({
   name: 'Product',
@@ -112,8 +113,8 @@ const getCriteria = searchArgs =>
       contains_descriptions: convertStringArgumentToSet(searchArgs.get('description')),
       status: 'A',
       special: searchArgs.has('special') ? searchArgs.get('special') : undefined,
-      tagIds: searchArgs.get('tags') ? searchArgs.get('tags') : undefined,
-      storeIds: searchArgs.get('stores') ? searchArgs.get('stores') : undefined,
+      tagIds: searchArgs.get('tagIds') ? searchArgs.get('tagIds') : undefined,
+      storeIds: searchArgs.get('storeIds') ? searchArgs.get('storeIds') : undefined,
     }),
   });
 
@@ -173,9 +174,21 @@ const getProductPriceMatchCriteria = async (searchArgs, sessionToken, limit, ski
   );
 
 export const getProducts = async (searchArgs, sessionToken) => {
-  const count = await getProductPriceCountMatchCriteria(searchArgs, sessionToken);
-  const { limit, skip, hasNextPage, hasPreviousPage } = getLimitAndSkipValue(searchArgs, count, 10, 1000);
-  const productPriceItems = await getProductPriceMatchCriteria(searchArgs, sessionToken, limit, skip);
+  const finalSearchArgs = searchArgs
+    .merge(
+      searchArgs.has('storeKeys') && searchArgs.get('storeKeys')
+        ? Map({ storeIds: Immutable.fromJS(await storeLoader.loadMany(searchArgs.get('storeKeys').toJS())).map(store => store.get('id')) })
+        : Map(),
+    )
+    .merge(
+      searchArgs.has('tagKeys') && searchArgs.get('tagKeys')
+        ? Map({ tagIds: Immutable.fromJS(await tagLoader.loadMany(searchArgs.get('tagKeys').toJS())).map(tag => tag.get('id')) })
+        : Map(),
+    );
+
+  const count = await getProductPriceCountMatchCriteria(finalSearchArgs, sessionToken);
+  const { limit, skip, hasNextPage, hasPreviousPage } = getLimitAndSkipValue(finalSearchArgs, count, 10, 1000);
+  const productPriceItems = await getProductPriceMatchCriteria(finalSearchArgs, sessionToken, limit, skip);
   const indexedProductPriceItems = productPriceItems.zip(Range(skip, skip + limit));
   const edges = indexedProductPriceItems.map(indexedItem => ({
     node: indexedItem[0],
