@@ -185,7 +185,6 @@ export const getProducts = async (searchArgs, sessionToken) => {
         ? Map({ tagIds: Immutable.fromJS(await tagLoader.loadMany(searchArgs.get('tagKeys').toJS())).map(tag => tag.get('id')) })
         : Map(),
     );
-
   const count = await getProductPriceCountMatchCriteria(finalSearchArgs, sessionToken);
   const { limit, skip, hasNextPage, hasPreviousPage } = getLimitAndSkipValue(finalSearchArgs, count, 10, 1000);
   const productPriceItems = await getProductPriceMatchCriteria(finalSearchArgs, sessionToken, limit, skip);
