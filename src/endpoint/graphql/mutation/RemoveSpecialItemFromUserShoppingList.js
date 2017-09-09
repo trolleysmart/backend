@@ -2,7 +2,7 @@
 
 import { GraphQLID, GraphQLString, GraphQLNonNull } from 'graphql';
 import { mutationWithClientMutationId } from 'graphql-relay';
-import { ShoppingList } from '../type';
+import { ShoppingListItem } from '../type';
 import { removeSpecialItemFromUserShoppingList } from './ProductPriceHelper';
 
 export default mutationWithClientMutationId({
@@ -15,7 +15,7 @@ export default mutationWithClientMutationId({
       type: GraphQLString,
     },
     item: {
-      type: ShoppingList.ShoppingListConnectionDefinition.edgeType,
+      type: ShoppingListItem.ShoppingListItemConnectionDefinition.edgeType,
       resolve: (_) => {
         if (_.errorMessage) {
           return null;

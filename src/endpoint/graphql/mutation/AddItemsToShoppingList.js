@@ -3,7 +3,7 @@
 import Immutable, { List, Map } from 'immutable';
 import { GraphQLID, GraphQLList, GraphQLString, GraphQLNonNull } from 'graphql';
 import { mutationWithClientMutationId } from 'graphql-relay';
-import { ShoppingList } from '../type';
+import { ShoppingListItem } from '../type';
 import { addProductPricesToUserShoppingList } from './ProductPriceHelper';
 import { addStapleShoppingListItemsToUserShoppingList, addNewStapleShoppingListItemsToShoppingList } from './StapleShoppingListHelper';
 
@@ -20,7 +20,7 @@ export default mutationWithClientMutationId({
       resolve: _ => _.get('errorMessage'),
     },
     productPrices: {
-      type: new GraphQLList(ShoppingList.ShoppingListConnectionDefinition.edgeType),
+      type: new GraphQLList(ShoppingListItem.ShoppingListItemConnectionDefinition.edgeType),
       resolve: (result) => {
         if (result.get('errorMessage')) {
           return [];
@@ -36,7 +36,7 @@ export default mutationWithClientMutationId({
       },
     },
     stapleShoppingListItems: {
-      type: new GraphQLList(ShoppingList.ShoppingListConnectionDefinition.edgeType),
+      type: new GraphQLList(ShoppingListItem.ShoppingListItemConnectionDefinition.edgeType),
       resolve: (result) => {
         if (result.get('errorMessage')) {
           return [];

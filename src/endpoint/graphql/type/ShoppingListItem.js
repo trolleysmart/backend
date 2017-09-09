@@ -11,8 +11,8 @@ import unitPriceType from './UnitPrice';
 import Tag from './Tag';
 import { storeLoader, tagLoader } from '../loader';
 
-const ShoppingListType = new GraphQLObjectType({
-  name: 'ShoppingList',
+const ShoppingListItemType = new GraphQLObjectType({
+  name: 'ShoppingListItem',
   fields: {
     id: {
       type: new GraphQLNonNull(GraphQLID),
@@ -106,9 +106,9 @@ const ShoppingListType = new GraphQLObjectType({
   interfaces: [NodeInterface],
 });
 
-const ShoppingListConnectionDefinition = connectionDefinitions({
-  name: 'ShoppingList',
-  nodeType: ShoppingListType,
+const ShoppingListItemConnectionDefinition = connectionDefinitions({
+  name: 'ShoppingListItem',
+  nodeType: ShoppingListItemType,
 });
 
 const getShoppingListItemsMatchCriteria = async (searchArgs, userId, sessionToken) => {
@@ -142,7 +142,7 @@ const getShoppingListItemsMatchCriteria = async (searchArgs, userId, sessionToke
   return shoppingListItems;
 };
 
-export const getShoppingList = async (searchArgs, userId, sessionToken) => {
+export const getShoppingListItems = async (searchArgs, userId, sessionToken) => {
   const finalSearchArgs = searchArgs
     .merge(
       searchArgs.has('storeKeys') && searchArgs.get('storeKeys')
@@ -196,4 +196,4 @@ export const getShoppingList = async (searchArgs, userId, sessionToken) => {
   };
 };
 
-export default { ShoppingListType, ShoppingListConnectionDefinition };
+export default { ShoppingListItemType, ShoppingListItemConnectionDefinition };
