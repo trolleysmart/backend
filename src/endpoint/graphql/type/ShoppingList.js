@@ -3,39 +3,24 @@
 import Immutable, { List, Map, Range } from 'immutable';
 import { GraphQLID, GraphQLFloat, GraphQLList, GraphQLInt, GraphQLObjectType, GraphQLString, GraphQLNonNull } from 'graphql';
 import { connectionDefinitions } from 'graphql-relay';
-import { MasterProductPriceService, ShoppingListService, StapleShoppingListService } from 'trolley-smart-parse-server-common';
+import { ShoppingListItemService } from 'trolley-smart-parse-server-common';
+import { getLimitAndSkipValue, convertStringArgumentToSet } from './Common';
 import { NodeInterface } from '../interface';
 import multiBuyType from './MultiBuy';
 import unitPriceType from './UnitPrice';
-import { getLimitAndSkipValue, convertStringArgumentToSet } from './Common';
+import Tag from './Tag';
+import { storeLoader, tagLoader } from '../loader';
 
 const ShoppingListType = new GraphQLObjectType({
   name: 'ShoppingList',
   fields: {
     id: {
       type: new GraphQLNonNull(GraphQLID),
-      resolve: (_) => {
-        const stapleShoppingListId = _.get('stapleShoppingListId');
-        const specialId = _.get('specialId');
-
-        if (stapleShoppingListId) {
-          return `shoppingList-${stapleShoppingListId}`;
-        }
-
-        return `shoppingList-${specialId}`;
-      },
+      resolve: _ => _.get('id'),
     },
-    shoppingListIds: {
-      type: new GraphQLList(new GraphQLNonNull(GraphQLID)),
-      resolve: _ => _.get('shoppingListIds').toArray(),
-    },
-    stapleShoppingListId: {
-      type: GraphQLID,
-      resolve: _ => _.get('stapleShoppingListId'),
-    },
-    specialId: {
-      type: GraphQLID,
-      resolve: _ => _.get('specialId'),
+    itemType: {
+      type: GraphQLString,
+      resolve: _ => _.get('itemType'),
     },
     name: {
       type: GraphQLString,
@@ -51,55 +36,59 @@ const ShoppingListType = new GraphQLObjectType({
     },
     barcode: {
       type: GraphQLString,
-      resolve: _ => _.get('barcode'),
+      resolve: _ => _.getIn(['productPrice', 'barcode']),
     },
     size: {
       type: GraphQLString,
-      resolve: _ => _.get('size'),
+      resolve: _ => _.getIn(['productPrice', 'size']),
     },
     specialType: {
       type: GraphQLString,
-      resolve: _ => _.get('specialType'),
+      resolve: _ => _.getIn(['productPrice', 'specialType']),
     },
     priceToDisplay: {
       type: GraphQLFloat,
-      resolve: _ => _.get('priceToDisplay'),
+      resolve: _ => _.getIn(['productPrice', 'priceToDisplay']),
     },
     saving: {
       type: GraphQLFloat,
-      resolve: _ => _.get('saving'),
+      resolve: _ => _.getIn(['productPrice', 'saving']),
     },
     savingPercentage: {
       type: GraphQLFloat,
-      resolve: _ => _.get('savingPercentage'),
+      resolve: _ => _.getIn(['productPrice', 'savingPercentage']),
     },
     currentPrice: {
       type: GraphQLFloat,
-      resolve: _ => _.get('currentPrice'),
+      resolve: _ => _.getIn(['productPrice', 'priceDetails', 'currentPrice']),
     },
     wasPrice: {
       type: GraphQLFloat,
-      resolve: _ => _.get('wasPrice'),
+      resolve: _ => _.getIn(['productPrice', 'priceDetails', 'wasPrice']),
     },
     multiBuy: {
       type: multiBuyType,
-      resolve: _ => _.get('multiBuyInfo'),
+      resolve: _ => _.getIn(['productPrice', 'priceDetails', 'multiBuyInfo']),
     },
     storeName: {
       type: GraphQLString,
-      resolve: _ => _.get('storeName'),
+      resolve: _ => _.getIn(['store', 'name']),
     },
     storeImageUrl: {
       type: GraphQLString,
-      resolve: _ => _.get('storeImageUrl'),
+      resolve: _ => _.getIn(['store', 'imageUrl']),
     },
     unitPrice: {
       type: unitPriceType,
-      resolve: _ => _.get('unitPrice'),
+      resolve: _ => _.getIn(['productPrice', 'priceDetails', 'unitPrice']),
     },
     offerEndDate: {
       type: GraphQLString,
-      resolve: _ => _.get('offerEndDate'),
+      resolve: (_) => {
+        const offerEndDate = _.getIn(['productPrice', 'offerEndDate']);
+
+        return offerEndDate ? offerEndDate.toISOString() : undefined;
+      },
     },
     quantity: {
       type: GraphQLInt,
@@ -109,9 +98,9 @@ const ShoppingListType = new GraphQLObjectType({
       type: GraphQLString,
       resolve: _ => _.get('comments'),
     },
-    status: {
-      type: GraphQLString,
-      resolve: _ => _.get('status'),
+    tags: {
+      type: new GraphQLList(Tag.TagType),
+      resolve: _ => _.get('tags'),
     },
   },
   interfaces: [NodeInterface],
@@ -122,20 +111,23 @@ const ShoppingListConnectionDefinition = connectionDefinitions({
   nodeType: ShoppingListType,
 });
 
-const getShoppingListMatchCriteria = async (sessionToken, userId, names) => {
+const getShoppingListItemsMatchCriteria = async (searchArgs, userId, sessionToken) => {
   let shoppingListItems = List();
   const criteria = Map({
-    includeStapleShoppingList: true,
-    includeMasterProductPrice: true,
+    include_productPrice: true,
+    include_stapleItem: true,
+    include_store: true,
+    include_tags: true,
     conditions: Map({
-      userId,
-      contains_names: names,
-      excludeItemsMarkedAsDone: true,
-      includeSpecialsOnly: true,
+      addedByUserId: userId,
+      contains_names: convertStringArgumentToSet(searchArgs.get('name')),
+      doesNotExist_removedByUser: true,
+      tagIds: searchArgs.get('tagIds') ? searchArgs.get('tagIds') : undefined,
+      storeIds: searchArgs.get('storeIds') ? searchArgs.get('storeIds') : undefined,
     }),
   });
 
-  const result = await ShoppingListService.searchAll(criteria, sessionToken);
+  const result = await new ShoppingListItemService().searchAll(criteria, sessionToken);
 
   try {
     result.event.subscribe((info) => {
@@ -150,184 +142,38 @@ const getShoppingListMatchCriteria = async (sessionToken, userId, names) => {
   return shoppingListItems;
 };
 
-const getStapleShoppingListInfo = async (sessionToken, userId, ids) => {
-  if (ids.isEmpty()) {
-    return List();
-  }
+export const getShoppingList = async (searchArgs, userId, sessionToken) => {
+  const finalSearchArgs = searchArgs
+    .merge(
+      searchArgs.has('storeKeys') && searchArgs.get('storeKeys')
+        ? Map({ storeIds: Immutable.fromJS(await storeLoader.loadMany(searchArgs.get('storeKeys').toJS())).map(store => store.get('id')) })
+        : Map(),
+    )
+    .merge(
+      searchArgs.has('tagKeys') && searchArgs.get('tagKeys')
+        ? Map({ tagIds: Immutable.fromJS(await tagLoader.loadMany(searchArgs.get('tagKeys').toJS())).map(tag => tag.get('id')) })
+        : Map(),
+    );
+  const shoppingListItems = await getShoppingListItemsMatchCriteria(finalSearchArgs, userId, sessionToken);
+  const stapleItems = shoppingListItems.filter(item => item.get('stapleItem')).groupBy(item => item.get('stapleItemId'));
+  const productPrices = shoppingListItems.filter(item => item.get('productPrice')).groupBy(item => item.get('productPriceId'));
+  const shoppingListItemsWithQuantity = stapleItems
+    .keySeq()
+    .map((key) => {
+      const groupedStapleItems = stapleItems.get(key);
 
-  const criteria = Map({
-    ids,
-    conditions: Map({
-      userId,
-    }),
-  });
+      return groupedStapleItems.first().merge(Map({ quantity: groupedStapleItems.count(), itemType: 'StapleItem' }));
+    })
+    .concat(
+      productPrices.keySeq().map((key) => {
+        const groupedProductPrices = productPrices.get(key);
 
-  let stapleShoppingListInfo = List();
-  const masterProductPriceSearchResult = await StapleShoppingListService.searchAll(criteria, sessionToken);
-
-  try {
-    masterProductPriceSearchResult.event.subscribe((info) => {
-      stapleShoppingListInfo = stapleShoppingListInfo.push(info);
-    });
-
-    await masterProductPriceSearchResult.promise;
-  } finally {
-    masterProductPriceSearchResult.event.unsubscribeAll();
-  }
-
-  return stapleShoppingListInfo;
-};
-
-const getMasterProductPriceInfo = async (sessionToken, ids) => {
-  if (ids.isEmpty()) {
-    return List();
-  }
-
-  const criteria = Map({
-    includeStore: true,
-    includeMasterProduct: true,
-    ids,
-  });
-
-  let masterProductPriceInfo = List();
-  const masterProductPriceSearchResult = await MasterProductPriceService.searchAll(criteria, sessionToken);
-
-  try {
-    masterProductPriceSearchResult.event.subscribe((info) => {
-      masterProductPriceInfo = masterProductPriceInfo.push(info);
-    });
-
-    await masterProductPriceSearchResult.promise;
-  } finally {
-    masterProductPriceSearchResult.event.unsubscribeAll();
-  }
-
-  return masterProductPriceInfo;
-};
-
-const getActiveMasterProductPrice = async (sessionToken, inactiveMasterProduct) => {
-  const criteria = Map({
-    includeStore: true,
-    includeMasterProduct: true,
-    topMost: true,
-    conditions: Map({
-      masterProductId: inactiveMasterProduct.get('masterProductId'),
-      storeId: inactiveMasterProduct.get('storeId'),
-      status: 'A',
-    }),
-  });
-
-  const activeMasterProducts = await MasterProductPriceService.search(criteria, sessionToken);
-
-  return activeMasterProducts.isEmpty() ? null : activeMasterProducts.first();
-};
-
-export const getShoppingList = async (sessionToken, userId, args) => {
-  const names = convertStringArgumentToSet(args.name);
-  const shoppingListItems = await getShoppingListMatchCriteria(sessionToken, userId, names);
-  const stapleShoppingListInInShoppingList = shoppingListItems.filter(item => item.get('stapleShoppingList'));
-  const masterProductPriceInShoppingList = shoppingListItems.filter(item => item.get('masterProductPrice'));
-  const stapleShoppingListIds = stapleShoppingListInInShoppingList.map(item => item.get('stapleShoppingListId'));
-  const masterProductPriceIds = masterProductPriceInShoppingList.map(item => item.get('masterProductPriceId'));
-  const results = await Promise.all([
-    getStapleShoppingListInfo(sessionToken, userId, stapleShoppingListIds.toSet()),
-    getMasterProductPriceInfo(sessionToken, masterProductPriceIds.toSet()),
-  ]);
-  const groupedStapleShoppingListIds = stapleShoppingListIds.groupBy(id => id);
-  const groupedMasterProductPriceIds = masterProductPriceIds.groupBy(id => id);
-  const stapleShoppingListItems = results[0];
-  const masterProductPrices = results[1];
-  const inactiveMasterProductPrices = masterProductPrices.filter(masterProductPrice => masterProductPrice.get('status').localeCompare('I') === 0);
-  const matchedActiveMasterProductPrices = inactiveMasterProductPrices.isEmpty()
-    ? List()
-    : Immutable.fromJS(
-      await Promise.all(
-        inactiveMasterProductPrices
-          .map(inactiveMasterProductPrice => getActiveMasterProductPrice(sessionToken, inactiveMasterProductPrice))
-          .toArray(),
-      ),
-    ).filter(masterProductPrice => masterProductPrice);
-
-  const completeListWithDuplication = shoppingListItems.map((shoppingListItem) => {
-    if (shoppingListItem.get('stapleShoppingList')) {
-      const foundItem = stapleShoppingListItems.find(item => item.get('id').localeCompare(shoppingListItem.get('stapleShoppingListId')) === 0);
-
-      if (foundItem) {
-        return Map({
-          id: shoppingListItem.get('id'),
-          stapleShoppingListId: foundItem.get('id'),
-          name: foundItem.get('name'),
-          quantity: groupedStapleShoppingListIds.get(foundItem.get('id')).size,
-          status: 'A',
-        });
-      }
-
-      throw new Error(`Staple Shopping List not found: ${shoppingListItem.getIn(['stapleShoppingList', 'id'])}`);
-    } else {
-      const foundItem = masterProductPrices.find(item => item.get('id').localeCompare(shoppingListItem.get('masterProductPriceId')) === 0);
-
-      if (foundItem) {
-        let foundActiveProductPrice = null;
-
-        if (foundItem.get('status').localeCompare('I') === 0) {
-          const foundMatchActiveMasterProductPrice = matchedActiveMasterProductPrices.find(
-            activeMasterProduct =>
-              activeMasterProduct.get('masterProductId').localeCompare(foundItem.get('masterProductId')) === 0 &&
-              activeMasterProduct.get('storeId').localeCompare(foundItem.get('storeId')) === 0,
-          );
-
-          if (foundMatchActiveMasterProductPrice) {
-            foundActiveProductPrice = foundMatchActiveMasterProductPrice;
-          }
-        }
-
-        const itemWithDataToFecth = foundActiveProductPrice || foundItem;
-        const offerEndDate = itemWithDataToFecth.get('offerEndDate');
-
-        return Map({
-          id: shoppingListItem.get('id'),
-          specialId: foundItem.get('id'),
-          name: itemWithDataToFecth.getIn(['masterProduct', 'name']),
-          description: itemWithDataToFecth.getIn(['masterProduct', 'description']),
-          imageUrl: itemWithDataToFecth.getIn(['masterProduct', 'imageUrl']),
-          barcode: itemWithDataToFecth.getIn(['masterProduct', 'barcode']),
-          size: itemWithDataToFecth.getIn(['masterProduct', 'size']),
-          specialType: itemWithDataToFecth.getIn(['priceDetails', 'specialType']),
-          priceToDisplay: itemWithDataToFecth.get('priceToDisplay'),
-          saving: itemWithDataToFecth.get('saving'),
-          savingPercentage: itemWithDataToFecth.get('savingPercentage'),
-          currentPrice: itemWithDataToFecth.getIn(['priceDetails', 'currentPrice']),
-          wasPrice: itemWithDataToFecth.getIn(['priceDetails', 'wasPrice']),
-          multiBuyInfo: itemWithDataToFecth.getIn(['priceDetails', 'multiBuyInfo']),
-          storeName: itemWithDataToFecth.getIn(['store', 'name']),
-          storeImageUrl: itemWithDataToFecth.getIn(['store', 'imageUrl']),
-          unitPrice: itemWithDataToFecth.getIn(['priceDetails', 'unitPrice']),
-          offerEndDate: offerEndDate ? offerEndDate.toISOString() : undefined,
-          quantity: groupedMasterProductPriceIds.get(foundItem.get('id')).size,
-          comments: '',
-          status: itemWithDataToFecth.get('status'),
-        });
-      }
-
-      throw new Error(`Master Product Price not found: ${shoppingListItem.getIn(['masterProductPrice', 'id'])}`);
-    }
-  });
-
-  const completeStapleShoppingList = completeListWithDuplication
-    .filter(item => item.get('stapleShoppingListId'))
-    .groupBy(item => item.get('stapleShoppingListId'))
-    .map(item => item.first().set('shoppingListIds', item.map(_ => _.get('id'))));
-  const completeMasterProductPrice = completeListWithDuplication
-    .filter(item => item.get('specialId'))
-    .groupBy(item => item.get('specialId'))
-    .map(item => item.first().set('shoppingListIds', item.map(_ => _.get('id'))));
-  const completeList = completeStapleShoppingList
-    .concat(completeMasterProductPrice)
-    .sort((item1, item2) => item1.get('name').localeCompare(item2.get('name')))
-    .toList();
-  const count = completeList.count();
-  const { limit, skip, hasNextPage, hasPreviousPage } = getLimitAndSkipValue(args, count, 10, 1000);
-  const indexedList = completeList
+        return groupedProductPrices.first().merge(Map({ quantity: groupedProductPrices.count(), itemType: 'ProductPrice' }));
+      }),
+    );
+  const count = shoppingListItemsWithQuantity.count();
+  const { limit, skip, hasNextPage, hasPreviousPage } = getLimitAndSkipValue(searchArgs, count, 10, 1000);
+  const indexedList = shoppingListItemsWithQuantity
     .skip(skip)
     .take(limit)
     .zip(Range(skip, skip + limit));

@@ -4,8 +4,8 @@ import Immutable, { Map, Range } from 'immutable';
 import { GraphQLBoolean, GraphQLID, GraphQLList, GraphQLObjectType, GraphQLString, GraphQLNonNull } from 'graphql';
 import { connectionDefinitions } from 'graphql-relay';
 import { StapleItemService } from 'trolley-smart-parse-server-common';
-import { NodeInterface } from '../interface';
 import { getLimitAndSkipValue, convertStringArgumentToSet } from './Common';
+import { NodeInterface } from '../interface';
 import Tag from './Tag';
 import { tagLoader } from '../loader';
 
@@ -77,8 +77,8 @@ export const getStapleItem = async (searchArgs, userId, sessionToken) => {
   const count = await getStapleItemCountMatchCriteria(finalSearchArgs, userId, sessionToken);
   const { limit, skip, hasNextPage, hasPreviousPage } = getLimitAndSkipValue(finalSearchArgs, userId, count, 10, 1000);
   const stapleItems = await getStapleItemMatchCriteria(finalSearchArgs, userId, sessionToken, limit, skip);
-  const indexedStapleItemItems = stapleItems.zip(Range(skip, skip + limit));
-  const edges = indexedStapleItemItems.map(indexedItem => ({
+  const indexedStapleItems = stapleItems.zip(Range(skip, skip + limit));
+  const edges = indexedStapleItems.map(indexedItem => ({
     node: indexedItem[0],
     cursor: indexedItem[1] + 1,
   }));

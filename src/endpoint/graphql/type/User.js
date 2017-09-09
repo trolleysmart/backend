@@ -22,8 +22,14 @@ export default new GraphQLObjectType({
         name: {
           type: GraphQLString,
         },
+        tagKeys: {
+          type: new GraphQLList(GraphQLString),
+        },
+        storeKeys: {
+          type: new GraphQLList(GraphQLString),
+        },
       },
-      resolve: async (_, args, request) => getShoppingList(request.headers.authorization, _.get('id'), args),
+      resolve: async (_, args, request) => getShoppingList(Immutable.fromJS(args), _.get('id'), request.headers.authorization),
     },
     products: {
       type: Product.ProductConnectionDefinition.connectionType,
