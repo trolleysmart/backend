@@ -2458,7 +2458,7 @@
                 "name": null,
                 "ofType": {
                   "kind": "OBJECT",
-                  "name": "ShoppingListItemEdge",
+                  "name": "ShoppingListItem",
                   "ofType": null
                 }
               },
@@ -2548,7 +2548,7 @@
                 "name": null,
                 "ofType": {
                   "kind": "OBJECT",
-                  "name": "ShoppingListItemEdge",
+                  "name": "ShoppingListItem",
                   "ofType": null
                 }
               },

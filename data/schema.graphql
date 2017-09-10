@@ -7,7 +7,7 @@ input AddItemsToShoppingListInput {
 
 type AddItemsToShoppingListPayload {
   errorMessage: String
-  shoppingListItems: [ShoppingListItemEdge]
+  shoppingListItems: [ShoppingListItem]
   clientMutationId: String
 }
 
@@ -119,7 +119,7 @@ input RemoveItemsFromShoppingListInput {
 
 type RemoveItemsFromShoppingListPayload {
   errorMessage: String
-  shoppingListItems: [ShoppingListItemEdge]
+  shoppingListItems: [ShoppingListItem]
   clientMutationId: String
 }
 
