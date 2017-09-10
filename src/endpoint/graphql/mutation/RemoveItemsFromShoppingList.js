@@ -18,17 +18,16 @@ export default mutationWithClientMutationId({
       resolve: _ => _.get('errorMessage'),
     },
     shoppingListItems: {
-      type: new GraphQLList(ShoppingListItem.ShoppingListItemConnectionDefinition.edgeType),
+      type: new GraphQLList(ShoppingListItem.ShoppingListItemType),
       resolve: _ => _.get('shoppingListItems'),
     },
   },
   mutateAndGetPayload: async ({ shoppingListItemIds }, request) => {
     try {
       const sessionToken = request.headers.authorization;
-      const user = await UserService.getUserForProvidedSessionToken(sessionToken);
-      const userId = user.id;
+      const userId = (await UserService.getUserForProvidedSessionToken(sessionToken)).id;
 
-      await removeItemsFromShoppingList(shoppingListItemIds ? Immutable.fromJS(shoppingListItemIds) : List(), user, sessionToken);
+      await removeItemsFromShoppingList(shoppingListItemIds ? Immutable.fromJS(shoppingListItemIds) : List(), userId, sessionToken);
 
       return Map({ shoppingListItems: await getAllShoppingListItems(Map(), userId, sessionToken) });
     } catch (ex) {

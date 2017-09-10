@@ -25,10 +25,10 @@ const getStapleItems = async (name, userId, sessionToken) => new StapleItemServi
 
 const getStapleTemplateItems = async (name, sessionToken) => new StapleTemplateItemService().search(Map({ conditions: Map({ name }) }), sessionToken);
 
-const getStapleItemById = async (id, userId, sessionToken) => new StapleItemService().read(id, null, sessionToken);
+const getStapleItemById = async (id, sessionToken) => new StapleItemService().read(id, null, sessionToken);
 
 const addStapleItemToShoppingList = async (stapleItemId, userId, acl, sessionToken) => {
-  const stapleItem = await getStapleItemById(stapleItemId, userId, sessionToken);
+  const stapleItem = await getStapleItemById(stapleItemId, sessionToken);
 
   await new ShoppingListItemService().create(
     Map({

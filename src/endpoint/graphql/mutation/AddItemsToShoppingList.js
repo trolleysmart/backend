@@ -21,7 +21,7 @@ export default mutationWithClientMutationId({
       resolve: _ => _.get('errorMessage'),
     },
     shoppingListItems: {
-      type: new GraphQLList(ShoppingListItem.ShoppingListItemConnectionDefinition.edgeType),
+      type: new GraphQLList(ShoppingListItem.ShoppingListItemType),
       resolve: _ => _.get('shoppingListItems'),
     },
   },

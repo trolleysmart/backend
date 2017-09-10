@@ -3,28 +3,26 @@
 import Immutable, { Map } from 'immutable';
 import { ShoppingListItemService } from 'trolley-smart-parse-server-common';
 
-const getShoppingListItemById = async (id, userId, sessionToken) => new ShoppingListItemService().read(id, null, sessionToken);
+const getShoppingListItemById = async (id, sessionToken) => new ShoppingListItemService().read(id, null, sessionToken);
 
 const getAllShoppingListItemsContainProvidedProductPrice = async (productPriceId, userId, sessionToken) =>
   new ShoppingListItemService().search(
-    Map({ conditions: Map({ productPriceId, addedByUser: userId, doesNotExist_removedByUser: true }) }),
+    Map({ conditions: Map({ productPriceId, addedByUserId: userId, doesNotExist_removedByUser: true }) }),
     sessionToken,
   );
 
 const getAllShoppingListItemsContainProvidedStapleItem = async (stapleItemId, userId, sessionToken) =>
   new ShoppingListItemService().search(
-    Map({ conditions: Map({ stapleItemId, addedByUser: userId, doesNotExist_removedByUser: true }) }),
+    Map({ conditions: Map({ stapleItemId, addedByUserId: userId, doesNotExist_removedByUser: true }) }),
     sessionToken,
   );
 
-const removeItemsFromShoppingList = async (shoppingListItemIds, user, sessionToken) => {
+const removeItemsFromShoppingList = async (shoppingListItemIds, userId, sessionToken) => {
   if (shoppingListItemIds.isEmpty()) {
     return;
   }
 
-  const shoppingListItems = Immutable.fromJS(
-    await Promise.all(shoppingListItemIds.map(id => getShoppingListItemById(id, user.id, sessionToken)).toArray()),
-  );
+  const shoppingListItems = Immutable.fromJS(await Promise.all(shoppingListItemIds.map(id => getShoppingListItemById(id, sessionToken)).toArray()));
   const productPriceIds = shoppingListItems
     .filter(_ => _.get('productPriceId'))
     .map(_ => _.get('productPriceId'))
@@ -45,21 +43,21 @@ const removeItemsFromShoppingList = async (shoppingListItemIds, user, sessionTok
   if (!productPriceIds.isEmpty()) {
     const itemsToRemove = Immutable.fromJS(
       await Promise.all(
-        productPriceIds.map(productPriceId => getAllShoppingListItemsContainProvidedProductPrice(productPriceId, user.id, sessionToken)).toArray(),
+        productPriceIds.map(productPriceId => getAllShoppingListItemsContainProvidedProductPrice(productPriceId, userId, sessionToken)).toArray(),
       ),
-    );
+    ).flatMap(_ => _);
 
-    Promise.all(itemsToRemove.map(item => shoppingListItemService.update(item.set('removedByUser', user.id), sessionToken)).toArray());
+    await Promise.all(itemsToRemove.map(item => shoppingListItemService.update(item.set('removedByUserId', userId), sessionToken)).toArray());
   }
 
   if (!stapleItemIds.isEmpty()) {
     const itemsToRemove = Immutable.fromJS(
       await Promise.all(
-        stapleItemIds.map(stapleItemId => getAllShoppingListItemsContainProvidedStapleItem(stapleItemId, user.id, sessionToken)).toArray(),
+        stapleItemIds.map(stapleItemId => getAllShoppingListItemsContainProvidedStapleItem(stapleItemId, userId, sessionToken)).toArray(),
       ),
-    );
+    ).flatMap(_ => _);
 
-    Promise.all(itemsToRemove.map(item => shoppingListItemService.update(item.set('removedByUser', user.id), sessionToken)).toArray());
+    await Promise.all(itemsToRemove.map(item => shoppingListItemService.update(item.set('removedByUserId', userId), sessionToken)).toArray());
   }
 };
 

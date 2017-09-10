@@ -4,10 +4,10 @@ import { Map } from 'immutable';
 import { ParseWrapperService } from 'micro-business-parse-server-common';
 import { ProductPriceService, ShoppingListItemService } from 'trolley-smart-parse-server-common';
 
-const getProductPriceById = async (id, userId, sessionToken) => new ProductPriceService().read(id, null, sessionToken);
+const getProductPriceById = async (id, sessionToken) => new ProductPriceService().read(id, null, sessionToken);
 
 const addProductPriceToShoppingList = async (productPriceId, userId, acl, sessionToken) => {
-  const productPrice = await getProductPriceById(productPriceId, userId, sessionToken);
+  const productPrice = await getProductPriceById(productPriceId, sessionToken);
 
   await new ShoppingListItemService().create(
     Map({
@@ -17,6 +17,7 @@ const addProductPriceToShoppingList = async (productPriceId, userId, acl, sessio
       isPurchased: false,
       addedByUserId: userId,
       productPriceId,
+      storeId: productPrice.get('storeId'),
       tagIds: productPrice.get('tagIds'),
     }),
     acl,
