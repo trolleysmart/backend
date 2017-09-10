@@ -5,15 +5,12 @@ import { GraphQLID, GraphQLList, GraphQLString, GraphQLNonNull } from 'graphql';
 import { mutationWithClientMutationId } from 'graphql-relay';
 import { UserService } from 'micro-business-parse-server-common';
 import { ShoppingListItem, getAllShoppingListItems } from '../type';
-import addProductPricesToShoppingList from './ProductPriceHelper';
-import { addStapleItemsToShoppingList, addNewStapleItemsToShoppingList } from './StapleItemHelper';
+import removeItemsFromShoppingList from './ShoppingListHelper';
 
 export default mutationWithClientMutationId({
-  name: 'AddItemsToShoppingList',
+  name: 'RemoveItemsFromShoppingList',
   inputFields: {
-    productPriceIds: { type: new GraphQLList(new GraphQLNonNull(GraphQLID)) },
-    stapleItemIds: { type: new GraphQLList(new GraphQLNonNull(GraphQLID)) },
-    newStapleItemNames: { type: new GraphQLList(new GraphQLNonNull(GraphQLString)) },
+    shoppingListItemIds: { type: new GraphQLList(new GraphQLNonNull(GraphQLID)) },
   },
   outputFields: {
     errorMessage: {
@@ -25,17 +22,13 @@ export default mutationWithClientMutationId({
       resolve: _ => _.get('shoppingListItems'),
     },
   },
-  mutateAndGetPayload: async ({ productPriceIds, stapleItemIds, newStapleItemNames }, request) => {
+  mutateAndGetPayload: async ({ shoppingListItemIds }, request) => {
     try {
       const sessionToken = request.headers.authorization;
       const user = await UserService.getUserForProvidedSessionToken(sessionToken);
       const userId = user.id;
 
-      await Promise.all([
-        addProductPricesToShoppingList(productPriceIds ? Immutable.fromJS(productPriceIds) : List(), user, sessionToken),
-        addStapleItemsToShoppingList(stapleItemIds ? Immutable.fromJS(stapleItemIds) : List(), user, sessionToken),
-        addNewStapleItemsToShoppingList(newStapleItemNames ? Immutable.fromJS(newStapleItemNames) : List(), user, sessionToken),
-      ]);
+      await removeItemsFromShoppingList(shoppingListItemIds ? Immutable.fromJS(shoppingListItemIds) : List(), user, sessionToken);
 
       return Map({ shoppingListItems: await getAllShoppingListItems(Map(), userId, sessionToken) });
     } catch (ex) {
