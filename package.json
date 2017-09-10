@@ -36,7 +36,7 @@
     "micro-business-parse-server-backend": "^1.0.0-alpha.1",
     "micro-business-parse-server-common": "^1.0.2-alpha.26",
     "newrelic": "^2.2.0",
-    "trolley-smart-parse-server-common": "^1.0.0-alpha.9"
+    "trolley-smart-parse-server-common": "^1.0.0-alpha.10"
   },
   "devDependencies": {
     "babel-eslint": "^7.2.3",
