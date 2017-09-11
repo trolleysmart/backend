@@ -7,7 +7,7 @@ import { StapleItemService } from 'trolley-smart-parse-server-common';
 import { getLimitAndSkipValue, convertStringArgumentToSet } from './Common';
 import { NodeInterface } from '../interface';
 import Tag from './Tag';
-import { tagLoader } from '../loader';
+import { tagLoaderByKey } from '../loader';
 
 const StapleItemType = new GraphQLObjectType({
   name: 'StapleItem',
@@ -71,7 +71,7 @@ const getStapleItemMatchCriteria = async (searchArgs, userId, sessionToken, limi
 export const getStapleItem = async (searchArgs, userId, sessionToken) => {
   const finalSearchArgs = searchArgs.merge(
     searchArgs.has('tagKeys') && searchArgs.get('tagKeys')
-      ? Map({ tagIds: Immutable.fromJS(await tagLoader.loadMany(searchArgs.get('tagKeys').toJS())).map(tag => tag.get('id')) })
+      ? Map({ tagIds: Immutable.fromJS(await tagLoaderByKey.loadMany(searchArgs.get('tagKeys').toJS())).map(tag => tag.get('id')) })
       : Map(),
   );
   const count = await getStapleItemCountMatchCriteria(finalSearchArgs, userId, sessionToken);

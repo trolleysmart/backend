@@ -9,7 +9,8 @@ import { NodeInterface } from '../interface';
 import multiBuyType from './MultiBuy';
 import unitPriceType from './UnitPrice';
 import Tag from './Tag';
-import { storeLoader, tagLoader } from '../loader';
+import Store from './Store';
+import { storeLoaderByKey, tagLoaderByKey } from '../loader';
 
 const ProductType = new GraphQLObjectType({
   name: 'Product',
@@ -66,14 +67,6 @@ const ProductType = new GraphQLObjectType({
       type: multiBuyType,
       resolve: _ => _.getIn(['priceDetails', 'multiBuyInfo']),
     },
-    storeName: {
-      type: GraphQLString,
-      resolve: _ => _.getIn(['store', 'name']),
-    },
-    storeImageUrl: {
-      type: GraphQLString,
-      resolve: _ => _.getIn(['store', 'imageUrl']),
-    },
     unitPrice: {
       type: unitPriceType,
       resolve: _ => _.getIn(['priceDetails', 'unitPrice']),
@@ -89,6 +82,10 @@ const ProductType = new GraphQLObjectType({
     comments: {
       type: GraphQLString,
       resolve: () => '',
+    },
+    store: {
+      type: Store.StoreType,
+      resolve: _ => _.get('store'),
     },
     tags: {
       type: new GraphQLList(Tag.TagType),
@@ -177,12 +174,12 @@ export const getProducts = async (searchArgs, sessionToken) => {
   const finalSearchArgs = searchArgs
     .merge(
       searchArgs.has('storeKeys') && searchArgs.get('storeKeys')
-        ? Map({ storeIds: Immutable.fromJS(await storeLoader.loadMany(searchArgs.get('storeKeys').toJS())).map(store => store.get('id')) })
+        ? Map({ storeIds: Immutable.fromJS(await storeLoaderByKey.loadMany(searchArgs.get('storeKeys').toJS())).map(store => store.get('id')) })
         : Map(),
     )
     .merge(
       searchArgs.has('tagKeys') && searchArgs.get('tagKeys')
-        ? Map({ tagIds: Immutable.fromJS(await tagLoader.loadMany(searchArgs.get('tagKeys').toJS())).map(tag => tag.get('id')) })
+        ? Map({ tagIds: Immutable.fromJS(await tagLoaderByKey.loadMany(searchArgs.get('tagKeys').toJS())).map(tag => tag.get('id')) })
         : Map(),
     );
   const count = await getProductPriceCountMatchCriteria(finalSearchArgs, sessionToken);

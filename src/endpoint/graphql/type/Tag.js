@@ -6,6 +6,7 @@ import { connectionDefinitions } from 'graphql-relay';
 import { TagService } from 'trolley-smart-parse-server-common';
 import { getLimitAndSkipValue, convertStringArgumentToSet } from './Common';
 import { NodeInterface } from '../interface';
+import { tagLoaderById } from '../loader';
 
 const ParentTagType = new GraphQLObjectType({
   name: 'ParentTag',
@@ -75,7 +76,21 @@ const TagType = new GraphQLObjectType({
     },
     parentTag: {
       type: ParentTagType,
-      resolve: _ => _.get('parentTag'),
+      resolve: (_) => {
+        const parentTagId = _.get('parentTagId');
+
+        if (parentTagId) {
+          return tagLoaderById.load(parentTagId);
+        }
+
+        const parentTag = _.get('parentTag');
+
+        if (parentTag) {
+          return parentTag;
+        }
+
+        return null;
+      },
     },
   },
   interfaces: [NodeInterface],

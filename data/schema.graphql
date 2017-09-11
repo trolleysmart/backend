@@ -75,11 +75,10 @@ type Product implements Node {
   currentPrice: Float
   wasPrice: Float
   multiBuy: MultiBuy
-  storeName: String
-  storeImageUrl: String
   unitPrice: UnitPrice
   offerEndDate: String
   comments: String
+  store: Store
   tags: [Tag]
 }
 
@@ -138,12 +137,11 @@ type ShoppingListItem implements Node {
   currentPrice: Float
   wasPrice: Float
   multiBuy: MultiBuy
-  storeName: String
-  storeImageUrl: String
   unitPrice: UnitPrice
   offerEndDate: String
   quantity: Int
   comments: String
+  store: Store
   tags: [Tag]
 }
 

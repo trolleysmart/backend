@@ -1,4 +1,4 @@
 // @flow
 
-export storeLoader from './StoreLoader';
-export tagLoader from './TagLoader';
+export { storeLoaderById, storeLoaderByKey } from './StoreLoader';
+export { tagLoaderById, tagLoaderByKey } from './TagLoader';

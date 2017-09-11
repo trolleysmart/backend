@@ -6,6 +6,7 @@ import { connectionDefinitions } from 'graphql-relay';
 import { StoreService } from 'trolley-smart-parse-server-common';
 import { getLimitAndSkipValue, convertStringArgumentToSet } from './Common';
 import { NodeInterface } from '../interface';
+import { storeLoaderById } from '../loader';
 
 const ParentStoreType = new GraphQLObjectType({
   name: 'ParentStore',
@@ -59,7 +60,21 @@ const StoreType = new GraphQLObjectType({
     },
     parentStore: {
       type: ParentStoreType,
-      resolve: _ => _.get('parentStore'),
+      resolve: (_) => {
+        const parentStoreId = _.get('parentStoreId');
+
+        if (parentStoreId) {
+          return storeLoaderById.load(parentStoreId);
+        }
+
+        const parentStore = _.get('parentStore');
+
+        if (parentStore) {
+          return parentStore;
+        }
+
+        return null;
+      },
     },
   },
   interfaces: [NodeInterface],

@@ -9,7 +9,8 @@ import { NodeInterface } from '../interface';
 import multiBuyType from './MultiBuy';
 import unitPriceType from './UnitPrice';
 import Tag from './Tag';
-import { storeLoader, tagLoader } from '../loader';
+import Store from './Store';
+import { storeLoaderByKey, tagLoaderByKey } from '../loader';
 
 const ShoppingListItemType = new GraphQLObjectType({
   name: 'ShoppingListItem',
@@ -70,14 +71,6 @@ const ShoppingListItemType = new GraphQLObjectType({
       type: multiBuyType,
       resolve: _ => _.getIn(['productPrice', 'priceDetails', 'multiBuyInfo']),
     },
-    storeName: {
-      type: GraphQLString,
-      resolve: _ => _.getIn(['store', 'name']),
-    },
-    storeImageUrl: {
-      type: GraphQLString,
-      resolve: _ => _.getIn(['store', 'imageUrl']),
-    },
     unitPrice: {
       type: unitPriceType,
       resolve: _ => _.getIn(['productPrice', 'priceDetails', 'unitPrice']),
@@ -97,6 +90,10 @@ const ShoppingListItemType = new GraphQLObjectType({
     comments: {
       type: GraphQLString,
       resolve: _ => _.get('comments'),
+    },
+    store: {
+      type: Store.StoreType,
+      resolve: _ => _.get('store'),
     },
     tags: {
       type: new GraphQLList(Tag.TagType),
@@ -146,12 +143,12 @@ export const getAllShoppingListItems = async (searchArgs, userId, sessionToken) 
   const finalSearchArgs = searchArgs
     .merge(
       searchArgs.has('storeKeys') && searchArgs.get('storeKeys')
-        ? Map({ storeIds: Immutable.fromJS(await storeLoader.loadMany(searchArgs.get('storeKeys').toJS())).map(store => store.get('id')) })
+        ? Map({ storeIds: Immutable.fromJS(await storeLoaderByKey.loadMany(searchArgs.get('storeKeys').toJS())).map(store => store.get('id')) })
         : Map(),
     )
     .merge(
       searchArgs.has('tagKeys') && searchArgs.get('tagKeys')
-        ? Map({ tagIds: Immutable.fromJS(await tagLoader.loadMany(searchArgs.get('tagKeys').toJS())).map(tag => tag.get('id')) })
+        ? Map({ tagIds: Immutable.fromJS(await tagLoaderByKey.loadMany(searchArgs.get('tagKeys').toJS())).map(tag => tag.get('id')) })
         : Map(),
     );
   const shoppingListItems = await getShoppingListItemsMatchCriteria(finalSearchArgs, userId, sessionToken);

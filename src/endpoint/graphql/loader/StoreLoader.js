@@ -12,7 +12,13 @@ const getCriteria = key =>
     }),
   });
 
-const storeLoader = new Dataloader(async (keys) => {
+export const storeLoaderById = new Dataloader(async (ids) => {
+  const storeService = new StoreService();
+
+  return Promise.all(ids.map(async id => storeService.read(id, null)));
+});
+
+export const storeLoaderByKey = new Dataloader(async (keys) => {
   const storeService = new StoreService();
 
   return Promise.all(
@@ -29,5 +35,3 @@ const storeLoader = new Dataloader(async (keys) => {
     }),
   );
 });
-
-export default storeLoader;
