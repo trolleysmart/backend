@@ -23,6 +23,14 @@ const ShoppingListItemType = new GraphQLObjectType({
       type: GraphQLString,
       resolve: _ => _.get('itemType'),
     },
+    stapleItemId: {
+      type: GraphQLID,
+      resolve: _ => _.get('stapleItemId'),
+    },
+    productPriceId: {
+      type: GraphQLID,
+      resolve: _ => _.get('productPriceId'),
+    },
     name: {
       type: GraphQLString,
       resolve: _ => _.get('name'),
@@ -42,6 +50,10 @@ const ShoppingListItemType = new GraphQLObjectType({
     size: {
       type: GraphQLString,
       resolve: _ => _.getIn(['productPrice', 'size']),
+    },
+    productPageUrl: {
+      type: GraphQLString,
+      resolve: _ => _.getIn(['productPrice', 'productPageUrl']),
     },
     specialType: {
       type: GraphQLString,

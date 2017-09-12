@@ -68,6 +68,7 @@ type Product implements Node {
   imageUrl: String
   barcode: String
   size: String
+  productPageUrl: String
   specialType: String
   priceToDisplay: Float
   saving: Float
@@ -125,11 +126,14 @@ type RemoveItemsFromShoppingListPayload {
 type ShoppingListItem implements Node {
   id: ID!
   itemType: String
+  stapleItemId: ID
+  productPriceId: ID
   name: String
   description: String
   imageUrl: String
   barcode: String
   size: String
+  productPageUrl: String
   specialType: String
   priceToDisplay: Float
   saving: Float

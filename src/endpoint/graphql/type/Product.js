@@ -39,6 +39,10 @@ const ProductType = new GraphQLObjectType({
       type: GraphQLString,
       resolve: _ => _.getIn(['storeProduct', 'size']),
     },
+    productPageUrl: {
+      type: GraphQLString,
+      resolve: _ => _.get('productPageUrl'),
+    },
     specialType: {
       type: GraphQLString,
       resolve: _ => _.getIn(['priceDetails', 'specialType']),
