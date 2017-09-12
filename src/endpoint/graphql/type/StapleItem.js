@@ -75,7 +75,7 @@ export const getStapleItem = async (searchArgs, userId, sessionToken) => {
       : Map(),
   );
   const count = await getStapleItemCountMatchCriteria(finalSearchArgs, userId, sessionToken);
-  const { limit, skip, hasNextPage, hasPreviousPage } = getLimitAndSkipValue(finalSearchArgs, userId, count, 10, 1000);
+  const { limit, skip, hasNextPage, hasPreviousPage } = getLimitAndSkipValue(finalSearchArgs, count, 10, 1000);
   const stapleItems = await getStapleItemMatchCriteria(finalSearchArgs, userId, sessionToken, limit, skip);
   const indexedStapleItems = stapleItems.zip(Range(skip, skip + limit));
   const edges = indexedStapleItems.map(indexedItem => ({
