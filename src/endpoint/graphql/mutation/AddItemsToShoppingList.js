@@ -4,7 +4,7 @@ import Immutable, { List, Map } from 'immutable';
 import { GraphQLID, GraphQLList, GraphQLString, GraphQLNonNull } from 'graphql';
 import { mutationWithClientMutationId } from 'graphql-relay';
 import { UserService } from 'micro-business-parse-server-common';
-import { ShoppingListItem, getAllShoppingListItems } from '../type';
+import { ShoppingListItem, getShoppingListItems } from '../type';
 import addProductPricesToShoppingList from './ProductPriceHelper';
 import { addStapleItemsToShoppingList, addNewStapleItemsToShoppingList } from './StapleItemHelper';
 
@@ -21,8 +21,16 @@ export default mutationWithClientMutationId({
       resolve: _ => _.get('errorMessage'),
     },
     shoppingListItems: {
-      type: new GraphQLList(ShoppingListItem.ShoppingListItemType),
-      resolve: _ => _.get('shoppingListItems'),
+      type: new GraphQLList(ShoppingListItem.ShoppingListItemConnectionDefinition.edgeType),
+      resolve: (_) => {
+        const shoppingListItems = _.get('shoppingListItems');
+
+        if (!shoppingListItems) {
+          return null;
+        }
+
+        return shoppingListItems.edges;
+      },
     },
   },
   mutateAndGetPayload: async ({ productPriceIds, stapleItemIds, newStapleItemNames }, request) => {
@@ -37,7 +45,7 @@ export default mutationWithClientMutationId({
         addNewStapleItemsToShoppingList(newStapleItemNames ? Immutable.fromJS(newStapleItemNames) : List(), user, sessionToken),
       ]);
 
-      return Map({ shoppingListItems: await getAllShoppingListItems(Map(), userId, sessionToken) });
+      return Map({ shoppingListItems: await getShoppingListItems(Map({ first: 1000 }), userId, sessionToken) });
     } catch (ex) {
       return Map({ errorMessage: ex instanceof Error ? ex.message : ex });
     }

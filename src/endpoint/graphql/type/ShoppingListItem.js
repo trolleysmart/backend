@@ -151,7 +151,7 @@ const getShoppingListItemsMatchCriteria = async (searchArgs, userId, sessionToke
   return shoppingListItems;
 };
 
-export const getAllShoppingListItems = async (searchArgs, userId, sessionToken) => {
+export const getShoppingListItems = async (searchArgs, userId, sessionToken) => {
   const finalSearchArgs = searchArgs
     .merge(
       searchArgs.has('storeKeys') && searchArgs.get('storeKeys')
@@ -166,8 +166,7 @@ export const getAllShoppingListItems = async (searchArgs, userId, sessionToken) 
   const shoppingListItems = await getShoppingListItemsMatchCriteria(finalSearchArgs, userId, sessionToken);
   const stapleItems = shoppingListItems.filter(item => item.get('stapleItem')).groupBy(item => item.get('stapleItemId'));
   const productPrices = shoppingListItems.filter(item => item.get('productPrice')).groupBy(item => item.get('productPriceId'));
-
-  return stapleItems
+  const allShoppingListItems = stapleItems
     .keySeq()
     .map((key) => {
       const groupedStapleItems = stapleItems.get(key);
@@ -181,10 +180,6 @@ export const getAllShoppingListItems = async (searchArgs, userId, sessionToken) 
         return groupedProductPrices.first().merge(Map({ quantity: groupedProductPrices.count(), itemType: 'ProductPrice' }));
       }),
     );
-};
-
-export const getShoppingListItems = async (searchArgs, userId, sessionToken) => {
-  const allShoppingListItems = await getAllShoppingListItems(searchArgs, userId, sessionToken);
   const count = allShoppingListItems.count();
   const { limit, skip, hasNextPage, hasPreviousPage } = getLimitAndSkipValue(searchArgs, count, 10, 1000);
   const indexedList = allShoppingListItems
