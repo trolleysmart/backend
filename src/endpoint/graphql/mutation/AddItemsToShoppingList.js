@@ -22,15 +22,7 @@ export default mutationWithClientMutationId({
     },
     shoppingListItems: {
       type: new GraphQLList(ShoppingListItem.ShoppingListItemConnectionDefinition.edgeType),
-      resolve: (_) => {
-        const shoppingListItems = _.get('shoppingListItems');
-
-        if (!shoppingListItems) {
-          return null;
-        }
-
-        return shoppingListItems.edges;
-      },
+      resolve: _ => _.get('shoppingListItems'),
     },
   },
   mutateAndGetPayload: async ({ productPriceIds, stapleItemIds, newStapleItemNames }, request) => {
@@ -38,18 +30,30 @@ export default mutationWithClientMutationId({
       const sessionToken = request.headers.authorization;
       const user = await UserService.getUserForProvidedSessionToken(sessionToken);
       const userId = user.id;
-      const shoppingListItemIds = Immutable.fromJS(
-        await Promise.all([
-          addProductPricesToShoppingList(productPriceIds ? Immutable.fromJS(productPriceIds) : List(), user, sessionToken),
-          addStapleItemsToShoppingList(stapleItemIds ? Immutable.fromJS(stapleItemIds) : List(), user, sessionToken),
+      const finalProductPriceIds = productPriceIds ? Immutable.fromJS(productPriceIds) : List();
+      const finalStapleItemIds = stapleItemIds ? Immutable.fromJS(stapleItemIds) : List();
+      const newShoppingListItemIds = Immutable.fromJS(
+        (await Promise.all([
+          addProductPricesToShoppingList(finalProductPriceIds, user, sessionToken),
+          addStapleItemsToShoppingList(finalStapleItemIds, user, sessionToken),
           addNewStapleItemsToShoppingList(newStapleItemNames ? Immutable.fromJS(newStapleItemNames) : List(), user, sessionToken),
-        ]),
-      ).flatMap(_ => _);
-      const shoppingListItems = (await getShoppingListItems(Map({ first: 1000 }), userId, sessionToken)).filter(shoppingListItem =>
-        shoppingListItemIds.find(id => id.localeCompare(shoppingListItem.get('id')) === 0),
+        ]))[2],
       );
+      const shoppingListItems = (await getShoppingListItems(Map({ first: 1000 }), userId, sessionToken)).edges;
+      const shoppingListItemsToReturn = shoppingListItems
+        .filter(shoppingListItem => newShoppingListItemIds.find(id => id.localeCompare(shoppingListItem.node.get('id')) === 0))
+        .concat(
+          shoppingListItems.filter(shoppingListItem =>
+            finalProductPriceIds.find(id => id.localeCompare(shoppingListItem.node.get('productPriceId')) === 0),
+          ),
+        )
+        .concat(
+          shoppingListItems.filter(shoppingListItem =>
+            finalStapleItemIds.find(id => id.localeCompare(shoppingListItem.node.get('stapleItemId')) === 0),
+          ),
+        );
 
-      return Map({ shoppingListItems });
+      return Map({ shoppingListItems: shoppingListItemsToReturn });
     } catch (ex) {
       return Map({ errorMessage: ex instanceof Error ? ex.message : ex });
     }
