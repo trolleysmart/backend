@@ -1,6 +1,6 @@
 {
   "name": "trolley-smart-backend",
-  "version": "1.0.0-alpha.7",
+  "version": "1.0.0-alpha.8",
   "description": "Trolley Smart Backend",
   "main": "src/index.js",
   "scripts": {
@@ -35,17 +35,17 @@
     "micro-business-common-javascript": "^1.0.0-alpha.8",
     "micro-business-parse-server-backend": "^1.0.0-alpha.1",
     "micro-business-parse-server-common": "^1.0.2-alpha.26",
-    "trolley-smart-parse-server-common": "^1.0.0-alpha.11"
+    "trolley-smart-parse-server-common": "^1.0.0-alpha.12"
   },
   "devDependencies": {
-    "babel-eslint": "^7.2.3",
+    "babel-eslint": "^8.0.0",
     "eslint": "^4.6.1",
     "eslint-config-airbnb": "^15.1.0",
     "eslint-plugin-import": "^2.7.0",
     "eslint-plugin-jsx-a11y": "6.0.2",
     "eslint-plugin-react": "^7.3.0",
     "flow-bin": "^0.54.1",
-    "jest": "^21.0.2",
+    "jest": "^21.1.0",
     "lint-staged": "^4.1.3",
     "nodemon": "^1.12.0",
     "prettier": "^1.6.1",
