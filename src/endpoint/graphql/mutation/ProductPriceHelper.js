@@ -13,7 +13,6 @@ const addProductPriceToShoppingList = async (productPriceId, userId, acl, sessio
     Map({
       name: productPrice.get('name'),
       description: productPrice.get('description'),
-      imageUrl: productPrice.get('imageUrl'),
       isPurchased: false,
       addedByUserId: userId,
       productPriceId,

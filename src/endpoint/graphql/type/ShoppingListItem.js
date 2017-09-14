@@ -41,13 +41,7 @@ const ShoppingListItemType = new GraphQLObjectType({
     },
     imageUrl: {
       type: GraphQLString,
-      resolve: (_) => {
-        if (_.get('stapleItemId')) {
-          return _.getIn(['stapleItem', 'imageUrl']);
-        }
-
-        return _.getIn(['productPrice', 'imageUrl']);
-      },
+      resolve: _ => (_.get('stapleItemId') ? _.get('imageUrl') : _.getIn(['productPrice', 'imageUrl'])),
     },
     barcode: {
       type: GraphQLString,
