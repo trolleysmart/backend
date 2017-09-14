@@ -1,6 +1,6 @@
 {
   "name": "trolley-smart-backend",
-  "version": "1.0.0-alpha.10",
+  "version": "1.0.0-alpha.11",
   "description": "Trolley Smart Backend",
   "main": "src/index.js",
   "scripts": {
@@ -35,7 +35,7 @@
     "micro-business-common-javascript": "^1.0.0-alpha.8",
     "micro-business-parse-server-backend": "^1.0.0-alpha.1",
     "micro-business-parse-server-common": "^1.0.2-alpha.26",
-    "trolley-smart-parse-server-common": "^1.0.0-alpha.12"
+    "trolley-smart-parse-server-common": "^1.0.0-alpha.13"
   },
   "devDependencies": {
     "babel-eslint": "^8.0.0",
