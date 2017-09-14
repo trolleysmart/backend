@@ -1,6 +1,6 @@
 // @flow
 
-import Immutable, { Map } from 'immutable';
+import Immutable, { List, Map } from 'immutable';
 import { ParseWrapperService } from 'micro-business-parse-server-common';
 import { StapleItemService, StapleTemplateItemService, ShoppingListItemService } from 'trolley-smart-parse-server-common';
 
@@ -30,7 +30,7 @@ const getStapleItemById = async (id, sessionToken) => new StapleItemService().re
 const addStapleItemToShoppingList = async (stapleItemId, userId, acl, sessionToken) => {
   const stapleItem = await getStapleItemById(stapleItemId, sessionToken);
 
-  await new ShoppingListItemService().create(
+  return new ShoppingListItemService().create(
     Map({
       name: stapleItem.get('name'),
       description: stapleItem.get('description'),
@@ -47,7 +47,7 @@ const addStapleItemToShoppingList = async (stapleItemId, userId, acl, sessionTok
 
 export const addStapleItemsToShoppingList = async (stapleItemIds, user, sessionToken) => {
   if (stapleItemIds.isEmpty()) {
-    return;
+    return List();
   }
 
   const acl = ParseWrapperService.createACL(user);
@@ -56,14 +56,16 @@ export const addStapleItemsToShoppingList = async (stapleItemIds, user, sessionT
     .map(_ => _.first())
     .valueSeq();
 
-  await Promise.all(
-    stapleItemIdsWithoutDuplicate.map(async stapleItemId => addStapleItemToShoppingList(stapleItemId, user.id, acl, sessionToken)).toArray(),
+  return Immutable.fromJS(
+    await Promise.all(
+      stapleItemIdsWithoutDuplicate.map(async stapleItemId => addStapleItemToShoppingList(stapleItemId, user.id, acl, sessionToken)).toArray(),
+    ),
   );
 };
 
 export const addNewStapleItemsToShoppingList = async (names, user, sessionToken) => {
   if (names.isEmpty()) {
-    return;
+    return List();
   }
 
   const trimmedNamesWithoutDuplicate = names
@@ -74,43 +76,45 @@ export const addNewStapleItemsToShoppingList = async (names, user, sessionToken)
     .filter(_ => _.length > 0);
 
   if (trimmedNamesWithoutDuplicate.isEmpty()) {
-    return;
+    return List();
   }
 
   const acl = ParseWrapperService.createACL(user);
   const stapleItemService = new StapleItemService();
 
-  await Promise.all(
-    trimmedNamesWithoutDuplicate
-      .map(async (name) => {
-        const stapleItems = await getStapleItems(name, user.id, sessionToken);
-        let stapleItemId;
+  return Immutable.fromJS(
+    await Promise.all(
+      trimmedNamesWithoutDuplicate
+        .map(async (name) => {
+          const stapleItems = await getStapleItems(name, user.id, sessionToken);
+          let stapleItemId;
 
-        if (stapleItems.isEmpty()) {
-          const stapleTemplateItems = await getStapleTemplateItems(name, sessionToken);
+          if (stapleItems.isEmpty()) {
+            const stapleTemplateItems = await getStapleTemplateItems(name, sessionToken);
 
-          if (stapleTemplateItems.isEmpty()) {
-            stapleItemId = await stapleItemService.create(Map({ userId: user.id, name, addedByUser: true }), acl, sessionToken);
+            if (stapleTemplateItems.isEmpty()) {
+              stapleItemId = await stapleItemService.create(Map({ userId: user.id, name, addedByUser: true }), acl, sessionToken);
+            } else {
+              const stapleTemplateItem = stapleTemplateItems.first();
+
+              stapleItemId = await stapleItemService.create(
+                Map({
+                  name: stapleTemplateItem.get('name'),
+                  description: stapleTemplateItem.get('description'),
+                  imageUrl: stapleTemplateItem.get('imageUrl'),
+                  userId: user.id,
+                }),
+                acl,
+                sessionToken,
+              );
+            }
           } else {
-            const stapleTemplateItem = stapleTemplateItems.first();
-
-            stapleItemId = await stapleItemService.create(
-              Map({
-                name: stapleTemplateItem.get('name'),
-                description: stapleTemplateItem.get('description'),
-                imageUrl: stapleTemplateItem.get('imageUrl'),
-                userId: user.id,
-              }),
-              acl,
-              sessionToken,
-            );
+            stapleItemId = stapleItems.first().get('id');
           }
-        } else {
-          stapleItemId = stapleItems.first().get('id');
-        }
 
-        await addStapleItemToShoppingList(stapleItemId, user.id, acl, sessionToken);
-      })
-      .toArray(),
+          return addStapleItemToShoppingList(stapleItemId, user.id, acl, sessionToken);
+        })
+        .toArray(),
+    ),
   );
 };

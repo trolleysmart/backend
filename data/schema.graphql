@@ -119,7 +119,6 @@ input RemoveItemsFromShoppingListInput {
 
 type RemoveItemsFromShoppingListPayload {
   errorMessage: String
-  shoppingListItems: [ShoppingListItemEdge]
   clientMutationId: String
 }
 

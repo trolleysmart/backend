@@ -2564,22 +2564,6 @@
               "deprecationReason": null
             },
             {
-              "name": "shoppingListItems",
-              "description": null,
-              "args": [],
-              "type": {
-                "kind": "LIST",
-                "name": null,
-                "ofType": {
-                  "kind": "OBJECT",
-                  "name": "ShoppingListItemEdge",
-                  "ofType": null
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
               "name": "clientMutationId",
               "description": null,
               "args": [],

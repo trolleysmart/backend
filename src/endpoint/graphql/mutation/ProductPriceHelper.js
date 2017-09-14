@@ -1,6 +1,6 @@
 // @flow
 
-import { Map } from 'immutable';
+import Immutable, { List, Map } from 'immutable';
 import { ParseWrapperService } from 'micro-business-parse-server-common';
 import { ProductPriceService, ShoppingListItemService } from 'trolley-smart-parse-server-common';
 
@@ -9,7 +9,7 @@ const getProductPriceById = async (id, sessionToken) => new ProductPriceService(
 const addProductPriceToShoppingList = async (productPriceId, userId, acl, sessionToken) => {
   const productPrice = await getProductPriceById(productPriceId, sessionToken);
 
-  await new ShoppingListItemService().create(
+  return new ShoppingListItemService().create(
     Map({
       name: productPrice.get('name'),
       description: productPrice.get('description'),
@@ -27,7 +27,7 @@ const addProductPriceToShoppingList = async (productPriceId, userId, acl, sessio
 
 const addProductPricesToShoppingList = async (productPriceIds, user, sessionToken) => {
   if (productPriceIds.isEmpty()) {
-    return;
+    return List();
   }
 
   const acl = ParseWrapperService.createACL(user);
@@ -36,8 +36,12 @@ const addProductPricesToShoppingList = async (productPriceIds, user, sessionToke
     .map(_ => _.first())
     .valueSeq();
 
-  await Promise.all(
-    productPriceIdsWithoutDuplicate.map(async productPriceId => addProductPriceToShoppingList(productPriceId, user.id, acl, sessionToken)).toArray(),
+  return Immutable.fromJS(
+    await Promise.all(
+      productPriceIdsWithoutDuplicate
+        .map(async productPriceId => addProductPriceToShoppingList(productPriceId, user.id, acl, sessionToken))
+        .toArray(),
+    ),
   );
 };
 
