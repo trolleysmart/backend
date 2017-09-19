@@ -64,3 +64,10 @@ export const removeItemsFromShoppingList = async (shoppingListItemIds, userId, s
 
 export const addShoppingList = async (name, user, sessionToken) =>
   new ShoppingListService().create(Map({ name, user, status: 'A' }), ParseWrapperService.createACL(user), sessionToken);
+
+export const removeShoppingList = async (shoppingListId, sessionToken) => {
+  const shoppingListService = new ShoppingListService();
+  const shoppingList = await shoppingListService.read(shoppingListId, sessionToken);
+
+  return shoppingListService.update(shoppingList.set('status', 'I'), sessionToken);
+};
