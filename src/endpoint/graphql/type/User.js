@@ -7,6 +7,7 @@ import { NodeInterface } from '../interface';
 import ShoppingListItem, { getShoppingListItems } from './ShoppingListItem';
 import Product, { getProducts } from './Product';
 import StapleItem, { getStapleItem } from './StapleItem';
+import ShoppingList, { getShoppingList } from './ShoppingList';
 
 export default new GraphQLObjectType({
   name: 'User',
@@ -14,6 +15,16 @@ export default new GraphQLObjectType({
     id: {
       type: new GraphQLNonNull(GraphQLID),
       resolve: _ => _.get('id'),
+    },
+    shoppingLists: {
+      type: ShoppingList.ShoppingListConnectionDefinition.connectionType,
+      args: {
+        ...connectionArgs,
+        name: {
+          type: GraphQLString,
+        },
+      },
+      resolve: async (_, args, request) => getShoppingList(Immutable.fromJS(args), _.get('id'), request.headers.authorization),
     },
     shoppingListItems: {
       type: ShoppingListItem.ShoppingListItemConnectionDefinition.connectionType,
@@ -30,6 +41,19 @@ export default new GraphQLObjectType({
         },
       },
       resolve: async (_, args, request) => getShoppingListItems(Immutable.fromJS(args), _.get('id'), request.headers.authorization),
+    },
+    stapleItems: {
+      type: StapleItem.StapleItemConnectionDefinition.connectionType,
+      args: {
+        ...connectionArgs,
+        name: {
+          type: GraphQLString,
+        },
+        tagKeys: {
+          type: new GraphQLList(GraphQLString),
+        },
+      },
+      resolve: async (_, args, request) => getStapleItem(Immutable.fromJS(args), _.get('id'), request.headers.authorization),
     },
     products: {
       type: Product.ProductConnectionDefinition.connectionType,
@@ -55,19 +79,6 @@ export default new GraphQLObjectType({
         },
       },
       resolve: async (_, args, request) => getProducts(Immutable.fromJS(args), request.headers.authorization),
-    },
-    stapleItems: {
-      type: StapleItem.StapleItemConnectionDefinition.connectionType,
-      args: {
-        ...connectionArgs,
-        name: {
-          type: GraphQLString,
-        },
-        tagKeys: {
-          type: new GraphQLList(GraphQLString),
-        },
-      },
-      resolve: async (_, args, request) => getStapleItem(Immutable.fromJS(args), _.get('id'), request.headers.authorization),
     },
   },
   interfaces: [NodeInterface],

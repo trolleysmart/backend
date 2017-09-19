@@ -122,6 +122,29 @@ type RemoveItemsFromShoppingListPayload {
   clientMutationId: String
 }
 
+type ShoppingList implements Node {
+  id: ID!
+  name: String
+}
+
+# A connection to a list of items.
+type ShoppingListConnection {
+  # Information to aid in pagination.
+  pageInfo: PageInfo!
+
+  # A list of edges.
+  edges: [ShoppingListEdge]
+}
+
+# An edge in a connection.
+type ShoppingListEdge {
+  # The item at the end of the edge
+  node: ShoppingList
+
+  # A cursor for use in pagination
+  cursor: String!
+}
+
 type ShoppingListItem implements Node {
   id: ID!
   itemType: String
@@ -266,9 +289,10 @@ type UnitPrice {
 
 type User implements Node {
   id: ID!
+  shoppingLists(after: String, first: Int, before: String, last: Int, name: String): ShoppingListConnection
   shoppingListItems(after: String, first: Int, before: String, last: Int, name: String, tagKeys: [String], storeKeys: [String]): ShoppingListItemConnection
-  products(after: String, first: Int, before: String, last: Int, name: String, description: String, sortOption: String, tagKeys: [String], storeKeys: [String], special: Boolean): ProductConnection
   stapleItems(after: String, first: Int, before: String, last: Int, name: String, tagKeys: [String]): StapleItemConnection
+  products(after: String, first: Int, before: String, last: Int, name: String, description: String, sortOption: String, tagKeys: [String], storeKeys: [String], special: Boolean): ProductConnection
 }
 
 type Viewer implements Node {
