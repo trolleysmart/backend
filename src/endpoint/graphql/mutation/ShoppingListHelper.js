@@ -1,7 +1,8 @@
 // @flow
 
 import Immutable, { Map } from 'immutable';
-import { ShoppingListItemService } from 'trolley-smart-parse-server-common';
+import { ParseWrapperService } from 'micro-business-parse-server-common';
+import { ShoppingListService, ShoppingListItemService } from 'trolley-smart-parse-server-common';
 
 const getShoppingListItemById = async (id, sessionToken) => new ShoppingListItemService().read(id, null, sessionToken);
 
@@ -17,7 +18,7 @@ const getAllShoppingListItemsContainProvidedStapleItem = async (stapleItemId, us
     sessionToken,
   );
 
-const removeItemsFromShoppingList = async (shoppingListItemIds, userId, sessionToken) => {
+export const removeItemsFromShoppingList = async (shoppingListItemIds, userId, sessionToken) => {
   if (shoppingListItemIds.isEmpty()) {
     return;
   }
@@ -61,4 +62,5 @@ const removeItemsFromShoppingList = async (shoppingListItemIds, userId, sessionT
   }
 };
 
-export default removeItemsFromShoppingList;
+export const addShoppingList = async (name, user, sessionToken) =>
+  new ShoppingListService().create(Map({ name, user }), ParseWrapperService.createACL(user), sessionToken);

@@ -29,6 +29,7 @@ const ShoppingListConnectionDefinition = connectionDefinitions({
 
 const getCriteria = (searchArgs, userId) =>
   Map({
+    ids: searchArgs.has('shoppingListIds') ? searchArgs.get('shoppingListIds') : undefined,
     orderByFieldAscending: 'name',
     conditions: Map({
       userId,
@@ -47,7 +48,7 @@ const getShoppingListMatchCriteria = async (searchArgs, userId, sessionToken, li
     sessionToken,
   );
 
-export const getShoppingList = async (searchArgs, userId, sessionToken) => {
+export const getShoppingLists = async (searchArgs, userId, sessionToken) => {
   const count = await getShoppingListCountMatchCriteria(searchArgs, userId, sessionToken);
   const { limit, skip, hasNextPage, hasPreviousPage } = getLimitAndSkipValue(searchArgs, count, 10, 1000);
   const stapleItems = await getShoppingListMatchCriteria(searchArgs, userId, sessionToken, limit, skip);

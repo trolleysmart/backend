@@ -6,8 +6,8 @@ import { connectionArgs } from 'graphql-relay';
 import { NodeInterface } from '../interface';
 import ShoppingListItem, { getShoppingListItems } from './ShoppingListItem';
 import Product, { getProducts } from './Product';
-import StapleItem, { getStapleItem } from './StapleItem';
-import ShoppingList, { getShoppingList } from './ShoppingList';
+import StapleItem, { getStapleItems } from './StapleItem';
+import ShoppingList, { getShoppingLists } from './ShoppingList';
 
 export default new GraphQLObjectType({
   name: 'User',
@@ -23,8 +23,11 @@ export default new GraphQLObjectType({
         name: {
           type: GraphQLString,
         },
+        shoppingListIds: {
+          type: new GraphQLList(GraphQLID),
+        },
       },
-      resolve: async (_, args, request) => getShoppingList(Immutable.fromJS(args), _.get('id'), request.headers.authorization),
+      resolve: async (_, args, request) => getShoppingLists(Immutable.fromJS(args), _.get('id'), request.headers.authorization),
     },
     shoppingListItems: {
       type: ShoppingListItem.ShoppingListItemConnectionDefinition.connectionType,
@@ -53,7 +56,7 @@ export default new GraphQLObjectType({
           type: new GraphQLList(GraphQLString),
         },
       },
-      resolve: async (_, args, request) => getStapleItem(Immutable.fromJS(args), _.get('id'), request.headers.authorization),
+      resolve: async (_, args, request) => getStapleItems(Immutable.fromJS(args), _.get('id'), request.headers.authorization),
     },
     products: {
       type: Product.ProductConnectionDefinition.connectionType,

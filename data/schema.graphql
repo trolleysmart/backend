@@ -11,12 +11,24 @@ type AddItemsToShoppingListPayload {
   clientMutationId: String
 }
 
+input AddShoppingListInput {
+  name: String!
+  clientMutationId: String
+}
+
+type AddShoppingListPayload {
+  errorMessage: String
+  shoppingList: ShoppingListEdge
+  clientMutationId: String
+}
+
 type MultiBuy {
   awardQuantity: Int
   awardValue: Float
 }
 
 type Mutation {
+  addShoppingList(input: AddShoppingListInput!): AddShoppingListPayload
   addItemsToShoppingList(input: AddItemsToShoppingListInput!): AddItemsToShoppingListPayload
   removeItemsFromShoppingList(input: RemoveItemsFromShoppingListInput!): RemoveItemsFromShoppingListPayload
   submitUserFeedback(input: SubmitUserFeedbackInput!): SubmitUserFeedbackPayload
@@ -289,7 +301,7 @@ type UnitPrice {
 
 type User implements Node {
   id: ID!
-  shoppingLists(after: String, first: Int, before: String, last: Int, name: String): ShoppingListConnection
+  shoppingLists(after: String, first: Int, before: String, last: Int, name: String, shoppingListIds: [ID]): ShoppingListConnection
   shoppingListItems(after: String, first: Int, before: String, last: Int, name: String, tagKeys: [String], storeKeys: [String]): ShoppingListItemConnection
   stapleItems(after: String, first: Int, before: String, last: Int, name: String, tagKeys: [String]): StapleItemConnection
   products(after: String, first: Int, before: String, last: Int, name: String, description: String, sortOption: String, tagKeys: [String], storeKeys: [String], special: Boolean): ProductConnection

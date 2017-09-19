@@ -57,10 +57,10 @@ const getCriteria = (searchArgs, userId) =>
     }),
   });
 
-const getStapleItemCountMatchCriteria = async (searchArgs, userId, sessionToken) =>
+const getStapleItemsCountMatchCriteria = async (searchArgs, userId, sessionToken) =>
   new StapleItemService().count(getCriteria(searchArgs, userId), sessionToken);
 
-const getStapleItemMatchCriteria = async (searchArgs, userId, sessionToken, limit, skip) =>
+const getStapleItemsMatchCriteria = async (searchArgs, userId, sessionToken, limit, skip) =>
   new StapleItemService().search(
     getCriteria(searchArgs, userId)
       .set('limit', limit)
@@ -68,15 +68,15 @@ const getStapleItemMatchCriteria = async (searchArgs, userId, sessionToken, limi
     sessionToken,
   );
 
-export const getStapleItem = async (searchArgs, userId, sessionToken) => {
+export const getStapleItems = async (searchArgs, userId, sessionToken) => {
   const finalSearchArgs = searchArgs.merge(
     searchArgs.has('tagKeys') && searchArgs.get('tagKeys')
       ? Map({ tagIds: Immutable.fromJS(await tagLoaderByKey.loadMany(searchArgs.get('tagKeys').toJS())).map(tag => tag.get('id')) })
       : Map(),
   );
-  const count = await getStapleItemCountMatchCriteria(finalSearchArgs, userId, sessionToken);
+  const count = await getStapleItemsCountMatchCriteria(finalSearchArgs, userId, sessionToken);
   const { limit, skip, hasNextPage, hasPreviousPage } = getLimitAndSkipValue(finalSearchArgs, count, 10, 1000);
-  const stapleItems = await getStapleItemMatchCriteria(finalSearchArgs, userId, sessionToken, limit, skip);
+  const stapleItems = await getStapleItemsMatchCriteria(finalSearchArgs, userId, sessionToken, limit, skip);
   const indexedStapleItems = stapleItems.zip(Range(skip, skip + limit));
   const edges = indexedStapleItems.map(indexedItem => ({
     node: indexedItem[0],
