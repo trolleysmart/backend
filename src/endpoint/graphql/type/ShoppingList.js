@@ -34,6 +34,7 @@ const getCriteria = (searchArgs, userId) =>
     conditions: Map({
       userId,
       contains_names: convertStringArgumentToSet(searchArgs.get('name')),
+      status: 'A',
     }),
   });
 
