@@ -29,6 +29,7 @@ type MultiBuy {
 
 type Mutation {
   addShoppingList(input: AddShoppingListInput!): AddShoppingListPayload
+  removeShoppingList(input: RemoveShoppingListInput!): RemoveShoppingListPayload
   addItemsToShoppingList(input: AddItemsToShoppingListInput!): AddItemsToShoppingListPayload
   removeItemsFromShoppingList(input: RemoveItemsFromShoppingListInput!): RemoveItemsFromShoppingListPayload
   submitUserFeedback(input: SubmitUserFeedbackInput!): SubmitUserFeedbackPayload
@@ -130,6 +131,16 @@ input RemoveItemsFromShoppingListInput {
 }
 
 type RemoveItemsFromShoppingListPayload {
+  errorMessage: String
+  clientMutationId: String
+}
+
+input RemoveShoppingListInput {
+  shoppingListId: ID!
+  clientMutationId: String
+}
+
+type RemoveShoppingListPayload {
   errorMessage: String
   clientMutationId: String
 }
