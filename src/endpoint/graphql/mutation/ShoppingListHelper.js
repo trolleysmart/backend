@@ -65,9 +65,20 @@ export const removeItemsFromShoppingList = async (shoppingListItemIds, userId, s
 export const addShoppingList = async (name, user, sessionToken) =>
   new ShoppingListService().create(Map({ name, user, status: 'A' }), ParseWrapperService.createACL(user), sessionToken);
 
+export const updateShoppingList = async (shoppingListId, name, sessionToken) => {
+  const shoppingListService = new ShoppingListService();
+  const shoppingList = await shoppingListService.read(shoppingListId, null, sessionToken);
+
+  if (!name) {
+    return shoppingList;
+  }
+
+  return shoppingListService.update(shoppingList.set('name', name), sessionToken);
+};
+
 export const removeShoppingList = async (shoppingListId, sessionToken) => {
   const shoppingListService = new ShoppingListService();
-  const shoppingList = await shoppingListService.read(shoppingListId, sessionToken);
+  const shoppingList = await shoppingListService.read(shoppingListId, null, sessionToken);
 
   return shoppingListService.update(shoppingList.set('status', 'I'), sessionToken);
 };

@@ -1,6 +1,6 @@
 {
   "name": "trolley-smart-backend",
-  "version": "1.0.0-alpha.12",
+  "version": "1.0.0-alpha.13",
   "description": "Trolley Smart Backend",
   "main": "src/index.js",
   "scripts": {

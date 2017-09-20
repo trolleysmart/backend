@@ -1,4 +1,5 @@
 input AddItemsToShoppingListInput {
+  shoppingListId: ID!
   productPriceIds: [ID!]
   stapleItemIds: [ID!]
   newStapleItemNames: [String!]
@@ -30,6 +31,7 @@ type MultiBuy {
 type Mutation {
   addShoppingList(input: AddShoppingListInput!): AddShoppingListPayload
   removeShoppingList(input: RemoveShoppingListInput!): RemoveShoppingListPayload
+  updateShoppingList(input: UpdateShoppingListInput!): UpdateShoppingListPayload
   addItemsToShoppingList(input: AddItemsToShoppingListInput!): AddItemsToShoppingListPayload
   removeItemsFromShoppingList(input: RemoveItemsFromShoppingListInput!): RemoveItemsFromShoppingListPayload
   submitUserFeedback(input: SubmitUserFeedbackInput!): SubmitUserFeedbackPayload
@@ -126,6 +128,7 @@ type Query {
 }
 
 input RemoveItemsFromShoppingListInput {
+  shoppingListId: ID!
   shoppingListItemIds: [ID!]
   clientMutationId: String
 }
@@ -148,6 +151,7 @@ type RemoveShoppingListPayload {
 type ShoppingList implements Node {
   id: ID!
   name: String
+  shoppingListItems(after: String, first: Int, before: String, last: Int, name: String, addedByUserId: ID, removedByUserId: ID, tagKeys: [String], storeKeys: [String]): ShoppingListItemConnection
 }
 
 # A connection to a list of items.
@@ -310,10 +314,22 @@ type UnitPrice {
   size: String
 }
 
+input UpdateShoppingListInput {
+  shoppingListId: ID!
+  name: String
+  clientMutationId: String
+}
+
+type UpdateShoppingListPayload {
+  errorMessage: String
+  shoppingList: ShoppingListEdge
+  clientMutationId: String
+}
+
 type User implements Node {
   id: ID!
   shoppingLists(after: String, first: Int, before: String, last: Int, name: String, shoppingListIds: [ID]): ShoppingListConnection
-  shoppingListItems(after: String, first: Int, before: String, last: Int, name: String, tagKeys: [String], storeKeys: [String]): ShoppingListItemConnection
+  shoppingListItems(after: String, first: Int, before: String, last: Int, shoppingListId: ID!, name: String, tagKeys: [String], storeKeys: [String]): ShoppingListItemConnection
   stapleItems(after: String, first: Int, before: String, last: Int, name: String, tagKeys: [String]): StapleItemConnection
   products(after: String, first: Int, before: String, last: Int, name: String, description: String, sortOption: String, tagKeys: [String], storeKeys: [String], special: Boolean): ProductConnection
 }
