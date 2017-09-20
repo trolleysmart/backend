@@ -27,7 +27,7 @@ const getStapleTemplateItems = async (name, sessionToken) => new StapleTemplateI
 
 const getStapleItemById = async (id, sessionToken) => new StapleItemService().read(id, null, sessionToken);
 
-const addStapleItemToShoppingList = async (stapleItemId, userId, acl, sessionToken) => {
+const addStapleItemToShoppingList = async (stapleItemId, userId, shoppingListId, acl, sessionToken) => {
   const stapleItem = await getStapleItemById(stapleItemId, sessionToken);
 
   return new ShoppingListItemService().create(
@@ -36,6 +36,7 @@ const addStapleItemToShoppingList = async (stapleItemId, userId, acl, sessionTok
       description: stapleItem.get('description'),
       imageUrl: stapleItem.get('imageUrl'),
       isPurchased: false,
+      shoppingListId,
       addedByUserId: userId,
       stapleItemId,
       tagIds: stapleItem.get('tagIds'),
@@ -45,7 +46,7 @@ const addStapleItemToShoppingList = async (stapleItemId, userId, acl, sessionTok
   );
 };
 
-export const addStapleItemsToShoppingList = async (stapleItemIds, user, sessionToken) => {
+export const addStapleItemsToShoppingList = async (stapleItemIds, user, shoppingListId, sessionToken) => {
   if (stapleItemIds.isEmpty()) {
     return List();
   }
@@ -58,12 +59,14 @@ export const addStapleItemsToShoppingList = async (stapleItemIds, user, sessionT
 
   return Immutable.fromJS(
     await Promise.all(
-      stapleItemIdsWithoutDuplicate.map(async stapleItemId => addStapleItemToShoppingList(stapleItemId, user.id, acl, sessionToken)).toArray(),
+      stapleItemIdsWithoutDuplicate
+        .map(async stapleItemId => addStapleItemToShoppingList(stapleItemId, user.id, shoppingListId, acl, sessionToken))
+        .toArray(),
     ),
   );
 };
 
-export const addNewStapleItemsToShoppingList = async (names, user, sessionToken) => {
+export const addNewStapleItemsToShoppingList = async (names, user, shoppingListId, sessionToken) => {
   if (names.isEmpty()) {
     return List();
   }
@@ -112,7 +115,7 @@ export const addNewStapleItemsToShoppingList = async (names, user, sessionToken)
             stapleItemId = stapleItems.first().get('id');
           }
 
-          return addStapleItemToShoppingList(stapleItemId, user.id, acl, sessionToken);
+          return addStapleItemToShoppingList(stapleItemId, user.id, shoppingListId, acl, sessionToken);
         })
         .toArray(),
     ),

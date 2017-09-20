@@ -6,24 +6,22 @@ import { ShoppingListService, ShoppingListItemService } from 'trolley-smart-pars
 
 const getShoppingListItemById = async (id, sessionToken) => new ShoppingListItemService().read(id, null, sessionToken);
 
-const getAllShoppingListItemsContainProvidedProductPrice = async (productPriceId, userId, sessionToken) =>
-  new ShoppingListItemService().search(
-    Map({ conditions: Map({ productPriceId, addedByUserId: userId, doesNotExist_removedByUser: true }) }),
-    sessionToken,
-  );
+const getAllShoppingListItemsContainProvidedProductPrice = async (productPriceId, shoppingListId, sessionToken) =>
+  new ShoppingListItemService().search(Map({ conditions: Map({ productPriceId, shoppingListId, doesNotExist_removedByUser: true }) }), sessionToken);
 
-const getAllShoppingListItemsContainProvidedStapleItem = async (stapleItemId, userId, sessionToken) =>
-  new ShoppingListItemService().search(
-    Map({ conditions: Map({ stapleItemId, addedByUserId: userId, doesNotExist_removedByUser: true }) }),
-    sessionToken,
-  );
+const getAllShoppingListItemsContainProvidedStapleItem = async (stapleItemId, shoppingListId, sessionToken) =>
+  new ShoppingListItemService().search(Map({ conditions: Map({ stapleItemId, shoppingListId, doesNotExist_removedByUser: true }) }), sessionToken);
 
-export const removeItemsFromShoppingList = async (shoppingListItemIds, userId, sessionToken) => {
+export const getShoppingListById = async (id, sessionToken) => new ShoppingListService().read(id, null, sessionToken);
+
+export const removeItemsFromShoppingList = async (shoppingListItemIds, userId, shoppingListId, sessionToken) => {
   if (shoppingListItemIds.isEmpty()) {
     return;
   }
 
-  const shoppingListItems = Immutable.fromJS(await Promise.all(shoppingListItemIds.map(id => getShoppingListItemById(id, sessionToken)).toArray()));
+  const shoppingListItems = Immutable.fromJS(
+    await Promise.all(shoppingListItemIds.map(id => getShoppingListItemById(id, sessionToken)).toArray()),
+  ).filter(shoppingListItem => shoppingListItem.get('id').localeCompare(shoppingListId) === 0);
   const productPriceIds = shoppingListItems
     .filter(_ => _.get('productPriceId'))
     .map(_ => _.get('productPriceId'))
@@ -44,7 +42,9 @@ export const removeItemsFromShoppingList = async (shoppingListItemIds, userId, s
   if (!productPriceIds.isEmpty()) {
     const itemsToRemove = Immutable.fromJS(
       await Promise.all(
-        productPriceIds.map(productPriceId => getAllShoppingListItemsContainProvidedProductPrice(productPriceId, userId, sessionToken)).toArray(),
+        productPriceIds
+          .map(productPriceId => getAllShoppingListItemsContainProvidedProductPrice(productPriceId, shoppingListId, sessionToken))
+          .toArray(),
       ),
     ).flatMap(_ => _);
 
@@ -54,7 +54,7 @@ export const removeItemsFromShoppingList = async (shoppingListItemIds, userId, s
   if (!stapleItemIds.isEmpty()) {
     const itemsToRemove = Immutable.fromJS(
       await Promise.all(
-        stapleItemIds.map(stapleItemId => getAllShoppingListItemsContainProvidedStapleItem(stapleItemId, userId, sessionToken)).toArray(),
+        stapleItemIds.map(stapleItemId => getAllShoppingListItemsContainProvidedStapleItem(stapleItemId, shoppingListId, sessionToken)).toArray(),
       ),
     ).flatMap(_ => _);
 

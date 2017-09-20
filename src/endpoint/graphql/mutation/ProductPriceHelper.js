@@ -6,7 +6,7 @@ import { ProductPriceService, ShoppingListItemService } from 'trolley-smart-pars
 
 const getProductPriceById = async (id, sessionToken) => new ProductPriceService().read(id, null, sessionToken);
 
-const addProductPriceToShoppingList = async (productPriceId, userId, acl, sessionToken) => {
+const addProductPriceToShoppingList = async (productPriceId, userId, shoppingListId, acl, sessionToken) => {
   const productPrice = await getProductPriceById(productPriceId, sessionToken);
 
   return new ShoppingListItemService().create(
@@ -14,6 +14,7 @@ const addProductPriceToShoppingList = async (productPriceId, userId, acl, sessio
       name: productPrice.get('name'),
       description: productPrice.get('description'),
       isPurchased: false,
+      shoppingListId,
       addedByUserId: userId,
       productPriceId,
       storeId: productPrice.get('storeId'),
@@ -24,7 +25,7 @@ const addProductPriceToShoppingList = async (productPriceId, userId, acl, sessio
   );
 };
 
-const addProductPricesToShoppingList = async (productPriceIds, user, sessionToken) => {
+const addProductPricesToShoppingList = async (productPriceIds, user, shoppingListId, sessionToken) => {
   if (productPriceIds.isEmpty()) {
     return List();
   }
@@ -38,7 +39,7 @@ const addProductPricesToShoppingList = async (productPriceIds, user, sessionToke
   return Immutable.fromJS(
     await Promise.all(
       productPriceIdsWithoutDuplicate
-        .map(async productPriceId => addProductPriceToShoppingList(productPriceId, user.id, acl, sessionToken))
+        .map(async productPriceId => addProductPriceToShoppingList(productPriceId, user.id, shoppingListId, acl, sessionToken))
         .toArray(),
     ),
   );

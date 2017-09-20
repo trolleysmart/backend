@@ -120,7 +120,7 @@ const ShoppingListItemConnectionDefinition = connectionDefinitions({
   nodeType: ShoppingListItemType,
 });
 
-const getShoppingListItemsMatchCriteria = async (searchArgs, userId, sessionToken) => {
+const getShoppingListItemsMatchCriteria = async (searchArgs, shoppingListId, sessionToken) => {
   let shoppingListItems = List();
   const criteria = Map({
     include_productPrice: true,
@@ -128,7 +128,9 @@ const getShoppingListItemsMatchCriteria = async (searchArgs, userId, sessionToke
     include_store: true,
     include_tags: true,
     conditions: Map({
-      addedByUserId: userId,
+      shoppingListId,
+      addedByUserId: searchArgs.get('addedByUserId') ? searchArgs.get('addedByUserId') : undefined,
+      removedByUserId: searchArgs.get('removedByUserId') ? searchArgs.get('removedByUserId') : undefined,
       contains_names: convertStringArgumentToSet(searchArgs.get('name')),
       doesNotExist_removedByUser: true,
       tagIds: searchArgs.get('tagIds') ? searchArgs.get('tagIds') : undefined,
@@ -151,7 +153,7 @@ const getShoppingListItemsMatchCriteria = async (searchArgs, userId, sessionToke
   return shoppingListItems;
 };
 
-export const getShoppingListItems = async (searchArgs, userId, sessionToken) => {
+export const getShoppingListItems = async (searchArgs, shoppingListId, sessionToken) => {
   const finalSearchArgs = searchArgs
     .merge(
       searchArgs.has('storeKeys') && searchArgs.get('storeKeys')
@@ -163,7 +165,7 @@ export const getShoppingListItems = async (searchArgs, userId, sessionToken) => 
         ? Map({ tagIds: Immutable.fromJS(await tagLoaderByKey.loadMany(searchArgs.get('tagKeys').toJS())).map(tag => tag.get('id')) })
         : Map(),
     );
-  const shoppingListItems = await getShoppingListItemsMatchCriteria(finalSearchArgs, userId, sessionToken);
+  const shoppingListItems = await getShoppingListItemsMatchCriteria(finalSearchArgs, shoppingListId, sessionToken);
   const stapleItems = shoppingListItems.filter(item => item.get('stapleItem')).groupBy(item => item.get('stapleItemId'));
   const productPrices = shoppingListItems.filter(item => item.get('productPrice')).groupBy(item => item.get('productPriceId'));
   const allShoppingListItems = stapleItems

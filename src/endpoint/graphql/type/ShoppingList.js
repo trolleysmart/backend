@@ -1,11 +1,12 @@
 // @flow
 
-import { Map, Range } from 'immutable';
-import { GraphQLID, GraphQLObjectType, GraphQLString, GraphQLNonNull } from 'graphql';
-import { connectionDefinitions } from 'graphql-relay';
+import Immutable, { Map, Range } from 'immutable';
+import { GraphQLID, GraphQLList, GraphQLObjectType, GraphQLString, GraphQLNonNull } from 'graphql';
+import { connectionArgs, connectionDefinitions } from 'graphql-relay';
 import { ShoppingListService } from 'trolley-smart-parse-server-common';
 import { getLimitAndSkipValue, convertStringArgumentToSet } from './Common';
 import { NodeInterface } from '../interface';
+import ShoppingListItem, { getShoppingListItems } from './ShoppingListItem';
 
 const ShoppingListType = new GraphQLObjectType({
   name: 'ShoppingList',
@@ -17,6 +18,28 @@ const ShoppingListType = new GraphQLObjectType({
     name: {
       type: GraphQLString,
       resolve: _ => _.get('name'),
+    },
+    shoppingListItems: {
+      type: ShoppingListItem.ShoppingListItemConnectionDefinition.connectionType,
+      args: {
+        ...connectionArgs,
+        name: {
+          type: GraphQLString,
+        },
+        addedByUserId: {
+          type: GraphQLID,
+        },
+        removedByUserId: {
+          type: GraphQLID,
+        },
+        tagKeys: {
+          type: new GraphQLList(GraphQLString),
+        },
+        storeKeys: {
+          type: new GraphQLList(GraphQLString),
+        },
+      },
+      resolve: async (_, args, request) => getShoppingListItems(Immutable.fromJS(args), _.get('id'), request.headers.authorization),
     },
   },
   interfaces: [NodeInterface],
@@ -52,8 +75,8 @@ const getShoppingListMatchCriteria = async (searchArgs, userId, sessionToken, li
 export const getShoppingLists = async (searchArgs, userId, sessionToken) => {
   const count = await getShoppingListCountMatchCriteria(searchArgs, userId, sessionToken);
   const { limit, skip, hasNextPage, hasPreviousPage } = getLimitAndSkipValue(searchArgs, count, 10, 1000);
-  const stapleItems = await getShoppingListMatchCriteria(searchArgs, userId, sessionToken, limit, skip);
-  const indexedShoppingLists = stapleItems.zip(Range(skip, skip + limit));
+  const shoppingLists = await getShoppingListMatchCriteria(searchArgs, userId, sessionToken, limit, skip);
+  const indexedShoppingLists = shoppingLists.zip(Range(skip, skip + limit));
   const edges = indexedShoppingLists.map(indexedItem => ({
     node: indexedItem[0],
     cursor: indexedItem[1] + 1,
