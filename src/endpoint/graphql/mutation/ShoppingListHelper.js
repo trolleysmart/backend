@@ -21,7 +21,7 @@ export const removeItemsFromShoppingList = async (shoppingListItemIds, userId, s
 
   const shoppingListItems = Immutable.fromJS(
     await Promise.all(shoppingListItemIds.map(id => getShoppingListItemById(id, sessionToken)).toArray()),
-  ).filter(shoppingListItem => shoppingListItem.get('id').localeCompare(shoppingListId) === 0);
+  ).filter(shoppingListItem => shoppingListItem.get('shoppingListId').localeCompare(shoppingListId) === 0);
   const productPriceIds = shoppingListItems
     .filter(_ => _.get('productPriceId'))
     .map(_ => _.get('productPriceId'))
