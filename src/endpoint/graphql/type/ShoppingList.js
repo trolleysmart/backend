@@ -21,7 +21,7 @@ const ShoppingListType = new GraphQLObjectType({
     },
     totalItemsCount: {
       type: GraphQLInt,
-      resolve: _ => 0,
+      resolve: async (_, args, request) => (await getShoppingListItems(Map({ first: 1000 }), _.get('id'), request.headers.authorization)).count(),
     },
     shoppingListItems: {
       type: ShoppingListItem.ShoppingListItemConnectionDefinition.connectionType,
@@ -31,9 +31,6 @@ const ShoppingListType = new GraphQLObjectType({
           type: GraphQLString,
         },
         addedByUserId: {
-          type: GraphQLID,
-        },
-        removedByUserId: {
           type: GraphQLID,
         },
         tagKeys: {

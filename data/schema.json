@@ -238,6 +238,16 @@
                   "defaultValue": null
                 },
                 {
+                  "name": "addedByUserId",
+                  "description": null,
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "ID",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
                   "name": "tagKeys",
                   "description": null,
                   "type": {
@@ -852,16 +862,6 @@
                 },
                 {
                   "name": "addedByUserId",
-                  "description": null,
-                  "type": {
-                    "kind": "SCALAR",
-                    "name": "ID",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                },
-                {
-                  "name": "removedByUserId",
                   "description": null,
                   "type": {
                     "kind": "SCALAR",

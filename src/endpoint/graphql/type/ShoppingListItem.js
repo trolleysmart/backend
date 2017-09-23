@@ -130,7 +130,6 @@ const getShoppingListItemsMatchCriteria = async (searchArgs, shoppingListId, ses
     conditions: Map({
       shoppingListId,
       addedByUserId: searchArgs.get('addedByUserId') ? searchArgs.get('addedByUserId') : undefined,
-      removedByUserId: searchArgs.get('removedByUserId') ? searchArgs.get('removedByUserId') : undefined,
       contains_names: convertStringArgumentToSet(searchArgs.get('name')),
       doesNotExist_removedByUser: true,
       tagIds: searchArgs.get('tagIds') ? searchArgs.get('tagIds') : undefined,

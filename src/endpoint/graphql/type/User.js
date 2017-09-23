@@ -39,6 +39,9 @@ export default new GraphQLObjectType({
         name: {
           type: GraphQLString,
         },
+        addedByUserId: {
+          type: GraphQLID,
+        },
         tagKeys: {
           type: new GraphQLList(GraphQLString),
         },
