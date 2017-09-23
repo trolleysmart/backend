@@ -151,7 +151,7 @@ type RemoveShoppingListPayload {
 type ShoppingList implements Node {
   id: ID!
   name: String
-  itemCount: Int
+  totalItemsCount: Int
   shoppingListItems(after: String, first: Int, before: String, last: Int, name: String, addedByUserId: ID, removedByUserId: ID, tagKeys: [String], storeKeys: [String]): ShoppingListItemConnection
 }
 

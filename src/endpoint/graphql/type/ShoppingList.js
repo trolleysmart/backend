@@ -19,7 +19,7 @@ const ShoppingListType = new GraphQLObjectType({
       type: GraphQLString,
       resolve: _ => _.get('name'),
     },
-    itemCount: {
+    totalItemsCount: {
       type: GraphQLInt,
       resolve: _ => 0,
     },

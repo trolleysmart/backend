@@ -785,7 +785,7 @@
               "deprecationReason": null
             },
             {
-              "name": "itemCount",
+              "name": "totalItemsCount",
               "description": null,
               "args": [],
               "type": {
