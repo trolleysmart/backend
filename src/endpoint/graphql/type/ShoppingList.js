@@ -1,7 +1,7 @@
 // @flow
 
 import Immutable, { Map, Range } from 'immutable';
-import { GraphQLID, GraphQLList, GraphQLObjectType, GraphQLString, GraphQLNonNull } from 'graphql';
+import { GraphQLID, GraphQLInt, GraphQLList, GraphQLObjectType, GraphQLString, GraphQLNonNull } from 'graphql';
 import { connectionArgs, connectionDefinitions } from 'graphql-relay';
 import { ShoppingListService } from 'trolley-smart-parse-server-common';
 import { getLimitAndSkipValue, convertStringArgumentToSet } from './Common';
@@ -18,6 +18,10 @@ const ShoppingListType = new GraphQLObjectType({
     name: {
       type: GraphQLString,
       resolve: _ => _.get('name'),
+    },
+    itemCount: {
+      type: GraphQLInt,
+      resolve: _ => 0,
     },
     shoppingListItems: {
       type: ShoppingListItem.ShoppingListItemConnectionDefinition.connectionType,
