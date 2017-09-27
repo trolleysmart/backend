@@ -1,9 +1,12 @@
 // @flow
 
 import express from 'express';
+import GraphQLHTTP from 'express-graphql';
 import path from 'path';
 import parseServerBackend from 'micro-business-parse-server-backend';
-import setupEndPoint from './endpoint';
+import { graphql } from 'graphql';
+import { introspectionQuery } from 'graphql/utilities';
+import { getRootSchema } from 'trolley-smart-backend-graphql';
 
 const parseServerBackendInfo = parseServerBackend({
   serverHost: process.env.HOST,
@@ -32,7 +35,24 @@ if (parseServerBackendInfo.has('parseDashboard') && parseServerBackendInfo.get('
   expressServer.use('/dashboard', parseServerBackendInfo.get('parseDashboard'));
 }
 
-setupEndPoint(expressServer);
+const schema = getRootSchema();
+
+expressServer.use(
+  '/graphql',
+  GraphQLHTTP({
+    schema,
+    graphiql: true,
+  }),
+);
+
+expressServer.get('/graphql-schema', (request, response) => {
+  graphql(schema, introspectionQuery)
+    .then((json) => {
+      response.setHeader('Content-Type', 'application/json');
+      response.send(JSON.stringify(json, null, 2));
+    })
+    .catch(error => response.status(500).send(error));
+});
 
 process.on('SIGINT', () => process.exit());
 
