@@ -6,8 +6,7 @@
   "scripts": {
     "start": "babel-node src/index.js",
     "start:watch": "nodemon --exec npm start",
-    "build": "babel src --out-dir dist && npm run generate-graphql-schema",
-    "generate-graphql-schema": "babel-node scripts/GenerateGraphqlSchema.js",
+    "build": "babel src --out-dir dist",
     "lint": "eslint --ext .jsx --ext .js src",
     "fixlint": "eslint --fix --ext .jsx --ext .js src",
     "test": "jest",
