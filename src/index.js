@@ -1,10 +1,11 @@
 // @flow
 
+import express from 'express';
 import path from 'path';
-import backend from 'micro-business-parse-server-backend';
+import parseServerBackend from 'micro-business-parse-server-backend';
 import setupEndPoint from './endpoint';
 
-const backendInfo = backend({
+const parseServerBackendInfo = parseServerBackend({
   serverHost: process.env.HOST,
   serverPort: process.env.PORT,
   parseServerApplicationId: process.env.PARSE_SERVER_APPLICATION_ID,
@@ -23,11 +24,19 @@ const backendInfo = backend({
   parseServerAllowClientClassCreation: process.env.PARSE_SERVER_ALLOW_CLIENT_CLASS_CREATION,
 });
 
-setupEndPoint(backendInfo.get('server'));
+const expressServer = express();
+
+expressServer.use('/parse', parseServerBackendInfo.get('parseServer'));
+
+if (parseServerBackendInfo.has('parseDashboard') && parseServerBackendInfo.get('parseDashboard')) {
+  expressServer.use('/dashboard', parseServerBackendInfo.get('parseDashboard'));
+}
+
+setupEndPoint(expressServer);
 
 process.on('SIGINT', () => process.exit());
 
-backendInfo.get('server').listen(backendInfo.get('serverPort'), () => {
+expressServer.listen(parseServerBackendInfo.getIn(['config', 'serverPort']), () => {
   console.log('TrolleySmart backend started.');
-  console.log(JSON.stringify(backendInfo.toJS(), null, 2));
+  console.log(JSON.stringify(parseServerBackendInfo.get('config').toJS(), null, 2));
 });
