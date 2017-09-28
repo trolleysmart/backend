@@ -1,8 +1,6 @@
 // @flow
 
-import { Map } from 'immutable';
-import { ParseWrapperService } from 'micro-business-parse-server-common';
-import { StapleItemService, StapleTemplateItemService } from 'trolley-smart-parse-server-common';
+import { StapleTemplateItemService } from 'trolley-smart-parse-server-common';
 
 Parse.Cloud.afterSave('_User', async (request) => {
   if (request.object.createdAt !== request.object.updatedAt) {
@@ -16,17 +14,7 @@ Parse.Cloud.afterSave('_User', async (request) => {
   try {
     log.info(`Cloning staple template shopping list for user: ${userId}...`);
 
-    const acl = ParseWrapperService.createACL(user);
-    const stapleTemplateItems = await new StapleTemplateItemService().search(Map({ limit: 1000 }));
-    const stapleItemService = new StapleItemService();
-
-    await Promise.all(
-      stapleTemplateItems
-        .map(stapleTemplateItem =>
-          stapleItemService.create(stapleTemplateItem.merge({ userId, stapleTemplateItemId: stapleTemplateItem.get('id') }), acl),
-        )
-        .toArray(),
-    );
+    await new StapleTemplateItemService().cloneStapleTemplateItems(user);
 
     log.info(`Successfully cloned staple template shopping list for user: ${userId}`);
   } catch (ex) {
