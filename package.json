@@ -1,8 +1,8 @@
 {
   "name": "trolley-smart-backend",
-  "version": "1.0.0-alpha.16",
+  "version": "1.0.0-alpha.17",
   "description": "Trolley Smart Backend",
-  "main": "src/index.js",
+  "main": "dist/index.js",
   "scripts": {
     "start": "babel-node src/index.js",
     "start:watch": "nodemon --exec npm start",
@@ -30,7 +30,7 @@
     "immutable": "^3.8.1",
     "micro-business-parse-server-backend": "^1.0.0-alpha.4",
     "micro-business-parse-server-common": "^1.0.2-alpha.29",
-    "trolley-smart-backend-graphql": "^1.0.0-alpha.2",
+    "trolley-smart-backend-graphql": "^1.0.0-alpha.3",
     "trolley-smart-parse-server-common": "^1.0.0-alpha.20"
   },
   "devDependencies": {
