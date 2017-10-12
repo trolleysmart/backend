@@ -7,7 +7,7 @@ Parse.Cloud.afterSave('_User', async (request) => {
     return;
   }
 
-  const log = request.log;
+  const { log } = request;
   const user = request.object;
   const userId = user.id;
 
