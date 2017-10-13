@@ -30,8 +30,8 @@
     "immutable": "^4.0.0-rc.4",
     "micro-business-parse-server-backend": "^1.0.0-alpha.5",
     "micro-business-parse-server-common": "^1.0.2-alpha.31",
-    "trolley-smart-backend-graphql": "^1.0.0-alpha.18",
-    "trolley-smart-parse-server-common": "^1.0.0-alpha.24"
+    "trolley-smart-backend-graphql": "^1.0.0-alpha.19",
+    "trolley-smart-parse-server-common": "^1.0.0-alpha.25"
   },
   "devDependencies": {
     "babel-eslint": "^8.0.1",
