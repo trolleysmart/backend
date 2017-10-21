@@ -7,7 +7,15 @@ import path from 'path';
 import parseServerBackend from 'micro-business-parse-server-backend';
 import { graphql } from 'graphql';
 import { introspectionQuery } from 'graphql/utilities';
-import { createConfigLoader, createUserLoaderBySessionToken, getRootSchema } from 'trolley-smart-backend-graphql';
+import {
+  createConfigLoader,
+  createUserLoaderBySessionToken,
+  getRootSchema,
+  storeLoaderById,
+  storeLoaderByKey,
+  tagLoaderByKey,
+  tagLoaderById,
+} from 'trolley-smart-backend-graphql';
 
 const parseServerBackendInfo = parseServerBackend({
   serverHost: process.env.HOST,
@@ -45,7 +53,17 @@ expressServer.use('/graphql', (request, response) => {
   return GraphQLHTTP({
     schema,
     graphiql: true,
-    context: { request, dataLoaders: Map({ configLoader, userLoaderBySessionToken }) },
+    context: {
+      request,
+      dataLoaders: Map({
+        configLoader,
+        userLoaderBySessionToken,
+        storeLoaderById,
+        storeLoaderByKey,
+        tagLoaderByKey,
+        tagLoaderById,
+      }),
+    },
   })(request, response);
 });
 
