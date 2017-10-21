@@ -1,12 +1,13 @@
 // @flow
 
+import { Map } from 'immutable';
 import express from 'express';
 import GraphQLHTTP from 'express-graphql';
 import path from 'path';
 import parseServerBackend from 'micro-business-parse-server-backend';
 import { graphql } from 'graphql';
 import { introspectionQuery } from 'graphql/utilities';
-import { getRootSchema } from 'trolley-smart-backend-graphql';
+import { createConfigLoader, createUserLoaderBySessionToken, getRootSchema } from 'trolley-smart-backend-graphql';
 
 const parseServerBackendInfo = parseServerBackend({
   serverHost: process.env.HOST,
@@ -37,13 +38,16 @@ if (parseServerBackendInfo.has('parseDashboard') && parseServerBackendInfo.get('
 
 const schema = getRootSchema();
 
-expressServer.use(
-  '/graphql',
-  GraphQLHTTP({
+expressServer.use('/graphql', (request, response) => {
+  const configLoader = createConfigLoader();
+  const userLoaderBySessionToken = createUserLoaderBySessionToken();
+
+  return GraphQLHTTP({
     schema,
     graphiql: true,
-  }),
-);
+    context: { request, dataLoaders: Map({ configLoader, userLoaderBySessionToken }) },
+  })(request, response);
+});
 
 expressServer.get('/graphql-schema', (request, response) => {
   graphql(schema, introspectionQuery)
