@@ -1,6 +1,5 @@
 // @flow
 
-import { Map } from 'immutable';
 import express from 'express';
 import GraphQLHTTP from 'express-graphql';
 import path from 'path';
@@ -55,14 +54,15 @@ expressServer.use('/graphql', (request, response) => {
     graphiql: true,
     context: {
       request,
-      dataLoaders: Map({
+      sessionToken: request.headers.authorization,
+      dataLoaders: {
         configLoader,
         userLoaderBySessionToken,
         storeLoaderById,
         storeLoaderByKey,
         tagLoaderByKey,
         tagLoaderById,
-      }),
+      },
     },
   })(request, response);
 });
