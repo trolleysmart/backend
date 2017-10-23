@@ -30,7 +30,7 @@
     "immutable": "^4.0.0-rc.9",
     "micro-business-parse-server-backend": "^1.0.0-alpha.6",
     "micro-business-parse-server-common": "^1.0.2-alpha.33",
-    "trolley-smart-backend-graphql": "^1.0.0-alpha.48",
+    "trolley-smart-backend-graphql": "^1.0.0-alpha.50",
     "trolley-smart-parse-server-common": "^1.0.0-alpha.31"
   },
   "devDependencies": {

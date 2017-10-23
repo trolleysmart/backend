@@ -9,6 +9,7 @@ import { introspectionQuery } from 'graphql/utilities';
 import {
   createConfigLoader,
   createUserLoaderBySessionToken,
+  createUserDefaultShoppingListLoader,
   getRootSchema,
   storeLoaderById,
   storeLoaderByKey,
@@ -48,6 +49,7 @@ const schema = getRootSchema();
 expressServer.use('/graphql', (request, response) => {
   const configLoader = createConfigLoader();
   const userLoaderBySessionToken = createUserLoaderBySessionToken();
+  const userDefaultShoppingListLoader = createUserDefaultShoppingListLoader();
 
   return GraphQLHTTP({
     schema,
@@ -58,6 +60,7 @@ expressServer.use('/graphql', (request, response) => {
       dataLoaders: {
         configLoader,
         userLoaderBySessionToken,
+        userDefaultShoppingListLoader,
         storeLoaderById,
         storeLoaderByKey,
         tagLoaderByKey,
