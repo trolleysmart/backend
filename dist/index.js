@@ -1,7 +1,5 @@
 'use strict';
 
-var _immutable = require('immutable');
-
 var _express = require('express');
 
 var _express2 = _interopRequireDefault(_express);
@@ -58,20 +56,23 @@ var schema = (0, _trolleySmartBackendGraphql.getRootSchema)();
 expressServer.use('/graphql', function (request, response) {
   var configLoader = (0, _trolleySmartBackendGraphql.createConfigLoader)();
   var userLoaderBySessionToken = (0, _trolleySmartBackendGraphql.createUserLoaderBySessionToken)();
+  var userDefaultShoppingListLoader = (0, _trolleySmartBackendGraphql.createUserDefaultShoppingListLoader)();
 
   return (0, _expressGraphql2.default)({
     schema: schema,
     graphiql: true,
     context: {
       request: request,
-      dataLoaders: (0, _immutable.Map)({
+      sessionToken: request.headers.authorization,
+      dataLoaders: {
         configLoader: configLoader,
         userLoaderBySessionToken: userLoaderBySessionToken,
+        userDefaultShoppingListLoader: userDefaultShoppingListLoader,
         storeLoaderById: _trolleySmartBackendGraphql.storeLoaderById,
         storeLoaderByKey: _trolleySmartBackendGraphql.storeLoaderByKey,
         tagLoaderByKey: _trolleySmartBackendGraphql.tagLoaderByKey,
         tagLoaderById: _trolleySmartBackendGraphql.tagLoaderById
-      })
+      }
     }
   })(request, response);
 });
