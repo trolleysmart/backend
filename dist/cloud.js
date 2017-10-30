@@ -2,6 +2,8 @@
 
 var _trolleySmartParseServerCommon = require('trolley-smart-parse-server-common');
 
+var _trolleySmartBackendGraphql = require('trolley-smart-backend-graphql');
+
 function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
 
 Parse.Cloud.afterSave('_User', function () {
@@ -55,3 +57,35 @@ Parse.Cloud.afterSave('_User', function () {
     return _ref.apply(this, arguments);
   };
 }());
+
+Parse.Cloud.afterSave('Store', _asyncToGenerator(regeneratorRuntime.mark(function _callee2() {
+  return regeneratorRuntime.wrap(function _callee2$(_context2) {
+    while (1) {
+      switch (_context2.prev = _context2.next) {
+        case 0:
+          _trolleySmartBackendGraphql.storeLoaderByKey.clearAll();
+          _trolleySmartBackendGraphql.storeLoaderById.clearAll();
+
+        case 2:
+        case 'end':
+          return _context2.stop();
+      }
+    }
+  }, _callee2, undefined);
+})));
+
+Parse.Cloud.afterSave('Tag', _asyncToGenerator(regeneratorRuntime.mark(function _callee3() {
+  return regeneratorRuntime.wrap(function _callee3$(_context3) {
+    while (1) {
+      switch (_context3.prev = _context3.next) {
+        case 0:
+          _trolleySmartBackendGraphql.tagLoaderByKey.clearAll();
+          _trolleySmartBackendGraphql.tagLoaderById.clearAll();
+
+        case 2:
+        case 'end':
+          return _context3.stop();
+      }
+    }
+  }, _callee3, undefined);
+})));
