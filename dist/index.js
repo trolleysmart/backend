@@ -8,6 +8,10 @@ var _expressGraphql = require('express-graphql');
 
 var _expressGraphql2 = _interopRequireDefault(_expressGraphql);
 
+var _cors = require('cors');
+
+var _cors2 = _interopRequireDefault(_cors);
+
 var _path = require('path');
 
 var _path2 = _interopRequireDefault(_path);
@@ -54,6 +58,7 @@ if (parseServerBackendInfo.has('parseDashboard') && parseServerBackendInfo.get('
 
 var schema = (0, _trolleySmartBackendGraphql.getRootSchema)();
 
+expressServer.use((0, _cors2.default)());
 expressServer.use('/graphql', function (request, response) {
   var configLoader = (0, _trolleySmartBackendGraphql.createConfigLoader)();
   var userLoaderBySessionToken = (0, _trolleySmartBackendGraphql.createUserLoaderBySessionToken)();

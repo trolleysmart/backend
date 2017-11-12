@@ -2,6 +2,7 @@
 
 import express from 'express';
 import GraphQLHTTP from 'express-graphql';
+import cors from 'cors';
 import path from 'path';
 import parseServerBackend from 'micro-business-parse-server-backend';
 import { graphql } from 'graphql';
@@ -47,6 +48,7 @@ if (parseServerBackendInfo.has('parseDashboard') && parseServerBackendInfo.get('
 
 const schema = getRootSchema();
 
+expressServer.use(cors())
 expressServer.use('/graphql', (request, response) => {
   const configLoader = createConfigLoader();
   const userLoaderBySessionToken = createUserLoaderBySessionToken();
