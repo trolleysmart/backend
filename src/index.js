@@ -48,7 +48,7 @@ if (parseServerBackendInfo.has('parseDashboard') && parseServerBackendInfo.get('
 
 const schema = getRootSchema();
 
-expressServer.use(cors())
+expressServer.use(cors());
 expressServer.use('/graphql', (request, response) => {
   const configLoader = createConfigLoader();
   const userLoaderBySessionToken = createUserLoaderBySessionToken();
