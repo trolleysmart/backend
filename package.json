@@ -1,6 +1,6 @@
 {
   "name": "trolley-smart-backend",
-  "version": "1.0.0-alpha.61",
+  "version": "1.0.0-alpha.62",
   "description": "Trolley Smart Backend",
   "main": "dist/index.js",
   "scripts": {
@@ -29,7 +29,7 @@
     "immutable": "^4.0.0-rc.9",
     "micro-business-parse-server-backend": "^1.0.0-alpha.12",
     "micro-business-parse-server-common": "^1.0.2-alpha.38",
-    "trolley-smart-backend-graphql": "^1.0.0-alpha.60",
+    "trolley-smart-backend-graphql": "^1.0.0-alpha.61",
     "trolley-smart-parse-server-common": "^1.0.0-alpha.45"
   },
   "devDependencies": {
