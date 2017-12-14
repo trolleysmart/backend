@@ -7,9 +7,8 @@ import path from 'path';
 import parseServerBackend from 'micro-business-parse-server-backend';
 import { graphql } from 'graphql';
 import { introspectionQuery } from 'graphql/utilities';
+import { createConfigLoader, createUserLoaderBySessionToken } from 'micro-business-parse-server-common';
 import {
-  createConfigLoader,
-  createUserLoaderBySessionToken,
   createUserDefaultShoppingListLoader,
   getRootSchema,
   storeLoaderById,

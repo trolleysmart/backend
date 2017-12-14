@@ -24,6 +24,8 @@ var _graphql = require('graphql');
 
 var _utilities = require('graphql/utilities');
 
+var _microBusinessParseServerCommon = require('micro-business-parse-server-common');
+
 var _trolleySmartBackendGraphql = require('trolley-smart-backend-graphql');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -60,8 +62,8 @@ var schema = (0, _trolleySmartBackendGraphql.getRootSchema)();
 
 expressServer.use((0, _cors2.default)());
 expressServer.use('/graphql', function (request, response) {
-  var configLoader = (0, _trolleySmartBackendGraphql.createConfigLoader)();
-  var userLoaderBySessionToken = (0, _trolleySmartBackendGraphql.createUserLoaderBySessionToken)();
+  var configLoader = (0, _microBusinessParseServerCommon.createConfigLoader)();
+  var userLoaderBySessionToken = (0, _microBusinessParseServerCommon.createUserLoaderBySessionToken)();
   var userDefaultShoppingListLoader = (0, _trolleySmartBackendGraphql.createUserDefaultShoppingListLoader)();
 
   return (0, _expressGraphql2.default)({
