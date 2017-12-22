@@ -1,7 +1,7 @@
 // @flow
 
-import { StapleTemplateItemService } from 'trolley-smart-parse-server-common';
-import { storeLoaderById, storeLoaderByKey, tagLoaderByKey, tagLoaderById } from 'trolley-smart-backend-graphql';
+import { StapleTemplateItemService } from '@trolleysmart/parse-server-common';
+import { storeLoaderById, storeLoaderByKey, tagLoaderByKey, tagLoaderById } from '@trolleysmart/backend-graphql';
 
 Parse.Cloud.afterSave('_User', async (request) => {
   if (request.object.createdAt !== request.object.updatedAt) {
