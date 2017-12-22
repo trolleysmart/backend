@@ -1,6 +1,6 @@
 {
   "name": "@trolleysmart/backend",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "description": "Trolley Smart Backend",
   "main": "dist/index.js",
   "scripts": {
@@ -19,7 +19,7 @@
   "dependencies": {
     "@microbusiness/parse-server-backend": "^1.1.1",
     "@microbusiness/parse-server-common": "^1.1.7",
-    "@trolleysmart/backend-graphql": "^1.1.9",
+    "@trolleysmart/backend-graphql": "^1.1.10",
     "@trolleysmart/parse-server-common": "^1.1.5",
     "babel-cli": "^6.26.0",
     "babel-preset-es2015": "^6.24.1",
@@ -28,7 +28,7 @@
     "cors": "^2.8.4",
     "express": "^4.16.2",
     "express-graphql": "^0.6.11",
-    "graphql": "0.11.7",
+    "graphql": "0.12.3",
     "immutable": "^4.0.0-rc.9"
   },
   "devDependencies": {
@@ -40,9 +40,9 @@
     "eslint-plugin-react": "^7.5.1",
     "flow-bin": "^0.61.0",
     "husky": "^0.14.3",
-    "jest": "^21.2.1",
+    "jest": "^22.0.4",
     "lint-staged": "^6.0.0",
-    "nodemon": "^1.13.3",
+    "nodemon": "^1.14.2",
     "prettier": "^1.9.2",
     "uuid": "^3.1.0"
   },
